@@ -1,0 +1,111 @@
+# =========================
+
+# .NET / Build Output
+
+# =========================
+
+bin/
+obj/
+Debug/
+Release/
+
+# =========================
+
+# Visual Studio
+
+# =========================
+
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =========================
+
+# VS Code
+
+# =========================
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# =========================
+
+# NuGet
+
+# =========================
+
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# =========================
+
+# Logs
+
+# =========================
+
+*.log
+logs/
+
+# =========================
+
+# ASP.NET Core
+
+# =========================
+
+wwwroot/lib/
+
+# =========================
+
+# Local Databases
+
+# =========================
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# =========================
+
+# Environment / Secrets
+
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# User-specific app settings
+
+appsettings.Local.json
+appsettings.Development.local.json
+
+# =========================
+
+# OS Files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+
+# Temporary Files
+
+# =========================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
