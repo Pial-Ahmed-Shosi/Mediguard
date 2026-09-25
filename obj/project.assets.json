@@ -2207,23 +2207,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Abdullah\\.nuget\\packages\\": {},
+    "C:\\Users\\Pial Ahmed Shosi\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Abdullah\\source\\repos\\Mediguard\\MediGuard.csproj",
+      "projectUniqueName": "C:\\Users\\Pial Ahmed Shosi\\Desktop\\AppMedi\\MediGuard.csproj",
       "projectName": "MediGuard",
-      "projectPath": "C:\\Users\\Abdullah\\source\\repos\\Mediguard\\MediGuard.csproj",
-      "packagesPath": "C:\\Users\\Abdullah\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Abdullah\\source\\repos\\Mediguard\\obj\\",
+      "projectPath": "C:\\Users\\Pial Ahmed Shosi\\Desktop\\AppMedi\\MediGuard.csproj",
+      "packagesPath": "C:\\Users\\Pial Ahmed Shosi\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Pial Ahmed Shosi\\Desktop\\AppMedi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Abdullah\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Pial Ahmed Shosi\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
