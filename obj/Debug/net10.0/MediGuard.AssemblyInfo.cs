@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MediGuard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b320bd54049e10e9da1b2754f54bd617a5037541")]
 [assembly: System.Reflection.AssemblyProductAttribute("MediGuard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MediGuard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
