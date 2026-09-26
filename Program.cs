@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MediGuard.Data;
@@ -10,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Add MVC View Engine Services
 builder.Services.AddControllersWithViews();
 
-// 2. Add Memory Cache Service (Required for UserDashboard ViewComponent Caching)
+// 2. Add Memory Cache Service (Required for UserDashboard ViewComponent)
 builder.Services.AddMemoryCache();
 
 // 3. Fetch Connection String from appsettings.json
@@ -34,6 +35,20 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // 6. Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// 7. Configure Cookie Authentication
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "MediGuard.AuthCookie";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
 
 var app = builder.Build();
 

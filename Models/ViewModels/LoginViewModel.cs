@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MediGuardApp.Models.ViewModels
+namespace MediGuard.Models.ViewModels
 {
     public class LoginViewModel
     {
@@ -14,7 +14,6 @@ namespace MediGuardApp.Models.ViewModels
 
         public bool RememberMe { get; set; }
 
-        // Used to enforce client/server domain rules before DB lookup
         public string Role { get; set; } = "Regular User";
     }
 }
