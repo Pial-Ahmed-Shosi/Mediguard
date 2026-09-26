@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MediGuard.Data;
 using MediGuard.Models;
+using MediGuard.Services;
+using MediGuard.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Add MVC View Engine Services
 builder.Services.AddControllersWithViews();
 
-// 2. Add Memory Cache Service (Required for Ticket 6 ViewComponent Caching)
+// 2. Add Memory Cache Service (Required for UserDashboard ViewComponent Caching)
 builder.Services.AddMemoryCache();
 
 // 3. Fetch Connection String from appsettings.json
@@ -30,6 +32,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// 6. Register Application Services (Dependency Injection)
+builder.Services.AddScoped<IUserService, UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -47,6 +52,9 @@ app.UseRouting();
 // Enable Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Enable Custom Security / Tenant & RBAC Middleware
+app.UseMiddleware<TenantRbacMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
