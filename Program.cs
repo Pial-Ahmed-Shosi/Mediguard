@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Services;
+using MediGuard.Middlewares; // 1. ADD THIS USING STATEMENT
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ app.UseRouting();
 // Enable Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// 2. ADD THIS LINE RIGHT AFTER UseAuthorization()
+app.UseMiddleware<TenantRbacMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
