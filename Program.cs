@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MediGuard.Data;
@@ -30,6 +31,20 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // 5. Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// 6. Configure Cookie Authentication
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "MediGuard.AuthCookie";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
 
 var app = builder.Build();
 
@@ -42,6 +57,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 // Enable Authentication & Authorization
