@@ -1,0 +1,382 @@
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\appsettings.Development.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\appsettings.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.staticwebassets.runtime.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.staticwebassets.endpoints.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.exe
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.deps.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.runtimeconfig.json
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\MediGuard.pdb
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Humanizer.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.Build.Framework.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Microsoft.VisualStudio.SolutionPersistence.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Mono.TextTemplating.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Newtonsoft.Json.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Npgsql.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.CodeDom.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.Composition.AttributedModel.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.Composition.Convention.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.Composition.Hosting.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.Composition.Runtime.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\System.Composition.TypedParts.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.csproj.AssemblyReference.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.AssemblyInfoInputs.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.AssemblyInfo.cs
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.csproj.CoreCompileInputs.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.RazorAssemblyInfo.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.RazorAssemblyInfo.cs
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.sourcelink.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\rjimswa.dswa.cache.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\scopedcss\bundle\MediGuard.styles.css
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\scopedcss\projectbundle\MediGuard.bundle.scp.css
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\uwye797bi4-{0}-b9sayid5wm-b9sayid5wm.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\f53bvy1dyj-{0}-61n19gt1b8-61n19gt1b8.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\9iwur1vbdi-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\hevr70sa6v-{0}-t1cqhe9u97-t1cqhe9u97.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\3jr45pjk48-{0}-c2jlpeoesf-c2jlpeoesf.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\nssuycb7lv-{0}-sejl45xvog-sejl45xvog.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\sg5385t0ac-{0}-aexeepp0ev-aexeepp0ev.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\8ol8shnqrf-{0}-xvp3kq03qx-xvp3kq03qx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\2e4uq013z5-{0}-ausgxo2sd3-ausgxo2sd3.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\hx45pf82qq-{0}-22vffe00uq-22vffe00uq.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\ccqxy0z2rm-{0}-cosvhxvwiu-cosvhxvwiu.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\vb3xb4fydr-{0}-qesaa3a1fm-qesaa3a1fm.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\goelxxywyj-{0}-fvhpjtyr6v-fvhpjtyr6v.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\9qxqgesmcd-{0}-tmc1g35s3z-tmc1g35s3z.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\52n85uucr0-{0}-fsbi9cje9m-fsbi9cje9m.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\cj1tfrh9zy-{0}-rxsg74s51o-rxsg74s51o.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\8rdriwrx0v-{0}-ee0r1s7dh0-ee0r1s7dh0.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\f6e2mr7mah-{0}-q9ht133ko3-q9ht133ko3.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\af1w2whdbc-{0}-jd9uben2k1-jd9uben2k1.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\mqk4kwcrt7-{0}-gye83jo8yx-gye83jo8yx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\ykx9ot8qun-{0}-r4e9w2rdcm-r4e9w2rdcm.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\7zeij5oxws-{0}-wl58j5mj3v-wl58j5mj3v.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\3q8n1qwie6-{0}-c2oey78nd0-c2oey78nd0.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\85vikg0tr6-{0}-d4r6k3f320-d4r6k3f320.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\q0p25623ze-{0}-j5mq2jizvt-j5mq2jizvt.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\genzoc25zr-{0}-keugtjm085-keugtjm085.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\7x1kp57gsy-{0}-nvvlpmu67g-nvvlpmu67g.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\p1ne283min-{0}-zub09dkrxp-zub09dkrxp.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\fimdhryrqz-{0}-pj5nd1wqec-pj5nd1wqec.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\1qlevwbsoq-{0}-43atpzeawx-43atpzeawx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\gbbmpetbk7-{0}-v0zj4ognzu-v0zj4ognzu.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\kk4bdk39al-{0}-ynyaa8k90p-ynyaa8k90p.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\vwa6gjergf-{0}-hrwsygsryq-hrwsygsryq.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\tkmnq8elii-{0}-c63t5i9ira-c63t5i9ira.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\hgoy0qmvbo-{0}-ft3s53vfgj-ft3s53vfgj.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\p1mc8bmw5k-{0}-4094rpi4f9-4094rpi4f9.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\6815xwf239-{0}-6pdc2jztkx-6pdc2jztkx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\asdefmur6q-{0}-hd3gran6i8-hd3gran6i8.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\i7ihlixjb6-{0}-iovd86k7lj-iovd86k7lj.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\7gdruexlve-{0}-ltid2c489k-ltid2c489k.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\mvyizqlqpx-{0}-kbrnm935zg-kbrnm935zg.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\wgxz2ium7b-{0}-8vyfqsqgz1-8vyfqsqgz1.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\73nffnmpg2-{0}-y7v9cxd14o-y7v9cxd14o.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\fanm2zxgbf-{0}-u9q1upor1n-u9q1upor1n.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\5meb1ydn49-{0}-h1s4sie4z3-h1s4sie4z3.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\l7kraea3af-{0}-4d85u1mtcx-4d85u1mtcx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\one5e412f0-{0}-0j3bgjxly4-0j3bgjxly4.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\q2wxz8msop-{0}-03hjc8e09r-03hjc8e09r.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\yjzaw22o30-{0}-48y08845bh-48y08845bh.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\1tx654nr4p-{0}-356vix0kms-356vix0kms.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\1r0zffhgvl-{0}-83jwlth58m-83jwlth58m.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\dwhbonpyja-{0}-mrlpezrjn3-mrlpezrjn3.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\cuei3338k2-{0}-worgj0nhwm-worgj0nhwm.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\n63nd6yz4g-{0}-gk0pw8i4co-gk0pw8i4co.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\9edliht1mi-{0}-x0q3zqp4vz-x0q3zqp4vz.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\l48av56utl-{0}-d6nrnj6jjx-d6nrnj6jjx.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\h1axhfp2fh-{0}-m9qm4tazc0-m9qm4tazc0.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\sq1gnc6p1i-{0}-ttgo8qnofa-ttgo8qnofa.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\hxgxb7l568-{0}-jjsuc0puko-jjsuc0puko.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\hr7skifp56-{0}-9vr69e8ynj-9vr69e8ynj.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\8isz5548rp-{0}-87fc7y1x7t-87fc7y1x7t.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\0kq1x7cay9-{0}-mlv21k5csn-mlv21k5csn.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\rr0ot2gczb-{0}-v2l3pgjef6-v2l3pgjef6.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\compressed\zp02x85ngb-{0}-v2l3pgjef6-v2l3pgjef6.gz
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\staticwebassets.build.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\staticwebassets.build.json.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\staticwebassets.development.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\staticwebassets.build.endpoints.json
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\swae.build.ex.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.csproj.Up2Date
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.dll
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\refint\MediGuard.dll
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.pdb
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\MediGuard.genruntimeconfig.cache
+C:\Users\Abdullah\source\repos\Mediguard\obj\Debug\net10.0\ref\MediGuard.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\appsettings.Development.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\appsettings.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.staticwebassets.runtime.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.staticwebassets.endpoints.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.exe
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.deps.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.runtimeconfig.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\MediGuard.pdb
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Humanizer.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.Build.Framework.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Microsoft.VisualStudio.SolutionPersistence.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Mono.TextTemplating.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Newtonsoft.Json.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Npgsql.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.CodeDom.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.Composition.AttributedModel.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.Composition.Convention.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.Composition.Hosting.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.Composition.Runtime.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\System.Composition.TypedParts.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.csproj.AssemblyReference.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.AssemblyInfoInputs.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.AssemblyInfo.cs
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.csproj.CoreCompileInputs.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.RazorAssemblyInfo.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.RazorAssemblyInfo.cs
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.sourcelink.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\rjimswa.dswa.cache.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\scopedcss\bundle\MediGuard.styles.css
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\scopedcss\projectbundle\MediGuard.bundle.scp.css
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\uwye797bi4-{0}-b9sayid5wm-b9sayid5wm.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\f53bvy1dyj-{0}-61n19gt1b8-61n19gt1b8.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\9iwur1vbdi-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hevr70sa6v-{0}-t1cqhe9u97-t1cqhe9u97.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\3jr45pjk48-{0}-c2jlpeoesf-c2jlpeoesf.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\nssuycb7lv-{0}-sejl45xvog-sejl45xvog.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\sg5385t0ac-{0}-aexeepp0ev-aexeepp0ev.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\8ol8shnqrf-{0}-xvp3kq03qx-xvp3kq03qx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\2e4uq013z5-{0}-ausgxo2sd3-ausgxo2sd3.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hx45pf82qq-{0}-22vffe00uq-22vffe00uq.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\ccqxy0z2rm-{0}-cosvhxvwiu-cosvhxvwiu.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\vb3xb4fydr-{0}-qesaa3a1fm-qesaa3a1fm.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\goelxxywyj-{0}-fvhpjtyr6v-fvhpjtyr6v.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\9qxqgesmcd-{0}-tmc1g35s3z-tmc1g35s3z.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\52n85uucr0-{0}-fsbi9cje9m-fsbi9cje9m.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\cj1tfrh9zy-{0}-rxsg74s51o-rxsg74s51o.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\8rdriwrx0v-{0}-ee0r1s7dh0-ee0r1s7dh0.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\f6e2mr7mah-{0}-q9ht133ko3-q9ht133ko3.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\af1w2whdbc-{0}-jd9uben2k1-jd9uben2k1.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\mqk4kwcrt7-{0}-gye83jo8yx-gye83jo8yx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\ykx9ot8qun-{0}-r4e9w2rdcm-r4e9w2rdcm.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\7zeij5oxws-{0}-wl58j5mj3v-wl58j5mj3v.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\3q8n1qwie6-{0}-c2oey78nd0-c2oey78nd0.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\85vikg0tr6-{0}-d4r6k3f320-d4r6k3f320.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\q0p25623ze-{0}-j5mq2jizvt-j5mq2jizvt.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\genzoc25zr-{0}-keugtjm085-keugtjm085.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\7x1kp57gsy-{0}-nvvlpmu67g-nvvlpmu67g.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\p1ne283min-{0}-zub09dkrxp-zub09dkrxp.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\fimdhryrqz-{0}-pj5nd1wqec-pj5nd1wqec.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\1qlevwbsoq-{0}-43atpzeawx-43atpzeawx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\gbbmpetbk7-{0}-v0zj4ognzu-v0zj4ognzu.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\kk4bdk39al-{0}-ynyaa8k90p-ynyaa8k90p.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\vwa6gjergf-{0}-hrwsygsryq-hrwsygsryq.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\tkmnq8elii-{0}-c63t5i9ira-c63t5i9ira.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hgoy0qmvbo-{0}-ft3s53vfgj-ft3s53vfgj.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\p1mc8bmw5k-{0}-4094rpi4f9-4094rpi4f9.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\6815xwf239-{0}-6pdc2jztkx-6pdc2jztkx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\asdefmur6q-{0}-hd3gran6i8-hd3gran6i8.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\i7ihlixjb6-{0}-iovd86k7lj-iovd86k7lj.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\7gdruexlve-{0}-ltid2c489k-ltid2c489k.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\mvyizqlqpx-{0}-kbrnm935zg-kbrnm935zg.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\wgxz2ium7b-{0}-8vyfqsqgz1-8vyfqsqgz1.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\73nffnmpg2-{0}-y7v9cxd14o-y7v9cxd14o.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\fanm2zxgbf-{0}-u9q1upor1n-u9q1upor1n.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\5meb1ydn49-{0}-h1s4sie4z3-h1s4sie4z3.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\l7kraea3af-{0}-4d85u1mtcx-4d85u1mtcx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\one5e412f0-{0}-0j3bgjxly4-0j3bgjxly4.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\q2wxz8msop-{0}-03hjc8e09r-03hjc8e09r.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\yjzaw22o30-{0}-48y08845bh-48y08845bh.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\1tx654nr4p-{0}-356vix0kms-356vix0kms.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\1r0zffhgvl-{0}-83jwlth58m-83jwlth58m.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\dwhbonpyja-{0}-mrlpezrjn3-mrlpezrjn3.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\cuei3338k2-{0}-worgj0nhwm-worgj0nhwm.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\n63nd6yz4g-{0}-gk0pw8i4co-gk0pw8i4co.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\9edliht1mi-{0}-x0q3zqp4vz-x0q3zqp4vz.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\l48av56utl-{0}-d6nrnj6jjx-d6nrnj6jjx.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\h1axhfp2fh-{0}-m9qm4tazc0-m9qm4tazc0.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\sq1gnc6p1i-{0}-ttgo8qnofa-ttgo8qnofa.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hxgxb7l568-{0}-jjsuc0puko-jjsuc0puko.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hr7skifp56-{0}-9vr69e8ynj-9vr69e8ynj.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\8isz5548rp-{0}-87fc7y1x7t-87fc7y1x7t.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\0kq1x7cay9-{0}-mlv21k5csn-mlv21k5csn.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\rr0ot2gczb-{0}-v2l3pgjef6-v2l3pgjef6.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\zp02x85ngb-{0}-v2l3pgjef6-v2l3pgjef6.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.build.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.build.json.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.development.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.build.endpoints.json
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\swae.build.ex.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.csproj.Up2Date
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\refint\MediGuard.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.pdb
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.genruntimeconfig.cache
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\ref\MediGuard.dll
