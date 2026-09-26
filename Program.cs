@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Services;
@@ -29,11 +30,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 5. Register Application Services (Dependency Injection)
+// 5. Register In-Memory Caching (Required for Ticket 13 Dashboard Cache)
+builder.Services.AddMemoryCache();
+
+// 6. Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
-// 6. Configure Cookie Authentication
+// 7. Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = "MediGuard.AuthCookie";
