@@ -306,7 +306,6 @@ C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\scopedcss\bundle\Med
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\scopedcss\projectbundle\MediGuard.bundle.scp.css
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\uwye797bi4-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\f53bvy1dyj-{0}-61n19gt1b8-61n19gt1b8.gz
-C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\9iwur1vbdi-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hevr70sa6v-{0}-t1cqhe9u97-t1cqhe9u97.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\3jr45pjk48-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\nssuycb7lv-{0}-sejl45xvog-sejl45xvog.gz
@@ -366,8 +365,6 @@ C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hxgxb7l56
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\hr7skifp56-{0}-9vr69e8ynj-9vr69e8ynj.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\8isz5548rp-{0}-87fc7y1x7t-87fc7y1x7t.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\0kq1x7cay9-{0}-mlv21k5csn-mlv21k5csn.gz
-C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\rr0ot2gczb-{0}-v2l3pgjef6-v2l3pgjef6.gz
-C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\zp02x85ngb-{0}-v2l3pgjef6-v2l3pgjef6.gz
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.build.json
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.build.json.cache
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\staticwebassets.development.json
@@ -380,3 +377,6 @@ C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\refint\MediGuard.dll
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.pdb
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\MediGuard.genruntimeconfig.cache
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\ref\MediGuard.dll
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\xxf4bie1q2-{0}-88ly2wudzt-88ly2wudzt.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\rr0ot2gczb-{0}-k07adxc64l-k07adxc64l.gz
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\obj\Debug\net10.0\compressed\zp02x85ngb-{0}-k07adxc64l-k07adxc64l.gz

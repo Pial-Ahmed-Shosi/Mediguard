@@ -1,0 +1,692 @@
+﻿@model MediGuardApp.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account - MediGuard";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --mg-ink: #0b2545;
+        --mg-ink-soft: #1e3a8a;
+        --mg-teal: #0b6e5f;
+        --mg-teal-deep: #084f45;
+        --mg-teal-glow: rgba(11, 110, 95, 0.16);
+        --mg-paper: #f7f6f1;
+        --mg-line: #e2dfd4;
+        --mg-clay: #b54f35;
+        --mg-mint: #e6f2ed;
+        --mg-muted: #6b7570;
+        --mg-white: #ffffff;
+        --mg-sky: #38bdf8;
+    }
+
+    body {
+        background: linear-gradient(160deg, #f0f4f2 0%, var(--mg-paper) 45%, #eef5f2 100%);
+        font-family: 'Work Sans', system-ui, sans-serif;
+        color: var(--mg-ink);
+        min-height: 100vh;
+    }
+
+    .auth-shell {
+        max-width: 1140px;
+        margin: 2.5rem auto;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow:
+            0 4px 6px rgba(11, 37, 69, 0.04),
+            0 24px 60px rgba(11, 37, 69, 0.12),
+            0 0 0 1px rgba(11, 37, 69, 0.04);
+        display: grid;
+        grid-template-columns: 0.84fr 1.16fr;
+        background: var(--mg-white);
+    }
+
+    /* ---------- Left panel (Blue theme) ---------- */
+    .auth-label {
+        background: linear-gradient(165deg, #0b2545 0%, #1e3a8a 55%, #14306b 100%);
+        color: #f2f5f3;
+        padding: 3rem 2.5rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+
+    .auth-label::before,
+    .auth-label::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(50px);
+        opacity: 0.26;
+        pointer-events: none;
+    }
+
+    .auth-label::before {
+        width: 240px;
+        height: 240px;
+        background: #38bdf8;
+        top: -80px;
+        right: -60px;
+    }
+
+    .auth-label::after {
+        width: 170px;
+        height: 170px;
+        background: #60a5fa;
+        bottom: 60px;
+        left: -50px;
+    }
+
+    .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .brand-mark .rx-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        color: #1e3a8a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Newsreader', serif;
+        font-style: italic;
+        font-weight: 600;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .auth-label h1 {
+        font-family: 'Newsreader', serif;
+        font-weight: 500;
+        font-size: 2.55rem;
+        line-height: 1.12;
+        margin: 2.5rem 0 0.9rem;
+        position: relative;
+        z-index: 1;
+        letter-spacing: -0.02em;
+    }
+
+    .auth-label p.lede {
+        color: #c5d4ce;
+        font-size: 1rem;
+        line-height: 1.6;
+        max-width: 30ch;
+        position: relative;
+        z-index: 1;
+    }
+
+    .role-blurb-card {
+        margin-top: 2.25rem;
+        border: 1px solid rgba(242, 245, 243, 0.18);
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(8px);
+        border-radius: 16px;
+        padding: 1.15rem 1.25rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .role-blurb-card .eyebrow {
+        font-size: 0.78rem;
+        color: #7dd3fc;
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-weight: 600;
+    }
+
+    .role-blurb-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        color: #eef2f0;
+    }
+
+    .label-footer {
+        margin-top: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .barcode {
+        height: 22px;
+        margin-bottom: 1.2rem;
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(242, 245, 243, 0.5) 0px,
+            rgba(242, 245, 243, 0.5) 2px,
+            transparent 2px,
+            transparent 4px,
+            rgba(242, 245, 243, 0.5) 4px,
+            rgba(242, 245, 243, 0.5) 5px,
+            transparent 5px,
+            transparent 9px,
+            rgba(242, 245, 243, 0.5) 9px,
+            rgba(242, 245, 243, 0.5) 12px,
+            transparent 12px,
+            transparent 14px
+        );
+        opacity: 0.45;
+        border-radius: 2px;
+    }
+
+    .label-footer p {
+        font-size: 0.92rem;
+        color: #c5d4ce;
+        margin: 0;
+    }
+
+    .label-footer a {
+        color: #e0f2fe;
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1.5px solid rgba(56, 189, 248, 0.5);
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .label-footer a:hover {
+        color: #38bdf8;
+        border-bottom-color: #38bdf8;
+    }
+
+    /* ---------- Right panel ---------- */
+    .auth-form-panel {
+        padding: 3rem 2.75rem 2.75rem;
+        background: var(--mg-white);
+    }
+
+    .form-step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-step .step-index {
+        flex: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--mg-mint);
+        border: none;
+        color: var(--mg-teal-deep);
+        font-family: 'Newsreader', serif;
+        font-style: italic;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-step .step-copy h2 {
+        font-family: 'Newsreader', serif;
+        font-weight: 500;
+        font-size: 1.28rem;
+        margin: 0 0 0.15rem;
+        color: var(--mg-ink);
+        letter-spacing: -0.01em;
+    }
+
+    .form-step .step-copy p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--mg-muted);
+    }
+
+    .role-select {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        border: 1.5px solid var(--mg-line);
+        border-radius: 16px;
+        overflow: hidden;
+        margin: 0 0 2rem 2.85rem;
+        background: #fafaf8;
+    }
+
+    .role-pill {
+        position: relative;
+        border-right: 1px dashed var(--mg-line);
+    }
+
+    .role-pill:last-child {
+        border-right: none;
+    }
+
+    .role-card-input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+    }
+
+    .role-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 1.2rem 0.5rem;
+        text-align: center;
+        cursor: pointer;
+        background: transparent;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+
+    .role-card:hover {
+        background: rgba(11, 110, 95, 0.04);
+    }
+
+    .role-icon {
+        font-size: 1.4rem;
+        color: var(--mg-muted);
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .role-title {
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--mg-ink);
+    }
+
+    .role-card-input:checked + .role-card {
+        background: var(--mg-mint);
+    }
+
+    .role-card-input:checked + .role-card .role-icon {
+        color: var(--mg-teal-deep);
+        transform: scale(1.08);
+    }
+
+    .role-card-input:checked + .role-card .role-title {
+        color: var(--mg-teal-deep);
+    }
+
+    .role-card-input:focus-visible + .role-card {
+        outline: 2px solid var(--mg-teal);
+        outline-offset: -2px;
+    }
+
+    .field-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 0 0 1.6rem 2.85rem;
+    }
+
+    .field-grid.single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        border: 1.5px solid var(--mg-line);
+        border-radius: 12px;
+        background: #fafaf8;
+        height: 56px;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
+        border-color: var(--mg-teal);
+        background: var(--mg-white);
+        box-shadow: 0 0 0 4px var(--mg-teal-glow);
+    }
+
+    .form-floating > label {
+        color: var(--mg-muted);
+        padding-left: 1rem;
+    }
+
+    .input-group .form-control {
+        border-radius: 12px 0 0 12px;
+    }
+
+    .input-group .toggle-password {
+        border: 1.5px solid var(--mg-line);
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        color: var(--mg-muted);
+        background: #fafaf8;
+        padding: 0 1rem;
+        transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .input-group .toggle-password:hover {
+        color: var(--mg-teal);
+        background: var(--mg-mint);
+    }
+
+    #emailDomainFeedback {
+        color: var(--mg-clay);
+        font-size: 0.82rem;
+    }
+
+    .section-note {
+        margin: -0.4rem 0 1.6rem 2.85rem;
+        border-left: 3px solid var(--mg-clay);
+        background: #faf1ee;
+        padding: 0.7rem 1rem;
+        border-radius: 0 10px 10px 0;
+        font-size: 0.86rem;
+        color: #7a3d2c;
+        display: flex;
+        gap: 0.55rem;
+        align-items: flex-start;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--mg-teal) 0%, var(--mg-teal-deep) 100%);
+        color: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(11, 110, 95, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        margin-left: 2.85rem;
+        width: calc(100% - 2.85rem);
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #0d8574 0%, var(--mg-teal) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(11, 110, 95, 0.35);
+        color: #fff;
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .btn-submit, .role-card, .role-icon {
+            transition: none;
+        }
+    }
+
+    @@media (max-width: 960px) {
+        .auth-shell {
+            grid-template-columns: 1fr;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .auth-label {
+            padding: 2.25rem 1.75rem;
+        }
+
+        .auth-label h1 {
+            font-size: 2.1rem;
+            margin-top: 1.6rem;
+        }
+
+        .auth-form-panel {
+            padding: 2.25rem 1.75rem;
+        }
+
+        .role-select,
+        .field-grid,
+        .btn-submit,
+        .section-note {
+            margin-left: 0;
+        }
+
+        .btn-submit {
+            width: 100%;
+        }
+
+        .role-select {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .field-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-label::before,
+        .auth-label::after {
+            opacity: 0.16;
+        }
+    }
+</style>
+
+<div class="auth-shell">
+    <div class="auth-label">
+        <div>
+            <div class="brand-mark">
+                <span class="rx-badge">℞</span>
+                <span>MediGuard</span>
+            </div>
+            <h1>Create your account</h1>
+            <p class="lede">One account, built around the role you'll play — picking up an order, running a counter, or keeping the fleet moving.</p>
+
+            <div class="role-blurb-card">
+                <div class="eyebrow">You're signing up as</div>
+                <p id="roleBlurb">A customer — order medicines for pickup at your nearest partner pharmacy and track every order in one place.</p>
+            </div>
+        </div>
+
+        <div class="label-footer">
+            <div class="barcode"></div>
+            <p>Already have an account? <a asp-controller="Account" asp-action="Login">Sign in here</a></p>
+        </div>
+    </div>
+
+    <div class="auth-form-panel">
+        <form id="authForm" asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-step">
+                <div class="step-index">1</div>
+                <div class="step-copy">
+                    <h2>Account type</h2>
+                    <p>This decides what your dashboard looks like.</p>
+                </div>
+            </div>
+
+            <div class="role-select" role="group" aria-label="Account type">
+                <div class="role-pill">
+                    <input type="radio" asp-for="Role" value="Regular User" id="role-customer" class="role-card-input" checked>
+                    <label for="role-customer" class="role-card">
+                        <i class="bi bi-person role-icon"></i>
+                        <span class="role-title">Customer</span>
+                    </label>
+                </div>
+                <div class="role-pill">
+                    <input type="radio" asp-for="Role" value="Pharmacy Manager" id="role-manager" class="role-card-input">
+                    <label for="role-manager" class="role-card">
+                        <i class="bi bi-shop role-icon"></i>
+                        <span class="role-title">Manager</span>
+                    </label>
+                </div>
+                <div class="role-pill">
+                    <input type="radio" asp-for="Role" value="Deliveryman" id="role-delivery" class="role-card-input">
+                    <label for="role-delivery" class="role-card">
+                        <i class="bi bi-truck role-icon"></i>
+                        <span class="role-title">Delivery</span>
+                    </label>
+                </div>
+                <div class="role-pill">
+                    <input type="radio" asp-for="Role" value="Admin" id="role-admin" class="role-card-input">
+                    <label for="role-admin" class="role-card">
+                        <i class="bi bi-shield-lock role-icon"></i>
+                        <span class="role-title">Admin</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-step">
+                <div class="step-index">2</div>
+                <div class="step-copy">
+                    <h2>Basic information</h2>
+                    <p>Used to sign in and reach you about orders.</p>
+                </div>
+            </div>
+
+            <div class="field-grid">
+                <div class="form-floating">
+                    <input asp-for="FullName" class="form-control" placeholder="John Doe" required />
+                    <label asp-for="FullName"></label>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                    <label asp-for="Email"></label>
+                    <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
+                </div>
+                <div class="input-group">
+                    <div class="form-floating flex-grow-1">
+                        <input asp-for="Password" class="form-control border-end-0" placeholder="Password" id="regPassword" required />
+                        <label asp-for="Password"></label>
+                    </div>
+                    <button type="button" class="input-group-text toggle-password" data-target="regPassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <div class="input-group">
+                    <div class="form-floating flex-grow-1">
+                        <input asp-for="ConfirmPassword" class="form-control border-end-0" placeholder="Confirm Password" id="regConfirm" required />
+                        <label asp-for="ConfirmPassword"></label>
+                    </div>
+                    <button type="button" class="input-group-text toggle-password" data-target="regConfirm">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="dynamic-fields-container">
+
+                <div id="fields-regular-user" class="role-specific-section">
+                    <div class="form-step">
+                        <div class="step-index">3</div>
+                        <div class="step-copy">
+                            <h2>Contact details</h2>
+                            <p>Where we'll send pickup notifications.</p>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="form-floating">
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="+880" />
+                            <label asp-for="PhoneNumber">Phone number</label>
+                        </div>
+                        <div class="form-floating">
+                            <input asp-for="DeliveryAddress" class="form-control" placeholder="Address" />
+                            <label asp-for="DeliveryAddress">Default delivery address</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fields-pharmacy-manager" class="role-specific-section d-none">
+                    <div class="form-step">
+                        <div class="step-index">3</div>
+                        <div class="step-copy">
+                            <h2>Business details</h2>
+                            <p>Used to verify and list your pharmacy.</p>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="form-floating">
+                            <input asp-for="PharmacyName" class="form-control" placeholder="Pharmacy Name" />
+                            <label asp-for="PharmacyName">Pharmacy name</label>
+                        </div>
+                        <div class="form-floating">
+                            <input asp-for="PharmacyLicenseNumber" class="form-control" placeholder="License" />
+                            <label asp-for="PharmacyLicenseNumber">Trade license number</label>
+                        </div>
+                    </div>
+                    <div class="section-note">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Managers must use a corporate domain email, e.g. info@yourpharmacy.com.</span>
+                    </div>
+                </div>
+
+                <div id="fields-deliveryman" class="role-specific-section d-none">
+                    <div class="form-step">
+                        <div class="step-index">3</div>
+                        <div class="step-copy">
+                            <h2>Logistics profile</h2>
+                            <p>Helps us match you to nearby routes.</p>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="form-floating">
+                            <select asp-for="VehicleType" class="form-select">
+                                <option value="Motorcycle">Motorcycle</option>
+                                <option value="Bicycle">Bicycle</option>
+                                <option value="Van">Van</option>
+                            </select>
+                            <label asp-for="VehicleType">Vehicle type</label>
+                        </div>
+                        <div class="form-floating">
+                            <input asp-for="DrivingLicenseNumber" class="form-control" placeholder="License" />
+                            <label asp-for="DrivingLicenseNumber">Driving license NID/No.</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fields-admin" class="role-specific-section d-none">
+                    <div class="form-step">
+                        <div class="step-index">3</div>
+                        <div class="step-copy">
+                            <h2>System authorization</h2>
+                            <p>Restricted to internal staff.</p>
+                        </div>
+                    </div>
+                    <div class="field-grid">
+                        <div class="form-floating">
+                            <input asp-for="AdminAccessCode" class="form-control" type="password" placeholder="Code" />
+                            <label asp-for="AdminAccessCode">Internal access code</label>
+                        </div>
+                        <div class="form-floating">
+                            <input asp-for="Department" class="form-control" placeholder="Dept" />
+                            <label asp-for="Department">Assigned department</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn-submit mt-2">Create account</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/auth-validation.js"></script>
+    <script>
+        (function () {
+            var blurbs = {
+                'Regular User': "A customer \u2014 order medicines for pickup at your nearest partner pharmacy and track every order in one place.",
+                'Pharmacy Manager': "A pharmacy manager \u2014 manage stock, pricing and incoming pickup orders for your storefront.",
+                'Deliveryman': "A delivery rider \u2014 pick up routes, confirm handoffs, and keep pharmacies stocked on schedule.",
+                'Admin': "An admin \u2014 oversee accounts, pharmacies and activity across MediGuard."
+            };
+            var radios = document.querySelectorAll('.role-card-input');
+            var blurbEl = document.getElementById('roleBlurb');
+            radios.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    if (radio.checked && blurbs[radio.value] && blurbEl) {
+                        blurbEl.textContent = blurbs[radio.value];
+                    }
+                });
+            });
+        })();
+    </script>
+}

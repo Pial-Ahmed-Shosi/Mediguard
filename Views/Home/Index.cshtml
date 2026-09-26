@@ -1,8 +1,681 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    :root {
+        --mg-navy: #0b2545;
+        --mg-blue: #1e3a8a;
+        --mg-sky: #38bdf8;
+        --mg-teal: #00796b;
+        --mg-teal-dark: #004d40;
+        --mg-teal-light: #009688;
+    }
+
+    /* ============ 1. Hero ============ */
+    .hero-banner-container {
+        position: relative;
+        width: 100%;
+        border-radius: 28px;
+        overflow: hidden;
+        margin-top: 1.5rem;
+        background: linear-gradient(135deg, var(--mg-navy) 0%, var(--mg-blue) 55%, #14306b 100%);
+        box-shadow: 0 25px 50px rgba(11, 37, 69, 0.35);
+        isolation: isolate;
+    }
+
+        /* subtle animated glow orbs in the background */
+        .hero-banner-container::before,
+        .hero-banner-container::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.35;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .hero-banner-container::before {
+            width: 320px;
+            height: 320px;
+            background: var(--mg-sky);
+            top: -80px;
+            right: -60px;
+            animation: floatGlow 8s ease-in-out infinite;
+        }
+
+        .hero-banner-container::after {
+            width: 260px;
+            height: 260px;
+            background: var(--mg-teal-light);
+            bottom: -60px;
+            left: -40px;
+            animation: floatGlow 9s ease-in-out infinite reverse;
+        }
+
+    @@keyframes floatGlow {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate(15px, -15px) scale(1.08);
+        }
+    }
+
+    .hero-banner-container .row {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(56, 189, 248, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        color: #bae6fd;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        margin-bottom: 1.25rem;
+        text-transform: uppercase;
+    }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mg-sky);
+            box-shadow: 0 0 8px var(--mg-sky);
+            animation: pulseDot 1.6s ease-in-out infinite;
+        }
+
+    @@keyframes pulseDot {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.4;
+            transform: scale(1.3);
+        }
+    }
+
+    .hero-title {
+        font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+        font-weight: 800;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+        text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        line-height: 1.15;
+    }
+
+    .hero-subtitle {
+        font-size: clamp(1rem, 1.8vw, 1.25rem);
+        margin-bottom: 2rem;
+        color: #93c5fd;
+        max-width: 480px;
+    }
+
+    .hero-search-bar {
+        background: #ffffff;
+        padding: 8px 10px;
+        border-radius: 50px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        max-width: 500px;
+    }
+
+        .hero-search-bar:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-search-bar input {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            font-size: 1.05rem;
+            background: transparent;
+        }
+
+    .btn-search {
+        background: linear-gradient(135deg, var(--mg-teal), var(--mg-teal-dark));
+        color: #ffffff;
+        border-radius: 40px;
+        padding: 12px 32px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, var(--mg-teal-light), var(--mg-teal));
+            transform: scale(1.03);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 121, 107, 0.4);
+        }
+
+    .hero-mini-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+        .hero-mini-stats .stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .hero-mini-stats .stat-label {
+            font-size: 0.78rem;
+            color: #93c5fd;
+            margin-top: 4px;
+        }
+
+    /* ---- Hero image showcase ---- */
+    .hero-image-stage {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+        .hero-image-stage .glow-ring {
+            position: absolute;
+            width: 78%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, rgba(56, 189, 248, 0) 70%);
+            filter: blur(10px);
+            animation: ringPulse 4s ease-in-out infinite;
+            z-index: 0;
+        }
+
+    @@keyframes ringPulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.9;
+        }
+
+        50% {
+            transform: scale(1.08);
+            opacity: 0.6;
+        }
+    }
+
+    .hero-display-image {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-height: 560px;
+        object-fit: contain;
+        border-radius: 20px;
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        animation: heroFloat 5s ease-in-out infinite;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+        .hero-display-image:hover {
+            transform: translateY(-10px) scale(1.015);
+            box-shadow: 0 35px 55px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+    @@keyframes heroFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-14px);
+        }
+    }
+
+    .hero-float-chip {
+        position: absolute;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(6px);
+        padding: 10px 16px;
+        border-radius: 14px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--mg-navy);
+        animation: chipFloat 4.5s ease-in-out infinite;
+    }
+
+        .hero-float-chip i {
+            color: var(--mg-teal);
+            font-size: 1.1rem;
+        }
+
+    .chip-top-right {
+        top: 8%;
+        right: 4%;
+        animation-delay: 0.4s;
+    }
+
+    .chip-bottom-left {
+        bottom: 10%;
+        left: 2%;
+        animation-delay: 1s;
+    }
+
+    @@keyframes chipFloat {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @@media (max-width: 991px) {
+        .hero-float-chip {
+            display: none;
+        }
+    }
+
+    /* ============ 2. Section headings ============ */
+    .section-eyebrow {
+        color: var(--mg-teal);
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+
+    .section-heading {
+        font-weight: 800;
+        color: var(--mg-navy);
+        letter-spacing: -0.5px;
+    }
+
+    .section-subtext {
+        color: #64748b;
+        max-width: 620px;
+    }
+
+    /* ============ 3. Fade-up animation ============ */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        opacity: 0;
+    }
+
+    .delay-1 {
+        animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+        animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+        animation-delay: 0.3s;
+    }
+
+    .delay-4 {
+        animation-delay: 0.4s;
+    }
+
+    /* ============ 4. Feature / service cards ============ */
+    .service-card {
+        border-radius: 20px;
+        transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: #ffffff;
+        border: 1px solid #edf2f7;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .service-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 121, 107, 0.06), rgba(30, 58, 138, 0.06));
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08) !important;
+            border-color: var(--mg-teal);
+        }
+
+            .service-card:hover::before {
+                opacity: 1;
+            }
+
+        .service-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+    .service-icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: rgba(0, 121, 107, 0.08);
+        margin-bottom: 1.1rem;
+        transition: all 0.35s ease;
+    }
+
+    .service-card:hover .service-icon-wrapper {
+        transform: scale(1.1) rotate(6deg);
+        background: var(--mg-teal);
+    }
+
+        .service-card:hover .service-icon-wrapper i {
+            color: #ffffff !important;
+        }
+
+    /* ============ 5. Audience strip (Customers / Pharmacies / Hospitals) ============ */
+    .audience-strip {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 24px;
+        border: 1px solid #dbeafe;
+    }
+
+    .audience-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .audience-icon {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        border-radius: 14px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(30, 58, 138, 0.12);
+    }
+
+        .audience-icon i {
+            font-size: 1.5rem;
+            color: var(--mg-blue);
+        }
+
+    .audience-item h6 {
+        margin: 0;
+        font-weight: 800;
+        color: var(--mg-navy);
+    }
+
+    .audience-item p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    /* ============ 6. CTA band ============ */
+    .cta-band {
+        border-radius: 28px;
+        background: linear-gradient(135deg, var(--mg-teal-dark), var(--mg-teal));
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .cta-band::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            top: -100px;
+            right: -60px;
+        }
+
+    .btn-cta-light {
+        background: #ffffff;
+        color: var(--mg-teal-dark);
+        font-weight: 700;
+        border-radius: 40px;
+        padding: 12px 30px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cta-light:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+            color: var(--mg-teal-dark);
+        }
+
+    .btn-cta-outline {
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        color: #ffffff;
+        font-weight: 700;
+        border-radius: 40px;
+        padding: 10px 28px;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+
+        .btn-cta-outline:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+</style>
+
+<div class="container">
+
+    <!-- ============ Hero ============ -->
+    <div class="hero-banner-container animate-fade-up">
+        <div class="row align-items-center p-4 p-md-5">
+
+            <!-- Left Column: Text & Search -->
+            <div class="col-lg-6 text-start mb-5 mb-lg-0 animate-fade-up delay-1">
+                <span class="hero-badge"><span class="dot"></span> Right Medicine. Right Place. Right Time.</span>
+                <h1 class="hero-title">Your Health,<br><span style="color: #38bdf8;">Our Responsibility</span></h1>
+                <p class="hero-subtitle">Order medicines, healthcare products, and bulk supply items directly near you — with real-time inventory, expiry alerts, and trusted pharmacies.</p>
+
+                <!-- Search Box -->
+                <div class="hero-search-bar d-flex align-items-center">
+                    <i class="bi bi-search text-muted fs-5 ms-3 me-2"></i>
+                    <input type="text" class="form-control border-0 shadow-none" id="homeSearchInput" placeholder="Search medicine, batch number...">
+                    <button class="btn btn-search flex-shrink-0" type="button" onclick="executeSearch()">Search</button>
+                </div>
+
+                <!-- Mini stats -->
+                <div class="hero-mini-stats">
+                    <div>
+                        <div class="stat-num">500+</div>
+                        <div class="stat-label">Partner Pharmacies</div>
+                    </div>
+                    <div>
+                        <div class="stat-num">24/7</div>
+                        <div class="stat-label">Order &amp; Pickup</div>
+                    </div>
+                    <div>
+                        <div class="stat-num">100%</div>
+                        <div class="stat-label">Batch Verified</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Hero image showcase -->
+            <div class="col-lg-6 text-center animate-fade-up delay-2">
+                <div class="hero-image-stage">
+                    <div class="glow-ring"></div>
+                    <img src="/images/Medi imag.PNG" alt="MediGuard Features" class="hero-display-image">
+                    <div class="hero-float-chip chip-top-right">
+                        <i class="bi bi-shield-check"></i> Inventory Guard
+                    </div>
+                    <div class="hero-float-chip chip-bottom-left">
+                        <i class="bi bi-truck"></i> Home Delivery
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============ Feature grid (from the MediGuard ecosystem) ============ -->
+    <div class="text-center mt-5 pt-3 animate-fade-up">
+        <span class="section-eyebrow">What MediGuard Offers</span>
+        <h2 class="section-heading mt-2">Everything you need, in one platform</h2>
+        <p class="section-subtext mx-auto mt-2">From inventory tracking to doorstep delivery — MediGuard connects customers, pharmacies, and hospitals in a single trusted ecosystem.</p>
+    </div>
+
+    <div class="row mt-4 g-4 mb-5">
+        <div class="col-md-4 animate-fade-up delay-1">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-bag-check fs-2" style="color: var(--mg-teal);"></i>
+                </div>
+                <h5 class="fw-bold">B2C Retail Portal</h5>
+                <p class="text-muted small mb-0">Order daily prescribed medicines directly to your doorstep safely.</p>
+            </div>
+        </div>
+        <div class="col-md-4 animate-fade-up delay-2">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-boxes fs-2" style="color: var(--mg-teal);"></i>
+                </div>
+                <h5 class="fw-bold">B2B Wholesale Portal</h5>
+                <p class="text-muted small mb-0">Connect verified suppliers to hospitals and pharmacies for bulk stocks.</p>
+            </div>
+        </div>
+        <div class="col-md-4 animate-fade-up delay-3">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-shield-check fs-2" style="color: var(--mg-teal);"></i>
+                </div>
+                <h5 class="fw-bold">Inventory Guard</h5>
+                <p class="text-muted small mb-0">Real-time batch tracking, stock monitoring, and automated expiry alerts.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 animate-fade-up delay-1">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-bell fs-3" style="color: var(--mg-teal);"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Expiry Alerts</h6>
+                <p class="text-muted small mb-0">Prevent waste. Ensure safety.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 animate-fade-up delay-2">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-arrow-left-right fs-3" style="color: var(--mg-teal);"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Medicine Transfer</h6>
+                <p class="text-muted small mb-0">Share. Support. Reduce waste.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 animate-fade-up delay-3">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-geo-alt fs-3" style="color: var(--mg-teal);"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Nearby Pharmacy</h6>
+                <p class="text-muted small mb-0">Find trusted pharmacies around you.</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 animate-fade-up delay-4">
+            <div class="card service-card border-0 shadow-sm p-4 text-center h-100">
+                <div class="service-icon-wrapper mx-auto">
+                    <i class="bi bi-bar-chart-line fs-3" style="color: var(--mg-teal);"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Reports &amp; Analytics</h6>
+                <p class="text-muted small mb-0">Smarter insights for better healthcare.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Audience strip ============ -->
+    <div class="audience-strip p-4 p-md-5 mb-5 animate-fade-up">
+        <div class="row g-4">
+            <div class="col-md-4 audience-item">
+                <div class="audience-icon"><i class="bi bi-people"></i></div>
+                <div>
+                    <h6>For Customers</h6>
+                    <p>Easier access to medicines</p>
+                </div>
+            </div>
+            <div class="col-md-4 audience-item">
+                <div class="audience-icon"><i class="bi bi-shop"></i></div>
+                <div>
+                    <h6>For Pharmacies</h6>
+                    <p>Smarter inventory management</p>
+                </div>
+            </div>
+            <div class="col-md-4 audience-item">
+                <div class="audience-icon"><i class="bi bi-hospital"></i></div>
+                <div>
+                    <h6>For Hospitals</h6>
+                    <p>Better, faster patient care</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CTA band ============ -->
+    <div class="cta-band p-4 p-md-5 mb-5 animate-fade-up d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">Ready for a healthier tomorrow?</h3>
+            <p class="mb-0" style="opacity:0.9;">Join MediGuard and get real-time access to medicine, delivery, and trusted pharmacies.</p>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="#" class="btn btn-cta-light">Get Started</a>
+            <a href="#" class="btn btn-cta-outline">Learn More</a>
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        function executeSearch() {
+            const query = document.getElementById('homeSearchInput').value;
+            if (query.trim() !== '') {
+                const btn = document.querySelector('.btn-search');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                setTimeout(() => {
+                    alert('Searching MediGuard for: ' + query);
+                    btn.innerHTML = originalText;
+                }, 400);
+            }
+        }
+    </script>
+}
