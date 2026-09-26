@@ -8,15 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Add MVC View Engine Services
 builder.Services.AddControllersWithViews();
 
-// 2. Fetch Connection String from appsettings.json
+// 2. Add Memory Cache Service (Required for Ticket 6 ViewComponent Caching)
+builder.Services.AddMemoryCache();
+
+// 3. Fetch Connection String from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json.");
 
-// 3. Register ApplicationDbContext with Supabase PostgreSQL (Npgsql)
+// 4. Register ApplicationDbContext with Supabase PostgreSQL (Npgsql)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// 4. Configure ASP.NET Core Identity
+// 5. Configure ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
