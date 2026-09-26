@@ -1,0 +1,19 @@
+## Visual Studio temporary & local settings
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.dtbcache.v2
+
+## Build outputs and compiled binaries
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bin/
+obj/
+
+## Package restore and cache
+*.user
+node_modules/
