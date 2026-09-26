@@ -4,47 +4,162 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MediGuard</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MediGuard.styles.css" asp-append-version="true" />
+
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+    <style>
+            :root {
+                --mg-teal: #00796b;
+                --mg-teal-dark: #004d40;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f8f9fa;
+            }
+
+            /* Frosted Glass Sticky Navbar */
+            .navbar-custom {
+                background-color: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+                transition: all 0.3s ease;
+            }
+
+            /* Logo Animation */
+            .navbar-brand {
+                font-weight: 800;
+                color: var(--mg-teal) !important;
+                font-size: 1.5rem;
+                transition: transform 0.3s ease;
+            }
+
+                .navbar-brand i {
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+                }
+
+                .navbar-brand:hover i {
+                    transform: scale(1.15) rotate(12deg);
+                    color: var(--mg-teal-dark);
+                }
+
+            /* Nav Links Animated Underline */
+            .nav-link {
+                font-weight: 600;
+                color: #495057 !important;
+                padding: 8px 16px !important;
+                position: relative;
+                transition: color 0.3s ease;
+            }
+
+                .nav-link:hover, .nav-link.active {
+                    color: var(--mg-teal) !important;
+                }
+
+                .nav-link::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 50%;
+                    transform: translateX(-50%) scaleX(0);
+                    width: 70%;
+                    height: 3px;
+                    background: linear-gradient(135deg, var(--mg-teal), var(--mg-teal-dark));
+                    border-radius: 4px;
+                    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+
+                .nav-link:hover::after, .nav-link.active::after {
+                    transform: translateX(-50%) scaleX(1);
+                }
+
+            /* Navbar Buttons */
+            .btn-teal-outline {
+                border: 2px solid var(--mg-teal);
+                color: var(--mg-teal);
+                font-weight: 600;
+                border-radius: 40px;
+                background: transparent;
+                transition: all 0.3s ease;
+            }
+
+                .btn-teal-outline:hover {
+                    background-color: var(--mg-teal);
+                    color: #ffffff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(0, 121, 107, 0.2);
+                }
+
+            .btn-teal-solid {
+                background: linear-gradient(135deg, var(--mg-teal), var(--mg-teal-dark));
+                color: #ffffff;
+                font-weight: 600;
+                border-radius: 40px;
+                border: none;
+                transition: all 0.3s ease;
+            }
+
+                .btn-teal-solid:hover {
+                    background: linear-gradient(135deg, #009688, var(--mg-teal));
+                    color: #ffffff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(0, 121, 107, 0.35);
+                }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MediGuard</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-shield-plus fs-3"></i> MediGuard
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                @{
+                    string currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
+                    string currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+                }
+
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                           asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")"
+                           asp-controller="Home" asp-action="About">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentController == "Home" && currentAction == "Services" ? "active" : "")"
+                           asp-controller="Home" asp-action="Services">Services</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a class="btn btn-teal-outline px-4 py-2"
+                       asp-controller="Account" asp-action="Login">Login</a>
+                    <a class="btn btn-teal-solid px-4 py-2"
+                       asp-controller="Account" asp-action="Register">Register</a>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - MediGuard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    </nav>
+
+    <!-- Page Body Content Injected Here -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,472 @@
+﻿@model MediGuardApp.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login - MediGuard";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --mg-ink: #0b2545;
+        --mg-ink-soft: #1e3a8a;
+        --mg-teal: #0b6e5f;
+        --mg-teal-deep: #084f45;
+        --mg-teal-glow: rgba(11, 110, 95, 0.18);
+        --mg-paper: #f7f6f1;
+        --mg-line: #e2dfd4;
+        --mg-clay: #b54f35;
+        --mg-mint: #e6f2ed;
+        --mg-muted: #6b7570;
+        --mg-white: #ffffff;
+        --mg-sky: #38bdf8;
+    }
+
+    body {
+        background: linear-gradient(160deg, #f0f4f2 0%, var(--mg-paper) 45%, #eef5f2 100%);
+        font-family: 'Work Sans', system-ui, sans-serif;
+        color: var(--mg-ink);
+        min-height: 100vh;
+    }
+
+    .auth-wrapper {
+        min-height: 88vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1.25rem;
+    }
+
+    .auth-shell {
+        max-width: 920px;
+        width: 100%;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow:
+            0 4px 6px rgba(11, 37, 69, 0.04),
+            0 24px 60px rgba(11, 37, 69, 0.12),
+            0 0 0 1px rgba(11, 37, 69, 0.04);
+        display: grid;
+        grid-template-columns: 0.92fr 1.08fr;
+        background: var(--mg-white);
+        position: relative;
+    }
+
+    /* ---------- Left panel (Blue theme) ---------- */
+    .auth-label {
+        background: linear-gradient(165deg, #0b2545 0%, #1e3a8a 55%, #14306b 100%);
+        color: #f2f5f3;
+        padding: 3rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-label::before,
+    .auth-label::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(50px);
+        opacity: 0.28;
+        pointer-events: none;
+    }
+
+    .auth-label::before {
+        width: 220px;
+        height: 220px;
+        background: #38bdf8;
+        top: -70px;
+        right: -50px;
+    }
+
+    .auth-label::after {
+        width: 160px;
+        height: 160px;
+        background: #60a5fa;
+        bottom: 40px;
+        left: -40px;
+    }
+
+    .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        position: relative;
+        z-index: 1;
+    }
+
+    .brand-mark .rx-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        color: #1e3a8a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Newsreader', serif;
+        font-style: italic;
+        font-weight: 600;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .auth-label h1 {
+        font-family: 'Newsreader', serif;
+        font-weight: 500;
+        font-size: 2.45rem;
+        line-height: 1.12;
+        margin: 2.5rem 0 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-label p.lede {
+        color: #c5d4ce;
+        font-size: 1rem;
+        line-height: 1.6;
+        max-width: 28ch;
+        position: relative;
+        z-index: 1;
+    }
+
+    .trust-note {
+        margin-top: 2.25rem;
+        border: 1px solid rgba(242, 245, 243, 0.18);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(8px);
+        border-radius: 16px;
+        padding: 1.1rem 1.2rem;
+        display: flex;
+        gap: 0.85rem;
+        align-items: flex-start;
+        position: relative;
+        z-index: 1;
+    }
+
+    .trust-note i {
+        color: #7dd3fc;
+        margin-top: 0.15rem;
+        font-size: 1.15rem;
+    }
+
+    .trust-note p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: #e8f0ec;
+    }
+
+    .label-footer {
+        margin-top: 2.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .barcode {
+        height: 22px;
+        margin-bottom: 1.15rem;
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(242, 245, 243, 0.5) 0px,
+            rgba(242, 245, 243, 0.5) 2px,
+            transparent 2px,
+            transparent 4px,
+            rgba(242, 245, 243, 0.5) 4px,
+            rgba(242, 245, 243, 0.5) 5px,
+            transparent 5px,
+            transparent 9px,
+            rgba(242, 245, 243, 0.5) 9px,
+            rgba(242, 245, 243, 0.5) 12px,
+            transparent 12px,
+            transparent 14px
+        );
+        opacity: 0.45;
+        border-radius: 2px;
+    }
+
+    .label-footer p {
+        font-size: 0.92rem;
+        color: #c5d4ce;
+        margin: 0;
+    }
+
+    .label-footer a {
+        color: #e0f2fe;
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1.5px solid rgba(56, 189, 248, 0.5);
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .label-footer a:hover {
+        color: #38bdf8;
+        border-bottom-color: #38bdf8;
+    }
+
+    /* ---------- Right panel ---------- */
+    .auth-form-panel {
+        padding: 3.25rem 2.75rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: var(--mg-white);
+    }
+
+    .auth-form-panel .kicker {
+        font-family: 'Newsreader', serif;
+        font-style: italic;
+        color: var(--mg-teal);
+        font-size: 1.05rem;
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.01em;
+    }
+
+    .auth-form-panel h2 {
+        font-family: 'Newsreader', serif;
+        font-weight: 500;
+        font-size: 1.7rem;
+        margin: 0 0 2rem;
+        color: var(--mg-ink);
+        letter-spacing: -0.02em;
+    }
+
+    .form-floating > .form-control {
+        border: 1.5px solid var(--mg-line);
+        border-radius: 12px;
+        background: #fafaf8;
+        height: 58px;
+        padding-top: 1.4rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: var(--mg-teal);
+        background: var(--mg-white);
+        box-shadow: 0 0 0 4px var(--mg-teal-glow);
+    }
+
+    .form-floating > label {
+        color: var(--mg-muted);
+        padding-left: 1rem;
+    }
+
+    .input-group .form-control {
+        border-radius: 12px 0 0 12px;
+    }
+
+    .input-group .toggle-password {
+        border: 1.5px solid var(--mg-line);
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        color: var(--mg-muted);
+        background: #fafaf8;
+        padding: 0 1rem;
+        transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .input-group .toggle-password:hover {
+        color: var(--mg-teal);
+        background: var(--mg-mint);
+    }
+
+    #emailDomainFeedback {
+        color: var(--mg-clay);
+        font-size: 0.82rem;
+    }
+
+    .form-check-input {
+        width: 1.15em;
+        height: 1.15em;
+        border: 1.5px solid var(--mg-line);
+        border-radius: 5px;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--mg-teal);
+        border-color: var(--mg-teal);
+    }
+
+    .form-check-label {
+        font-size: 0.9rem;
+        color: var(--mg-muted);
+        margin-left: 0.25rem;
+    }
+
+    .forgot-link {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--mg-teal-deep);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+        color: var(--mg-teal);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, var(--mg-teal) 0%, var(--mg-teal-deep) 100%);
+        color: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        border: none;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(11, 110, 95, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .btn-login:hover {
+        background: linear-gradient(135deg, #0d8574 0%, var(--mg-teal) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(11, 110, 95, 0.35);
+        color: #fff;
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .signup-note {
+        text-align: center;
+        font-size: 0.92rem;
+        color: var(--mg-muted);
+        margin-top: 0.25rem;
+    }
+
+    .signup-note a {
+        color: var(--mg-teal-deep);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1.5px solid transparent;
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .signup-note a:hover {
+        color: var(--mg-teal);
+        border-bottom-color: var(--mg-teal);
+    }
+
+    .form-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--mg-line), transparent);
+        margin: 0.5rem 0 1.25rem;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .btn-login {
+            transition: none;
+        }
+    }
+
+    @@media (max-width: 800px) {
+        .auth-shell {
+            grid-template-columns: 1fr;
+            border-radius: 20px;
+        }
+
+        .auth-label {
+            padding: 2.25rem 1.75rem;
+            min-height: auto;
+        }
+
+        .auth-label h1 {
+            font-size: 2rem;
+            margin-top: 1.75rem;
+        }
+
+        .auth-form-panel {
+            padding: 2.25rem 1.75rem;
+        }
+
+        .auth-label::before,
+        .auth-label::after {
+            opacity: 0.18;
+        }
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-shell">
+        <div class="auth-label">
+            <div>
+                <div class="brand-mark">
+                    <span class="rx-badge">℞</span>
+                    <span>MediGuard</span>
+                </div>
+                <h1>Welcome back</h1>
+                <p class="lede">Sign in to pick up where you left off — orders, stock, and routes, all in one place.</p>
+
+                <div class="trust-note">
+                    <i class="bi bi-shield-check"></i>
+                    <p>Every login is checked against your account's role, so you only ever see what's yours to manage.</p>
+                </div>
+            </div>
+
+            <div class="label-footer">
+                <div class="barcode"></div>
+                <p>New to MediGuard? <a asp-controller="Account" asp-action="Register">Create an account</a></p>
+            </div>
+        </div>
+
+        <div class="auth-form-panel">
+            <div class="kicker">Sign in</div>
+            <h2>Access your workspace</h2>
+
+            <form id="authForm" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="Role" id="Role" value="Pharmacy Manager" />
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                    <label asp-for="Email"></label>
+                    <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
+                </div>
+
+                <div class="input-group mb-4">
+                    <div class="form-floating flex-grow-1">
+                        <input asp-for="Password" class="form-control border-end-0" placeholder="Password" id="loginPassword" required />
+                        <label asp-for="Password"></label>
+                    </div>
+                    <button type="button" class="input-group-text toggle-password" data-target="loginPassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login mb-3">Sign in</button>
+
+                <div class="form-divider"></div>
+
+                <div class="signup-note">
+                    <p class="mb-0">New to MediGuard? <a asp-controller="Account" asp-action="Register">Create an account</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/auth-validation.js"></script>
+}

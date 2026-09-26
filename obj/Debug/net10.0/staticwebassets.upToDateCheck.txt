@@ -1,6 +1,7 @@
 wwwroot\css\site.css
 wwwroot\favicon.ico
-wwwroot\js\site.js
+wwwroot\images\Medi imag.png
+wwwroot\js\auth-validation.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -120,6 +121,6 @@ C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\lib\bootstrap\dist\css\bootstr
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
-C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\js\site.js
+C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\js\auth-validation.js
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\favicon.ico
 C:\Users\Pial Ahmed Shosi\Desktop\AppMedi\wwwroot\css\site.css
