@@ -1,0 +1,585 @@
+﻿@model MediGuard.Models.ViewModels.RegisterPharmacyViewModel
+
+@{
+    ViewData["Title"] = "Register Pharmacy";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: #6a1b9a;
+        --primary-light: #8e24aa;
+        --accent: #00897b;
+        --accent-light: #26a69a;
+        --danger: #e53935;
+        --success: #43a047;
+        --text-dark: #2b2140;
+        --text-muted: #6b6278;
+        --bg-soft: #f6f3fb;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .pharmacy-register-wrapper {
+        min-height: 100vh;
+        padding: 3rem 1rem;
+        background: radial-gradient(circle at 15% 20%, rgba(142, 36, 170, 0.15), transparent 40%), radial-gradient(circle at 85% 80%, rgba(0, 137, 123, 0.15), transparent 40%), var(--bg-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 980px;
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(106, 27, 154, 0.15), 0 4px 12px rgba(0,0,0,0.04);
+        border: 1px solid rgba(106, 27, 154, 0.08);
+        animation: fadeInUp 0.5s ease;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .register-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light) 60%, var(--accent-light));
+        padding: 2.25rem 2.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .register-header::before {
+            content: "";
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .register-header::after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            left: 10%;
+            width: 160px;
+            height: 160px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .register-header h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-header p {
+            margin: 0.35rem 0 0;
+            opacity: 0.9;
+            font-size: 0.92rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-header .header-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            backdrop-filter: blur(4px);
+        }
+
+    .register-body {
+        padding: 2.5rem;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+
+        .section-title .icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+    .icon-badge.purple {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
+
+    .icon-badge.teal {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    }
+
+    .form-column {
+        padding: 0 1.25rem;
+    }
+
+    @@media (min-width: 768px) {
+        .form-column.left {
+            border-right: 1px dashed #e3d9ef;
+        }
+    }
+
+    .field-group {
+        position: relative;
+        margin-bottom: 1.4rem;
+    }
+
+        .field-group label {
+            display: block;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.01em;
+        }
+
+            .field-group label .req {
+                color: var(--danger);
+                margin-left: 2px;
+            }
+
+    .input-icon-wrap {
+        position: relative;
+    }
+
+        .input-icon-wrap i.field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a89bb8;
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+    .form-control,
+    textarea.form-control {
+        border: 1.5px solid #e6e0ee;
+        border-radius: 10px;
+        padding: 0.65rem 0.9rem 0.65rem 2.5rem;
+        font-size: 0.92rem;
+        background: #fbfaff;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+
+    textarea.form-control {
+        padding-left: 0.9rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 4px rgba(142, 36, 170, 0.1);
+        background: #fff;
+        outline: none;
+    }
+
+        .form-control:focus ~ i.field-icon,
+        .input-icon-wrap:focus-within i.field-icon {
+            color: var(--primary);
+        }
+
+    .form-control.is-valid-custom {
+        border-color: var(--success);
+    }
+
+    .form-control.is-invalid-custom {
+        border-color: var(--danger);
+    }
+
+    .field-hint {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        margin-top: 0.3rem;
+        display: block;
+    }
+
+    .field-error {
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+        display: none;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--danger);
+    }
+
+        .field-error.show {
+            display: flex;
+        }
+
+    .strength-meter {
+        display: flex;
+        gap: 4px;
+        margin-top: 0.5rem;
+    }
+
+        .strength-meter .bar {
+            height: 5px;
+            flex: 1;
+            border-radius: 3px;
+            background: #e6e0ee;
+            transition: background 0.3s ease;
+        }
+
+    .strength-label {
+        font-size: 0.75rem;
+        margin-top: 0.35rem;
+        font-weight: 600;
+        display: block;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #a89bb8;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+    .submit-row {
+        margin-top: 1.5rem;
+        padding-top: 1.75rem;
+        border-top: 1px solid #f0ecf7;
+        text-align: center;
+    }
+
+    .btn-register {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light));
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.85rem 3.2rem;
+        border-radius: 12px;
+        letter-spacing: 0.02em;
+        box-shadow: 0 10px 24px rgba(0, 137, 123, 0.28);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(0, 137, 123, 0.35);
+            color: #fff;
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register i {
+            margin-right: 0.5rem;
+        }
+
+    .trust-note {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+        .trust-note i {
+            color: var(--success);
+        }
+
+    @@media (max-width: 767px) {
+        .register-body {
+            padding: 1.75rem 1.25rem;
+        }
+
+        .form-column {
+            padding: 0;
+        }
+
+            .form-column.left {
+                margin-bottom: 1rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px dashed #e3d9ef;
+            }
+    }
+</style>
+
+<div class="pharmacy-register-wrapper">
+    <div class="register-card">
+        <div class="register-header">
+            <div class="header-icon"><i class="fa-solid fa-house-medical"></i></div>
+            <h4>Register Your Pharmacy &amp; Manager Profile</h4>
+            <p>Set up your organisation's tenant account and the primary manager login in one step.</p>
+        </div>
+
+        <div class="register-body">
+            <form id="pharmacyRegisterForm" asp-action="Register" method="post" novalidate>
+                <div class="row">
+                    <!-- Left Side: Pharmacy Business Info -->
+                    <div class="col-md-6 form-column left">
+                        <div class="section-title">
+                            <span class="icon-badge purple"><i class="fa-solid fa-prescription-bottle-medical"></i></span>
+                            Pharmacy Business Info
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="OrganisationName">Organisation Name<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-building field-icon"></i>
+                                <input asp-for="OrganisationName" class="form-control" placeholder="e.g. City Pharmacy Ltd." required />
+                            </div>
+                            <span asp-validation-for="OrganisationName" class="field-error d-block text-danger"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="LicenseNumber">Trade / Pharmacy License Number<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-id-card field-icon"></i>
+                                <input asp-for="LicenseNumber" class="form-control" placeholder="License / registration no." required />
+                            </div>
+                            <span asp-validation-for="LicenseNumber" class="field-error d-block text-danger"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="BusinessAddress">Business Address<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-location-dot field-icon"></i>
+                                <input asp-for="BusinessAddress" class="form-control" placeholder="Street, building, area" required />
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="City">City<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-city field-icon"></i>
+                                <input asp-for="City" class="form-control" placeholder="e.g. Dhaka" required />
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="TaxID">Tax ID<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-file-invoice-dollar field-icon"></i>
+                                <input asp-for="TaxID" class="form-control" placeholder="Tax identification number" required />
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="PharmacyEmailDomain">Official Pharmacy Email Domain<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-globe field-icon"></i>
+                                <input asp-for="PharmacyEmailDomain" class="form-control" id="PharmacyEmailDomain" placeholder="citypharmacy.com" required />
+                            </div>
+                            <small class="field-hint">Manager emails must match this domain.</small>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Manager Profile Details -->
+                    <div class="col-md-6 form-column">
+                        <div class="section-title">
+                            <span class="icon-badge teal"><i class="fa-solid fa-user-tie"></i></span>
+                            Manager Profile Details
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="ManagerFullName">Manager Full Name<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-user field-icon"></i>
+                                <input asp-for="ManagerFullName" class="form-control" placeholder="John Doe" required />
+                            </div>
+                            <span asp-validation-for="ManagerFullName" class="field-error d-block text-danger"></span>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="PersonalPhoneNumber">Personal Phone Number<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-phone field-icon"></i>
+                                <input asp-for="PersonalPhoneNumber" class="form-control" type="tel" placeholder="+880 1XXX-XXXXXX" required />
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="EmployeeID">Employee ID</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-id-badge field-icon"></i>
+                                <input asp-for="EmployeeID" class="form-control" placeholder="Optional" />
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="ManagerAuthenticationEmail">Domain Authentication Email<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-envelope field-icon"></i>
+                                <input asp-for="ManagerAuthenticationEmail" class="form-control" id="ManagerAuthenticationEmail" type="email" placeholder="john.doe@citypharmacy.com" required />
+                            </div>
+                            <small id="domainError" class="field-error"><i class="fa-solid fa-circle-exclamation"></i> <span></span></small>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="Password">Password<span class="req">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-lock field-icon"></i>
+                                <input asp-for="Password" class="form-control" id="Password" type="password" placeholder="Create a strong password" required />
+                                <button type="button" class="toggle-password" id="togglePassword" tabindex="-1">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="strength-meter" id="strengthMeter">
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                            </div>
+                            <span class="strength-label" id="strengthLabel"></span>
+                            <small id="passwordError" class="field-error"><i class="fa-solid fa-circle-exclamation"></i> <span></span></small>
+                        </div>
+
+                        <div class="field-group">
+                            <label asp-for="PersonalContactNote">Personal Contact Note</label>
+                            <textarea asp-for="PersonalContactNote" class="form-control" rows="3" placeholder="Anything the support team should know (optional)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-row">
+                    <button type="submit" class="btn-register">
+                        <i class="fa-solid fa-circle-check"></i>Register Tenant
+                    </button>
+                    <div class="trust-note">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Your data is encrypted and used only for pharmacy verification.
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/auth-validation.js"></script>
+    <script>
+        // Password show/hide toggle
+        (function () {
+            const toggleBtn = document.getElementById('togglePassword');
+            const pwd = document.getElementById('Password');
+            if (toggleBtn && pwd) {
+                toggleBtn.addEventListener('click', function () {
+                    const isPassword = pwd.type === 'password';
+                    pwd.type = isPassword ? 'text' : 'password';
+                    toggleBtn.innerHTML = isPassword
+                        ? '<i class="fa-solid fa-eye-slash"></i>'
+                        : '<i class="fa-solid fa-eye"></i>';
+                });
+            }
+        })();
+
+        // Lightweight password strength meter (visual only — real validation stays in auth-validation.js)
+        (function () {
+            const pwd = document.getElementById('Password');
+            const bars = document.querySelectorAll('#strengthMeter .bar');
+            const label = document.getElementById('strengthLabel');
+            if (!pwd) return;
+
+            const colors = ['#e53935', '#fb8c00', '#fdd835', '#43a047'];
+            const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+
+            pwd.addEventListener('input', function () {
+                const val = pwd.value;
+                let score = 0;
+                if (val.length >= 8) score++;
+                if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+                if (/\d/.test(val)) score++;
+                if (/[^A-Za-z0-9]/.test(val)) score++;
+
+                bars.forEach((bar, i) => {
+                    bar.style.background = i < score ? colors[Math.max(score - 1, 0)] : '#e6e0ee';
+                });
+
+                if (val.length === 0) {
+                    label.textContent = '';
+                } else {
+                    label.textContent = labels[Math.max(score - 1, 0)];
+                    label.style.color = colors[Math.max(score - 1, 0)];
+                }
+            });
+        })();
+
+        // Live domain-match hint between PharmacyEmailDomain and ManagerAuthenticationEmail
+        (function () {
+            const domainInput = document.getElementById('PharmacyEmailDomain');
+            const emailInput = document.getElementById('ManagerAuthenticationEmail');
+            const errorBox = document.getElementById('domainError');
+            if (!domainInput || !emailInput || !errorBox) return;
+
+            function checkDomain() {
+                const domain = domainInput.value.trim().toLowerCase();
+                const email = emailInput.value.trim().toLowerCase();
+                if (!domain || !email || !email.includes('@@')) {
+                    errorBox.classList.remove('show');
+                    emailInput.classList.remove('is-invalid-custom', 'is-valid-custom');
+                    return;
+                }
+                const emailDomain = email.split('@@')[1];
+                if (emailDomain !== domain) {
+                    errorBox.querySelector('span').textContent = 'Email domain must match the pharmacy domain (' + domain + ').';
+                    errorBox.classList.add('show');
+                    emailInput.classList.add('is-invalid-custom');
+                    emailInput.classList.remove('is-valid-custom');
+                } else {
+                    errorBox.classList.remove('show');
+                    emailInput.classList.remove('is-invalid-custom');
+                    emailInput.classList.add('is-valid-custom');
+                }
+            }
+
+            domainInput.addEventListener('input', checkDomain);
+            emailInput.addEventListener('input', checkDomain);
+        })();
+    </script>
+}
