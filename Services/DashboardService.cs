@@ -47,7 +47,7 @@ namespace MediGuard.Services
                 PharmacyName = userProfile?.Pharmacy?.Name ?? "Pharmacy Tenant"
             };
 
-            string normalizedRole = role.Trim().ToLower();
+            string normalizedRole = (role ?? string.Empty).Trim().ToLowerInvariant();
 
             switch (normalizedRole)
             {
@@ -72,15 +72,23 @@ namespace MediGuard.Services
 
                 case "deliveryman":
                     metrics.AssignedPendingOrdersCount = await _context.Orders
-                        .Where(o => o.PharmacyId == pharmacyId && o.DeliverymanId == userIdStr && o.Status == "PENDING")
+                        .Where(o => o.PharmacyId == pharmacyId
+                                 && o.DeliverymanId == userIdStr
+                                 && o.Status == "PENDING")
                         .CountAsync();
 
                     metrics.CompletedOrdersTodayCount = await _context.Orders
-                        .Where(o => o.PharmacyId == pharmacyId && o.DeliverymanId == userIdStr && o.Status == "COMPLETED" && o.UpdatedAt != null && o.UpdatedAt.Value.Date == today)
+                        .Where(o => o.PharmacyId == pharmacyId
+                                 && o.DeliverymanId == userIdStr
+                                 && o.Status == "COMPLETED"
+                                 && o.UpdatedAt != null
+                                 && o.UpdatedAt.Value.Date == today)
                         .CountAsync();
 
                     metrics.CancelledOrdersCount = await _context.Orders
-                        .Where(o => o.PharmacyId == pharmacyId && o.DeliverymanId == userIdStr && o.Status == "CANCELLED")
+                        .Where(o => o.PharmacyId == pharmacyId
+                                 && o.DeliverymanId == userIdStr
+                                 && o.Status == "CANCELLED")
                         .CountAsync();
                     break;
 
@@ -90,7 +98,9 @@ namespace MediGuard.Services
                         .CountAsync();
 
                     metrics.ExpiringBatchesCount = await _context.Batches
-                        .Where(b => b.PharmacyId == pharmacyId && b.ExpiryDate <= thirtyDaysFromNow && b.ExpiryDate >= DateTime.UtcNow)
+                        .Where(b => b.PharmacyId == pharmacyId
+                                 && b.ExpiryDate <= thirtyDaysFromNow
+                                 && b.ExpiryDate >= DateTime.UtcNow)
                         .CountAsync();
 
                     metrics.OutOfStockCount = await _context.Batches
@@ -119,6 +129,7 @@ namespace MediGuard.Services
                 .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
             _cache.Set(cacheKey, metrics, cacheOptions);
+            _logger.LogInformation("Dashboard metrics calculated and cached for key: {CacheKey}", cacheKey);
 
             return metrics;
         }
