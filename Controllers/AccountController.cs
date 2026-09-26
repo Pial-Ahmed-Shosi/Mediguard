@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 using MediGuard.Services;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediGuard.Controllers
 {
@@ -11,58 +15,70 @@ namespace MediGuard.Controllers
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(IAuthService authService)
+        public AccountController(
+            IAuthService authService,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _authService = authService;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        // GET: /Account/Login
+        // GET: /Account/Register
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public IActionResult Register()
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View(new LoginViewModel());
+            return View(new RegisterViewModel());
         }
 
-        // POST: /Account/Login
+        // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var (isSuccess, errorMessage, principal) = await _authService.AuthenticateUserAsync(model.Email, model.Password);
-
-            if (!isSuccess || principal == null)
+            // Server-Side Guard: Pharmacy Manager Email Domain Check
+            if (model.Role == "Pharmacy Manager" || model.Role == "Manager")
             {
-                ModelState.AddModelError(string.Empty, errorMessage ?? "Invalid login attempt.");
-                return View(model);
+                var forbiddenDomains = new[] { "gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com" };
+                var domain = model.Email?.Split('@').LastOrDefault()?.ToLower();
+
+                if (domain != null && forbiddenDomains.Contains(domain))
+                {
+                    ModelState.AddModelError("Email", "Managers must use an official pharmacy domain email (e.g., manager@citypharmacy.com).");
+                    return View(model);
+                }
             }
 
-            var authProperties = new AuthenticationProperties
+            var user = new ApplicationUser
             {
-                IsPersistent = model.RememberMe,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
-                AllowRefresh = true
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                Role = model.Role ?? "Staff"
             };
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                authProperties);
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
             {
-                return Redirect(returnUrl);
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToAction("UserProfile", "Account");
             }
 
-            return RedirectToAction("Index", "Home");
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
         }
 
         // GET: /Account/RegisterPharmacy
@@ -100,14 +116,91 @@ namespace MediGuard.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        // POST: /Account/Logout
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
+        // GET: /Account/Login
+        [HttpGet]
+        public IActionResult Login(string? returnUrl = null)
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new LoginViewModel());
+        }
+
+        // POST: /Account/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Server-Side Guard on Login: Manager Email Domain Check
+            if (model.Role == "Pharmacy Manager" || model.Role == "Manager")
+            {
+                var forbiddenDomains = new[] { "gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com" };
+                var domain = model.Email?.Split('@').LastOrDefault()?.ToLower();
+
+                if (domain != null && forbiddenDomains.Contains(domain))
+                {
+                    ModelState.AddModelError("Email", "Managers must use an official pharmacy domain email (e.g., manager@citypharmacy.com).");
+                    return View(model);
+                }
+            }
+
+            // 1. Try AuthService custom authentication (for custom cookie scheme)
+            var (isSuccess, errorMessage, principal) = await _authService.AuthenticateUserAsync(model.Email, model.Password);
+
+            if (isSuccess && principal != null)
+            {
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                    AllowRefresh = true
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    authProperties);
+
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            // 2. Fallback to ASP.NET Core Identity SignInManager
+            var signInResult = await _signInManager.PasswordSignInAsync(
+                model.Email,
+                model.Password,
+                model.RememberMe,
+                lockoutOnFailure: false);
+
+            if (signInResult.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                return RedirectToAction("UserProfile", "Account");
+            }
+
+            ModelState.AddModelError(string.Empty, errorMessage ?? "Invalid login attempt.");
+            return View(model);
+        }
+
+        // GET: /Account/UserProfile
+        [HttpGet]
+        [Authorize]
+        public IActionResult UserProfile()
+        {
+            return View();
         }
 
         // GET: /Account/AccessDenied
@@ -117,12 +210,15 @@ namespace MediGuard.Controllers
             return View();
         }
 
-        // GET: /Account/UserProfile
-        [HttpGet]
+        // POST: /Account/Logout
+        [HttpPost]
         [Authorize]
-        public IActionResult UserProfile()
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
-            return View();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
