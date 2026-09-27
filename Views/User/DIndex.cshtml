@@ -1,0 +1,92 @@
+@model MediGuard.Models.ViewModels.UserManagementViewModel
+@{
+    ViewData["Title"] = "Staff & Deliveryman Management";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="h3 fw-bold mb-1 text-gray-800">Staff & Deliveryman Management</h2>
+            <p class="text-muted mb-0">Manage employee accounts, roles, and access permissions for your pharmacy.</p>
+        </div>
+        <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#addEmployeeOffcanvas">
+            <i class="bi bi-person-plus-fill"></i> Add New Employee
+        </button>
+    </div>
+
+    <!-- Toolbar: Filters & Search -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+                <!-- Quick Filters -->
+                <div class="col-12 col-xl-7">
+                    <div class="btn-group flex-wrap w-100" role="group" id="quickFilters">
+                        <button type="button" class="btn btn-outline-secondary active" data-role="All">All Staff</button>
+                        <button type="button" class="btn btn-outline-secondary" data-role="Manager">Manager</button>
+                        <button type="button" class="btn btn-outline-secondary" data-role="Pharmacy Manager">Pharmacy Manager</button>
+                        <button type="button" class="btn btn-outline-secondary" data-role="Deliveryman">Deliverymen</button>
+                        <button type="button" class="btn btn-outline-secondary" data-role="Inactive">Inactive</button>
+                    </div>
+                </div>
+                <!-- Search Input -->
+                <div class="col-12 col-xl-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="searchUserInput" class="form-control border-start-0 ps-0" placeholder="Search by name, email, or phone...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic AJAX Table Container -->
+    <div class="card shadow-sm border-0" id="tableContainer">
+        @await Html.PartialAsync("_UserListTable", Model)
+    </div>
+</div>
+
+<!-- Add New Employee Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addEmployeeOffcanvas" aria-labelledby="addEmployeeOffcanvasLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold" id="addEmployeeOffcanvasLabel">
+            <i class="bi bi-person-plus me-2"></i>Add New Employee
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="addEmployeeForm">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="e.g. John Doe" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Official Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" placeholder="employee@pharmacy.com" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Contact Phone</label>
+                <input type="tel" class="form-control" placeholder="+1234567890" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Role <span class="text-danger">*</span></label>
+                <select class="form-select" required>
+                    <option value="" disabled selected>Select a role...</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Pharmacy Manager">Pharmacy Manager</option>
+                    <option value="Deliveryman">Deliveryman</option>
+                </select>
+            </div>
+            <div class="mt-4 d-grid gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i> Save Employee</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/Duser-management.js" asp-append-version="true"></script>
+}
