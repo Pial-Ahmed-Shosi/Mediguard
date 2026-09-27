@@ -1,0 +1,73 @@
+@model MediGuard.Models.ViewModels.UserManagementViewModel
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-muted">
+            <tr>
+                <th class="ps-4">Full Name</th>
+                <th>Official Email</th>
+                <th>Role Badge</th>
+                <th>Contact Phone</th>
+                <th>Account Status</th>
+                <th class="text-end pe-4">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(Model.Users != null && Model.Users.Any())
+            {
+                foreach(var user in Model.Users)
+                {
+                    <tr>
+                        <td class="ps-4 fw-medium text-dark">@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            @{
+                                var badgeClass = user.Role switch {
+                                    "Manager" => "bg-dark text-white",
+                                    "Pharmacy Manager" => "bg-primary text-white",
+                                    "Deliveryman" => "bg-warning text-dark",
+                                    _ => "bg-secondary text-white"
+                                };
+                            }
+                            <span class="badge @badgeClass">@user.Role</span>
+                        </td>
+                        <td>@(!string.IsNullOrEmpty(user.Phone) ? user.Phone : "N/A")</td>
+                        <td>
+                            @if(user.IsActive)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2 text-muted"></i> Edit</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-key me-2 text-muted"></i> Reset Password</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-shield-lock me-2 text-muted"></i> Assign Role</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2 text-muted"></i> Other Information</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-inboxes fs-1 d-block mb-2 text-secondary"></i>
+                        No staff members found matching the criteria.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
