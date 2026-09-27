@@ -11,11 +11,18 @@ namespace MediGuard.Data
         {
         }
 
+        // --- Core & Auth Tables ---
         public DbSet<Pharmacy> Pharmacies { get; set; } = null!;
         public DbSet<Role> CustomRoles { get; set; } = null!;
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<RolePermission> RolePermissions { get; set; } = null!;
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
+
+        // --- Operational & Dashboard Tables (Ticket 13) ---
+        public DbSet<Sale> Sales { get; set; } = null!;
+        public DbSet<Batch> Batches { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<Prescription> Prescriptions { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -41,7 +48,7 @@ namespace MediGuard.Data
                 .HasIndex(u => u.PharmacyId)
                 .HasDatabaseName("idx_users_pharmacy_id");
 
-            // --- Ticket 9 (G3M-113) RBAC Configuration ---
+            // --- Ticket 9 RBAC Configuration ---
 
             // Composite Primary Key for RolePermissions
             builder.Entity<RolePermission>()

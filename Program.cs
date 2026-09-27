@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Services;
@@ -33,9 +34,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 6. Register Application Services (Dependency Injection)
+// 5. Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // 7. Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
