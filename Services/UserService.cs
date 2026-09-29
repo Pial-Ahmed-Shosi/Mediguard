@@ -72,3 +72,94 @@ namespace MediGuard.Services
                 RoleFilter = roleFilter
             };
         }
+
+        public async Task<(bool Success, string Message, string? TempPassword)> CreateStaffAsync(Guid pharmacyId, CreateStaffViewModel model)
+        {
+            if (!AllowedStaffRoles.Contains(model.Role, StringComparer.OrdinalIgnoreCase))
+            {
+                return (false, "Invalid role. Allowed roles: Pharmacist, Cashier, Deliveryman.", null);
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                return (false, "A user with this email address already exists.", null);
+            }
+
+            string tempPassword = GenerateTemporaryPassword();
+
+            var user = new ApplicationUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                PharmacyId = pharmacyId,
+                Role = model.Role,
+                IsActive = true,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, tempPassword);
+            if (!result.Succeeded)
+            {
+                string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return (false, $"Failed to create user: {errors}", null);
+            }
+
+            await _userManager.AddToRoleAsync(user, model.Role);
+
+            return (true, "Staff account created successfully.", tempPassword);
+        }
+
+        public async Task<(bool Success, string Message)> UpdatePermissionsAsync(Guid pharmacyId, string userId, List<int> permissionIds)
+        {
+            // Strict tenant isolation check
+            var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId && u.PharmacyId == pharmacyId);
+            if (targetUser == null)
+            {
+                return (false, "User not found or you do not have permission to modify this user.");
+            }
+
+            // Convert string userId to Guid for the UserPermission table
+            if (!Guid.TryParse(userId, out Guid userGuid))
+            {
+                return (false, "Invalid user ID format.");
+            }
+
+            // Fixed Line 124: Compare Guid to Guid
+            var existingPermissions = _context.UserPermissions.Where(up => up.UserId == userGuid);
+            _context.UserPermissions.RemoveRange(existingPermissions);
+
+            if (permissionIds != null && permissionIds.Any())
+            {
+                // Fixed Line 131: Assign Guid value to UserId
+                var newPermissions = permissionIds.Select(pid => new UserPermission
+                {
+                    UserId = userGuid,
+                    PermissionId = pid
+                });
+
+                await _context.UserPermissions.AddRangeAsync(newPermissions);
+            }
+
+            await _context.SaveChangesAsync();
+            return (true, "User permissions updated successfully.");
+        }
+
+        private static string GenerateTemporaryPassword()
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*";
+            using var rng = RandomNumberGenerator.Create();
+            byte[] bytes = new byte[10];
+            rng.GetBytes(bytes);
+
+            char[] chars = new char[10];
+            for (int i = 0; i < 10; i++)
+            {
+                chars[i] = validChars[bytes[i] % validChars.Length];
+            }
+            return "Mg1!" + new string(chars);
+        }
+    }
+}
