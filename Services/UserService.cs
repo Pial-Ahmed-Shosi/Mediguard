@@ -10,7 +10,7 @@ using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 
 namespace MediGuard.Services
-{     //brunch er kaj -- This is a test for the user service implementation. It provides methods for managing staff users, including listing staff, creating new staff accounts, and updating user permissions. The service ensures strict tenant isolation by filtering users based on the pharmacy ID.
+{     //brunch work for -- This is a test for the user service implementation. 
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _context;
