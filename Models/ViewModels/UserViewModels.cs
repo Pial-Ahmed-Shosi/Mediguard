@@ -8,7 +8,7 @@ namespace MediGuard.Models.ViewModels
     {
         // The FullName property represents the full name of the staff user. It is required and cannot be empty.
         [Required(ErrorMessage = "Full name is required.")] 
-        public string FullName { get; set; } = string.Empty; 
+        public string FullName { get; set; } = string.Empty;  
 
         [Required(ErrorMessage = "Email is required.")] 
         [EmailAddress(ErrorMessage = "Invalid email format.")] 
