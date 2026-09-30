@@ -6,6 +6,7 @@ namespace MediGuard.Models.ViewModels
 {
     public class CreateStaffViewModel
     {
+        // The FullName property represents the full name of the staff user. It is required and cannot be empty.
         [Required(ErrorMessage = "Full name is required.")]
         public string FullName { get; set; } = string.Empty;
 
@@ -14,7 +15,8 @@ namespace MediGuard.Models.ViewModels
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Role selection is required.")]
-        public string Role { get; set; } = string.Empty; // Pharmacist, Cashier, or Deliveryman
+    // Pharmacist, Cashier, or Deliveryman
+        public string Role { get; set; } = string.Empty; 
     }
 
     public class StaffUserListItemViewModel
@@ -27,7 +29,7 @@ namespace MediGuard.Models.ViewModels
         public bool IsActive { get; set; }
         public List<int> AssignedPermissionIds { get; set; } = new();
     }
-
+    // This class is used to represent a paginated list of staff users, along with pagination information and search/filter criteria.
     public class StaffPagedListViewModel
     {
         public List<StaffUserListItemViewModel> Users { get; set; } = new();
