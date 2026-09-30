@@ -17,6 +17,15 @@ namespace MediGuard.Models.ViewModels
         public List<string> Permissions { get; set; } = new List<string>();
 
         /// <summary>
+        /// Compatibility alias mapping to Permissions for view/controller binding flexibility.
+        /// </summary>
+        public List<string> SelectedPermissions
+        {
+            get => Permissions;
+            set => Permissions = value ?? new List<string>();
+        }
+
+        /// <summary>
         /// Indicates if the pharmacy tenant has an active Medi+ subscription.
         /// </summary>
         public bool IsMediPlusActive { get; set; }
