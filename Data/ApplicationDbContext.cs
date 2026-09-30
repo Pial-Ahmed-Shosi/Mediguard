@@ -24,6 +24,10 @@ namespace MediGuard.Data
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
 
+        // --- Inventory Classification Tables (Ticket 19) ---
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Manufacturer> Manufacturers { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -75,6 +79,34 @@ namespace MediGuard.Data
                 .WithMany(p => p.UserPermissions)
                 .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // --- Ticket 19 Categories & Manufacturers Configuration ---
+
+            // Category: Unique (PharmacyId, Name) + Foreign Key
+            builder.Entity<Category>(entity =>
+            {
+                entity.HasIndex(c => new { c.PharmacyId, c.Name })
+                      .IsUnique()
+                      .HasDatabaseName("idx_categories_pharmacy_id_name");
+
+                entity.HasOne(c => c.Pharmacy)
+                      .WithMany(p => p.Categories)
+                      .HasForeignKey(c => c.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Manufacturer: Unique (PharmacyId, Name) + Foreign Key
+            builder.Entity<Manufacturer>(entity =>
+            {
+                entity.HasIndex(m => new { m.PharmacyId, m.Name })
+                      .IsUnique()
+                      .HasDatabaseName("idx_manufacturers_pharmacy_id_name");
+
+                entity.HasOne(m => m.Pharmacy)
+                      .WithMany(p => p.Manufacturers)
+                      .HasForeignKey(m => m.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // Seed Standard Roles 1-5
             builder.Entity<Role>().HasData(
