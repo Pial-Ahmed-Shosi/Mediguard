@@ -119,7 +119,7 @@ namespace MediGuard.Controllers
             {
                 return pharmacyId;
             }
-            // hello
+            //controller
             throw new UnauthorizedAccessException("Current user tenant identity (PharmacyId) is missing or invalid in context.");
         }
     }
