@@ -1,551 +1,212 @@
-﻿@model IEnumerable<MediGuard.Models.ViewModels.RoleAssignmentViewModel>
+﻿@model MediGuard.Models.ViewModels.UserManagementViewModel
 @{
-    ViewData["Title"] = "Staff & User Management";
+    ViewData["Title"] = "Staff Management";
+    var staffCount = Model.Users?.Count() ?? 0;
 }
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
     :root {
-        --ink: #171A23;
-        --slate: #5B6472;
-        --slate-light: #94A0B4;
-        --surface: #FFFFFF;
-        --bg: #F3F5FA;
-        --line: #E7EAF1;
-        --violet: #5B21B6;
-        --violet-deep: #4C1D95;
-        --violet-soft: #EEE9FC;
-        --teal: #0D9488;
-        --teal-soft: #D8F5F0;
-        --amber: #B45309;
-        --amber-soft: #FDF0DA;
-        --success: #0F9D63;
-        --success-soft: #DFF6EA;
-        --muted-soft: #EEF1F6;
+        --mg-ink: #12313a;
+        --mg-muted: #6b7f86;
+        --mg-teal: #0f766e;
+        --mg-teal-dark: #0b5a54;
+        --mg-mint: #e6f4f1;
+        --mg-line: #e3ebed;
+        --mg-bg: #f5f8f9;
     }
 
-    .sm-wrap {
-        background: var(--bg);
-        min-height: 100vh;
-        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-        color: var(--ink);
-        padding: 2rem 2.25rem;
-    }
+    .mg-page { background: var(--mg-bg); min-height: 100vh; }
 
-        .sm-wrap h1, .sm-wrap h2, .sm-wrap h3, .sm-wrap h4, .sm-wrap h5, .sm-wrap h6 {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-        }
-
-    /* ---------- Header ---------- */
-    .sm-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 1.75rem;
-        flex-wrap: wrap;
-    }
-
-    .sm-title {
-        font-weight: 800;
-        font-size: 1.6rem;
-        letter-spacing: -0.02em;
-        color: var(--ink);
-        margin-bottom: 0.3rem;
-    }
-
-        .sm-title .bi {
-            color: var(--violet);
-            margin-right: 0.5rem;
-        }
-
-    .sm-subtitle {
-        color: var(--slate);
-        font-size: 0.92rem;
-        margin: 0;
-        max-width: 46ch;
-    }
-
-    .btn-add-staff {
-        background: linear-gradient(135deg, var(--violet) 0%, var(--violet-deep) 100%);
+    /* Header banner */
+    .mg-hero {
+        background: linear-gradient(120deg, var(--mg-teal-dark), var(--mg-teal));
+        border-radius: 1rem;
         color: #fff;
-        border: none;
-        font-weight: 600;
-        font-size: 0.92rem;
-        padding: 0.65rem 1.25rem;
-        border-radius: 999px;
-        box-shadow: 0 8px 20px -8px rgba(91, 33, 182, 0.55);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-        .btn-add-staff:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 24px -8px rgba(91, 33, 182, 0.6);
-            color: #fff;
-        }
-
-    /* ---------- Stat cards ---------- */
-    .stat-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.75rem;
-    }
-
-    @@media (max-width: 900px) {
-        .stat-row {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .stat-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 1.15rem 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.9rem;
+        padding: 1.75rem 2rem;
         position: relative;
         overflow: hidden;
     }
-
-        .stat-card::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .stat-card.staff::before {
-            background: var(--violet);
-        }
-
-        .stat-card.medi::before {
-            background: var(--teal);
-        }
-
-        .stat-card.roles::before {
-            background: var(--amber);
-        }
-
-    .stat-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.15rem;
-        flex-shrink: 0;
+    .mg-hero::after {
+        content: "\F4D9"; /* bi-heart-pulse */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 2rem; top: 50%;
+        transform: translateY(-50%);
+        font-size: 8rem;
+        opacity: .08;
+        pointer-events: none;
     }
-
-    .stat-card.staff .stat-icon {
-        background: var(--violet-soft);
-        color: var(--violet);
+    .mg-hero h2 { font-weight: 700; letter-spacing: -.01em; }
+    .mg-hero p { color: rgba(255,255,255,.8); max-width: 34rem; }
+    .mg-count {
+        background: rgba(255,255,255,.15);
+        border-radius: 999px;
+        padding: .35rem .9rem;
+        font-size: .85rem;
     }
+    .mg-hero .btn-light { color: var(--mg-teal-dark); font-weight: 600; border-radius: .65rem; padding: .6rem 1.1rem; }
+    .mg-hero .btn-light:hover { background: var(--mg-mint); }
 
-    .stat-card.medi .stat-icon {
-        background: var(--teal-soft);
-        color: var(--teal);
-    }
-
-    .stat-card.roles .stat-icon {
-        background: var(--amber-soft);
-        color: var(--amber);
-    }
-
-    .stat-label {
-        font-size: 0.78rem;
-        color: var(--slate);
-        margin-bottom: 0.1rem;
+    /* Filter bar */
+    .mg-filters { border: 1px solid var(--mg-line); border-radius: 1rem; background: #fff; }
+    #roleFilterTabs { background: var(--mg-bg); border-radius: .75rem; padding: .3rem; display: inline-flex; flex-wrap: wrap; gap: .2rem; }
+    #roleFilterTabs .nav-link {
+        color: var(--mg-muted);
         font-weight: 500;
+        font-size: .9rem;
+        border-radius: .55rem;
+        padding: .45rem .95rem;
+        transition: background .15s, color .15s;
+    }
+    #roleFilterTabs .nav-link:hover { color: var(--mg-ink); }
+    #roleFilterTabs .nav-link.active {
+        background: #fff;
+        color: var(--mg-teal-dark);
+        box-shadow: 0 1px 3px rgba(18,49,58,.12);
+    }
+    .mg-search .input-group-text { background: var(--mg-bg); border: 1px solid var(--mg-line); border-right: 0; color: var(--mg-muted); border-radius: .65rem 0 0 .65rem; }
+    .mg-search .form-control { background: var(--mg-bg); border: 1px solid var(--mg-line); border-left: 0; border-radius: 0 .65rem .65rem 0; padding: .6rem .9rem; }
+    .mg-search .form-control:focus, .mg-field:focus {
+        box-shadow: 0 0 0 .2rem rgba(15,118,110,.15);
+        border-color: var(--mg-teal);
+        background: #fff;
     }
 
-    .stat-value {
-        font-weight: 700;
-        font-size: 1.15rem;
-        color: var(--ink);
-    }
-
-    /* ---------- Table card ---------- */
-    .staff-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 18px;
+    /* Table card (partial renders inside) */
+    #userTableContainer {
+        border: 1px solid var(--mg-line) !important;
+        border-radius: 1rem;
+        background: #fff;
         overflow: hidden;
     }
-
-    .staff-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.1rem 1.5rem;
-        border-bottom: 1px solid var(--line);
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-        .staff-card-header h6 {
-            font-weight: 700;
-            margin: 0;
-            color: var(--ink);
-            font-size: 1rem;
-        }
-
-    .staff-search {
-        position: relative;
-        width: 260px;
-        max-width: 100%;
-    }
-
-        .staff-search .bi-search {
-            position: absolute;
-            left: 0.9rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--slate-light);
-            font-size: 0.9rem;
-        }
-
-        .staff-search input {
-            width: 100%;
-            background: var(--muted-soft);
-            border: 1px solid transparent;
-            border-radius: 999px;
-            padding: 0.5rem 1rem 0.5rem 2.3rem;
-            font-size: 0.85rem;
-            color: var(--ink);
-            outline: none;
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-
-            .staff-search input:focus {
-                background: var(--surface);
-                border-color: var(--violet);
-            }
-
-    table.staff-table {
-        margin: 0;
-        width: 100%;
-    }
-
-        table.staff-table thead th {
-            background: var(--muted-soft);
-            color: var(--slate);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            padding: 0.85rem 1rem;
-            border: none;
-        }
-
-        table.staff-table tbody td {
-            padding: 0.9rem 1rem;
-            border-top: 1px solid var(--line);
-            vertical-align: middle;
-            font-size: 0.9rem;
-            color: var(--ink);
-        }
-
-        table.staff-table tbody tr {
-            transition: background 0.12s ease;
-        }
-
-            table.staff-table tbody tr:hover {
-                background: #FAFAFD;
-            }
-
-    .staff-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-    }
-
-    .staff-name {
-        font-weight: 700;
-        color: var(--ink);
-        font-size: 0.92rem;
-    }
-
-    .staff-id {
-        color: var(--slate-light);
-        font-size: 0.76rem;
-    }
-
-    .role-badge {
-        display: inline-block;
-        padding: 0.32rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
+    #userTableContainer .table { margin-bottom: 0; }
+    #userTableContainer thead th {
+        background: var(--mg-bg);
+        color: var(--mg-muted);
         font-weight: 600;
-        border: 1px solid transparent;
-    }
-
-        .role-badge.role-manager {
-            background: var(--violet-soft);
-            color: var(--violet-deep);
-        }
-
-        .role-badge.role-senior {
-            background: var(--amber-soft);
-            color: var(--amber);
-        }
-
-        .role-badge.role-delivery {
-            background: var(--teal-soft);
-            color: var(--teal);
-        }
-
-        .role-badge.role-default {
-            background: var(--muted-soft);
-            color: var(--slate);
-        }
-
-    .medi-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.32rem 0.7rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-    }
-
-        .medi-pill.on {
-            background: var(--success-soft);
-            color: var(--success);
-        }
-
-        .medi-pill.off {
-            background: var(--muted-soft);
-            color: var(--slate);
-        }
-
-        .medi-pill .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-    .email-cell {
-        color: var(--slate);
-        font-size: 0.87rem;
-    }
-
-    .btn-assign {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        color: var(--violet);
-        font-weight: 600;
-        font-size: 0.82rem;
-        padding: 0.4rem 0.9rem;
-        border-radius: 999px;
-        transition: background 0.15s ease, border-color 0.15s ease;
+        font-size: .8rem;
+        border-bottom: 1px solid var(--mg-line);
+        padding: .9rem 1.25rem;
         white-space: nowrap;
     }
+    #userTableContainer tbody td { padding: .95rem 1.25rem; vertical-align: middle; border-color: var(--mg-line); }
+    #userTableContainer tbody tr:hover { background: #fafcfc; }
 
-        .btn-assign:hover {
-            background: var(--violet-soft);
-            border-color: var(--violet-soft);
-            color: var(--violet-deep);
-        }
-
-    /* ---------- Empty state ---------- */
-    .staff-empty {
-        padding: 3rem 1.5rem;
-        text-align: center;
-        color: var(--slate);
+    /* Offcanvas form */
+    #addStaffOffcanvas { width: 420px; border: 0; box-shadow: -12px 0 40px rgba(18,49,58,.15); }
+    #addStaffOffcanvas .offcanvas-header { padding: 1.5rem; background: var(--mg-mint); border-bottom: 1px solid var(--mg-line); }
+    #addStaffOffcanvas .offcanvas-body { padding: 1.5rem; }
+    .mg-offc-icon {
+        width: 2.6rem; height: 2.6rem;
+        border-radius: .75rem;
+        background: var(--mg-teal);
+        color: #fff;
+        display: grid; place-items: center;
+        font-size: 1.2rem;
     }
+    .mg-field { border: 1px solid var(--mg-line); border-radius: .65rem; padding: .65rem .9rem; }
+    .mg-label { font-weight: 600; font-size: .85rem; color: var(--mg-ink); margin-bottom: .35rem; }
+    .btn-mg { background: var(--mg-teal); border-color: var(--mg-teal); color: #fff; font-weight: 600; border-radius: .65rem; padding: .7rem 1rem; }
+    .btn-mg:hover, .btn-mg:focus { background: var(--mg-teal-dark); border-color: var(--mg-teal-dark); color: #fff; }
 
-        .staff-empty .bi {
-            font-size: 1.8rem;
-            color: var(--slate-light);
-            margin-bottom: 0.6rem;
-            display: block;
-        }
+    @@media (max-width: 575.98px) {
+        .mg-hero { padding: 1.35rem; }
+        #addStaffOffcanvas { width: 100%; }
+    }
+    @@media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; }
+    }
 </style>
 
-<div class="sm-wrap">
+<div class="container-fluid py-4 mg-page">
 
-    <!-- Page Header -->
-    <div class="sm-header">
+    <!-- Header -->
+    <div class="mg-hero mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <h4 class="sm-title"><i class="bi bi-people-fill"></i>Staff & User Management</h4>
-            <p class="sm-subtitle">Overview of pharmacy staff members, roles, and granular permission controls.</p>
+            <h2 class="h3 mb-2">Staff &amp; Delivery Management</h2>
+            <p class="mb-3">Manage your pharmacy team, assign roles and keep delivery staff up to date.</p>
+            <span class="mg-count"><i class="bi bi-people-fill me-2"></i>@staffCount team members</span>
         </div>
-        <button class="btn btn-add-staff">
-            <i class="bi bi-person-plus-fill me-1"></i> Add New Staff
-        </button>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="stat-row">
-        <div class="stat-card staff">
-            <div class="stat-icon"><i class="bi bi-people"></i></div>
-            <div>
-                <div class="stat-label">Total Staff</div>
-                <div class="stat-value">8 Active</div>
-            </div>
-        </div>
-        <div class="stat-card medi">
-            <div class="stat-icon"><i class="bi bi-shield-check"></i></div>
-            <div>
-                <div class="stat-label">Medi+ Eligible</div>
-                <div class="stat-value">3 Staff</div>
-            </div>
-        </div>
-        <div class="stat-card roles">
-            <div class="stat-icon"><i class="bi bi-lock"></i></div>
-            <div>
-                <div class="stat-label">Role Types</div>
-                <div class="stat-value">Manager, Staff, Delivery</div>
-            </div>
+        <div>
+            <button class="btn btn-light shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#addStaffOffcanvas">
+                <i class="bi bi-person-plus-fill me-2"></i>Add new employee
+            </button>
         </div>
     </div>
 
-    <!-- Staff Table -->
-    <div class="staff-card">
-        <div class="staff-card-header">
-            <h6>Pharmacy Staff Members</h6>
-            <div class="staff-search">
-                <i class="bi bi-search"></i>
-                <input type="text" placeholder="Search staff by name..." id="searchStaffInput">
+    <!-- Quick Filters & Search -->
+    <div class="mg-filters shadow-sm mb-4">
+        <div class="p-3 row g-3 align-items-center">
+            <div class="col-lg-8">
+                <ul class="nav nav-pills" id="roleFilterTabs">
+                    <li class="nav-item"><button class="nav-link active" data-role="All"><i class="bi bi-grid-fill me-2"></i>All staff</button></li>
+                    <li class="nav-item"><button class="nav-link" data-role="Pharmacy Manager"><i class="bi bi-capsule me-2"></i>Pharmacy managers</button></li>
+                    <li class="nav-item"><button class="nav-link" data-role="Deliveryman"><i class="bi bi-bicycle me-2"></i>Deliverymen</button></li>
+                    <li class="nav-item"><button class="nav-link" data-status="Inactive"><i class="bi bi-person-dash me-2"></i>Inactive</button></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <div class="input-group mg-search">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="userSearchInput" class="form-control" placeholder="Search by name or email" aria-label="Search staff">
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle staff-table">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Staff Member</th>
-                        <th>Role</th>
-                        <th>Email</th>
-                        <th>Medi+ Access</th>
-                        <th class="text-end pe-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        var palette = new[] { "#5B21B6", "#0D9488", "#B45309", "#0F9D63", "#334155" };
-                    }
-                    @if (Model != null && Model.Any())
-                    {
-                        var i = 0;
-                        @foreach (var user in Model)
-                        {
-                            var initial = string.IsNullOrEmpty(user.UserName) ? "U" : user.UserName.Substring(0, 1).ToUpper();
-                            var avatarColor = palette[i % palette.Length];
-                            var roleText = string.IsNullOrEmpty(user.UserRole) ? "Staff Member" : user.UserRole;
-                            var roleClass = roleText.ToLower().Contains("manager") ? "role-manager"
-                                : roleText.ToLower().Contains("senior") ? "role-senior"
-                                : roleText.ToLower().Contains("delivery") ? "role-delivery"
-                                : "role-default";
-                            i++;
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="staff-avatar me-3" style="background-color: @avatarColor;">
-                                            @initial
-                                        </div>
-                                        <div>
-                                            <div class="staff-name">@user.UserName</div>
-                                            <div class="staff-id">ID: @user.UserId</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="role-badge @roleClass">@roleText</span>
-                                </td>
-                                <td class="email-cell">staff@mediguard.com</td>
-                                <td>
-                                    @if (user.HasMediPlusAccess)
-                                    {
-                                        <span class="medi-pill on"><span class="dot"></span> Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="medi-pill off"><span class="dot"></span> Disabled</span>
-                                    }
-                                </td>
-                                <td class="text-end pe-4">
-                                    <button type="button"
-                                            class="btn btn-assign"
-                                            onclick="openRoleAssignmentModal('@user.UserId', '@user.UserName', '@user.UserRole')">
-                                        <i class="bi bi-shield-lock me-1"></i> Assign Permissions
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <!-- Fallback Sample Rows for Direct Testing / Demo -->
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="staff-avatar me-3" style="background-color: #0F9D63;">RA</div>
-                                    <div>
-                                        <div class="staff-name">Rahat Ali</div>
-                                        <div class="staff-id">ID: usr_101</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-senior">Senior Staff</span></td>
-                            <td class="email-cell">rahat.ali@mediguard.com</td>
-                            <td><span class="medi-pill on"><span class="dot"></span> Active</span></td>
-                            <td class="text-end pe-4">
-                                <button type="button" class="btn btn-assign"
-                                        onclick="openRoleAssignmentModal('usr_101', 'Rahat Ali', 'Senior Staff')">
-                                    <i class="bi bi-shield-lock me-1"></i> Assign Permissions
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="staff-avatar me-3" style="background-color: #5B21B6;">KA</div>
-                                    <div>
-                                        <div class="staff-name">Karim Ahmed</div>
-                                        <div class="staff-id">ID: usr_102</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="role-badge role-delivery">Delivery Staff</span></td>
-                            <td class="email-cell">karim.a@mediguard.com</td>
-                            <td><span class="medi-pill off"><span class="dot"></span> Disabled</span></td>
-                            <td class="text-end pe-4">
-                                <button type="button" class="btn btn-assign"
-                                        onclick="openRoleAssignmentModal('usr_102', 'Karim Ahmed', 'Delivery Staff')">
-                                    <i class="bi bi-shield-lock me-1"></i> Assign Permissions
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+    <!-- AJAX Table Container -->
+    <div id="userTableContainer" class="shadow-sm">
+        @await Html.PartialAsync("_UserListTable", Model.Users)
     </div>
 </div>
 
-<!-- Render Modal Partial View -->
-@await Html.PartialAsync("_RoleAssignmentModal", new MediGuard.Models.ViewModels.RoleAssignmentViewModel())
+<!-- Offcanvas: Add Staff (Ticket 4) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addStaffOffcanvas" aria-labelledby="addStaffTitle">
+    <div class="offcanvas-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="mg-offc-icon"><i class="bi bi-person-plus-fill"></i></div>
+            <div>
+                <h5 class="offcanvas-title mb-0" id="addStaffTitle">Add new staff</h5>
+                <small class="text-muted">Fill in the details to create an account.</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="addStaffForm" asp-action="AddStaff" method="post">
+            <div class="mb-3">
+                <label asp-for="NewStaff.FullName" class="mg-label">Full name</label>
+                <input asp-for="NewStaff.FullName" class="form-control mg-field" placeholder="e.g. Rahim Uddin" />
+                <span asp-validation-for="NewStaff.FullName" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewStaff.Email" class="mg-label">Email</label>
+                <input asp-for="NewStaff.Email" class="form-control mg-field" placeholder="name@pharmacy.com" />
+                <span asp-validation-for="NewStaff.Email" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewStaff.Role" class="mg-label">Role</label>
+                <select asp-for="NewStaff.Role" class="form-select mg-field">
+                    <option value="Staff">General Staff</option>
+                    <option value="Pharmacy Manager">Pharmacy Manager</option>
+                    <option value="Deliveryman">Deliveryman</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label asp-for="NewStaff.Phone" class="mg-label">Phone</label>
+                <input asp-for="NewStaff.Phone" class="form-control mg-field" placeholder="+880 1XXX-XXXXXX" />
+                <span asp-validation-for="NewStaff.Phone" class="text-danger small"></span>
+            </div>
+            <button type="submit" class="btn btn-mg w-100">
+                <i class="bi bi-check2-circle me-2"></i>Save employee
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Render Permission Modal (Ticket 5) -->
+<partial name="_RoleAssignmentModal" />
 
 @section Scripts {
-    <!-- User Management Custom JS for Modal & Permission Handling -->
     <script src="~/js/user-management.js"></script>
 }

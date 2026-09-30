@@ -1,10 +1,98 @@
 ﻿/**
- * MediGuard - Staff Permission Management
- * Implementation for Jira Ticket 5
+ * MediGuard - Staff & Permission Management
+ * Implementation for Ticket 4 & Ticket 5
  */
 
 $(document).ready(function () {
-    // Bind modal save button event (prevent duplicate bindings)
+    // ==========================================
+    // TICKET 4: Filtering & Live Search Logic
+    // ==========================================
+    let activeRole = 'All';
+    let activeStatus = 'All';
+    let debounceTimer;
+
+    const $searchInput =$('#userSearchInput');
+    const $tableContainer =$('#userTableContainer');
+
+    // Debounced search input handler (300ms delay)
+    if ($searchInput.length) {$searchInput.on('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => fetchFilteredUsers(), 300);
+        });
+    }
+
+    // Role and Status tab filtering
+    $('#roleFilterTabs .nav-link').on('click', function (e) {
+        e.preventDefault();
+        $('#roleFilterTabs .nav-link').removeClass('active');
+        $(this).addClass('active');
+
+        const role = $(this).data('role');
+        const status = $(this).data('status');
+
+        if (role !== undefined) {
+            activeRole = role;
+            activeStatus = 'All';
+        }
+        if (status !== undefined) {
+            activeStatus = status;
+            activeRole = 'All';
+        }
+
+        fetchFilteredUsers();
+    });
+
+    // Expose table refresh function globally
+    window.refreshUserList = function () {
+        fetchFilteredUsers();
+    };
+
+    function fetchFilteredUsers() {
+        const searchTerm = $searchInput.val() || '';
+        const params = new URLSearchParams({
+            searchTerm: searchTerm,
+            role: activeRole,
+            status: activeStatus
+        });
+
+        $tableContainer.css('opacity', '0.5');
+
+        $.ajax({
+            url: `/User/GetFilteredUsers?${params.toString()}`,
+            type: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function (html) {
+                $tableContainer.html(html);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error filtering users:', error);
+                showToast('error', 'Failed to load staff list.');
+            },
+            complete: function () {
+                $tableContainer.css('opacity', '1');
+            }
+        });
+    }
+
+    // ==========================================
+    // TICKET 5: Modal Triggers & Event Handlers
+    // ==========================================
+
+    // Event delegation for "Assign Role" buttons in the dynamic user table
+    $(document).on('click', '.assign-role-btn', function (e) {
+        e.preventDefault();
+        const $btn =$(this);
+        const userId = $btn.data('id') \vert{}\vert{}$btn.data('userid');
+        
+        // Extract row metadata if attributes are not explicitly set on button
+        const $row =$btn.closest('tr');
+        const userName = $btn.data('name') \vert{}\vert{}$row.find('td:first').text().trim();
+        const userRole = $btn.data('role') \vert{}\vert{}$row.find('td:nth-child(3) .badge').text().trim();
+
+        openRoleAssignmentModal(userId, userName, userRole);
+    });
+
+    // Bind modal save button event
     $('#btnSavePermissions').off('click').on('click', function (e) {
         e.preventDefault();
         submitPermissions();
@@ -40,8 +128,10 @@ function openRoleAssignmentModal(userId, userName, userRole) {
 
     // Open modal instance
     const modalElement = document.getElementById('roleAssignmentModal');
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modalInstance.show();
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modalInstance.show();
+    }
 
     // Asynchronously load user permissions
     loadUserPermissions(userId);
@@ -51,18 +141,23 @@ function openRoleAssignmentModal(userId, userName, userRole) {
  * Resets modal form controls and active tooltips
  */
 function resetPermissionModal() {
-    $('#roleAssignmentForm')[0].reset();
-    $('.perm-checkbox').prop('checked', false);
+    const $form =$('#roleAssignmentForm, #updatePermissionsForm');
+    if ($form.length && $form[0].reset) {$form[0].reset();
+    }
+
+    $('.perm-checkbox, .perm-check').prop('checked', false);
     
-    const mediSwitch = $('#perm_b2b_mediplus');
+    const mediSwitch = $('#perm_b2b_mediplus, #mediPlusSwitch');
     mediSwitch.prop('checked', false).prop('disabled', false);
 
-    const wrapper = $('#mediPlusSwitchWrapper');
+    const wrapper = $('#mediPlusSwitchWrapper, #mediPlusTooltipContainer');
     wrapper.removeAttr('title').removeAttr('data-bs-original-title');
     
-    const existingTooltip = bootstrap.Tooltip.getInstance(wrapper[0]);
-    if (existingTooltip) {
-        existingTooltip.dispose();
+    if (wrapper.length) {
+        const existingTooltip = bootstrap.Tooltip.getInstance(wrapper[0]);
+        if (existingTooltip) {
+            existingTooltip.dispose();
+        }
     }
 
     $('#mediPlusCard').css('opacity', '1');
@@ -84,6 +179,7 @@ function loadUserPermissions(userId) {
         url: `/User/Permissions/${encodeURIComponent(userId)}`,
         type: 'GET',
         dataType: 'json',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
         success: function (response) {
             $('#permissionModalLoader').addClass('d-none');
             $('#roleAssignmentForm').removeClass('d-none');
@@ -116,13 +212,13 @@ function populatePermissionForm(data) {
         : (data.IsMediPlusActive !== undefined ? data.IsMediPlusActive : false);
 
     // 1. Populate Standard Permission Checkboxes
-    $('.perm-checkbox').each(function () {
+    $('.perm-checkbox, .perm-check').each(function () {
         const key = $(this).val();$(this).prop('checked', permissions.includes(key));
     });
 
     // 2. Handle Medi+ B2B Access Logic
-    const mediSwitch = $('#perm_b2b_mediplus');
-    const mediWrapper = $('#mediPlusSwitchWrapper');
+    const mediSwitch = $('#perm_b2b_mediplus, #mediPlusSwitch');
+    const mediWrapper = $('#mediPlusSwitchWrapper, #mediPlusTooltipContainer');
     const mediCard = $('#mediPlusCard');
 
     if (isMediPlusActive === true) {
@@ -130,9 +226,11 @@ function populatePermissionForm(data) {
         mediSwitch.prop('checked', permissions.includes('b2b.mediplus.access'));
         mediCard.css('opacity', '1');
 
-        const existingTooltip = bootstrap.Tooltip.getInstance(mediWrapper[0]);
-        if (existingTooltip) {
-            existingTooltip.dispose();
+        if (mediWrapper.length) {
+            const existingTooltip = bootstrap.Tooltip.getInstance(mediWrapper[0]);
+            if (existingTooltip) {
+                existingTooltip.dispose();
+            }
         }
     } else {
         // Tenant does NOT have active Medi+ subscription
@@ -140,9 +238,11 @@ function populatePermissionForm(data) {
         mediSwitch.prop('disabled', true);
         mediCard.css('opacity', '0.65');
 
-        // Attach exact required tooltip text
+        // Attach required tooltip text
         mediWrapper.attr('title', 'Requires Active Medi+ Subscription');
-        new bootstrap.Tooltip(mediWrapper[0]);
+        if (mediWrapper.length) {
+            new bootstrap.Tooltip(mediWrapper[0]);
+        }
     }
 }
 
@@ -159,15 +259,18 @@ function submitPermissions() {
     // Collect checked permission keys
     const selectedPermissions = [];
 
-    // Category 1, 2, 3 Checkboxes
-    $('.perm-checkbox:checked').each(function () {
+    // Category Checkboxes
+    $('.perm-checkbox:checked, .perm-check:checked').each(function () {
         selectedPermissions.push($(this).val());
     });
 
-    // Category 4 Medi+ Switch
-    const mediSwitch = $('#perm_b2b_mediplus');
+    // Medi+ Switch
+    const mediSwitch = $('#perm_b2b_mediplus, #mediPlusSwitch');
     if (!mediSwitch.is(':disabled') && mediSwitch.is(':checked')) {
-        selectedPermissions.push('b2b.mediplus.access');
+        const mediVal = mediSwitch.val() || 'b2b.mediplus.access';
+        if (!selectedPermissions.includes(mediVal)) {
+            selectedPermissions.push(mediVal);
+        }
     }
 
     const payload = {
@@ -183,6 +286,7 @@ function submitPermissions() {
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(payload),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
         success: function (response) {
             setSaveButtonLoading(false);
 
@@ -191,14 +295,16 @@ function submitPermissions() {
 
                 // Hide Modal
                 const modalElement = document.getElementById('roleAssignmentModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
+                if (modalElement) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
                 }
 
-                // Optional list reload callback if defined on user table
-                if (typeof refreshUserList === 'function') {
-                    refreshUserList();
+                // Reload user list table if available
+                if (typeof window.refreshUserList === 'function') {
+                    window.refreshUserList();
                 }
             } else {
                 showToast('error', response.message || 'Failed to update permissions.');
@@ -217,7 +323,7 @@ function submitPermissions() {
 }
 
 /**
- * Sets button loading state to prevent double submit
+ * Sets button loading state to prevent double submission
  * @param {boolean} isLoading 
  */
 function setSaveButtonLoading(isLoading) {
