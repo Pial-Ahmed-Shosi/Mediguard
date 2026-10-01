@@ -30,9 +30,9 @@
             }
         });
     }
-});
+}); 
 
-// Custom validation method implementation
+//Custom validation method implementation
 function checkPharmacyDomain() {
     const pharmacyDomainInput = document.getElementById("PharmacyEmailDomain").value.trim();
     const managerEmailInput = document.getElementById("ManagerAuthenticationEmail").value.trim();
@@ -42,7 +42,7 @@ function checkPharmacyDomain() {
         if (emailParts.length === 2)
         {
             const managerDomain = emailParts[1];
-            // Match the domain (case-insensitive)
+            //Match the domain (case-insensitive)
             if (managerDomain.toLowerCase() === pharmacyDomainInput.toLowerCase()) {
                 return true;
             }

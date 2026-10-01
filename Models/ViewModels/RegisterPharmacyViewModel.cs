@@ -33,9 +33,9 @@ namespace MediGuard.Models.ViewModels
 
         [Required(ErrorMessage = "Business address is required.")]
         [Display(Name = "Business Address")]
-        public string Address { get; set; } = string.Empty; 
+        public string Address { get; set; } = string.Empty;
 
-        // Alias for backwards compatibility
+        // Alias for backwards compatibility 
         public string BusinessAddress
         {
             get => Address;
