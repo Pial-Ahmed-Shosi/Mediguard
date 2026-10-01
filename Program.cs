@@ -34,10 +34,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 5. Register Application Services (Dependency Injection)
+// 6. Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+// 6.1 Catalog & Category Management Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 
 // 7. Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
