@@ -1,7 +1,7 @@
 ﻿@model MediGuard.Models.ViewModels.RoleAssignmentViewModel
 
 <style>
-    /* Scoped styles for the role assignment modal — prefixed with .mg- to avoid leaking */
+    
     #roleAssignmentModal .modal-content {
         border-radius: 18px;
         overflow: hidden;
@@ -9,7 +9,7 @@
         box-shadow: 0 28px 70px rgba(30, 20, 70, 0.35);
     }
 
-    /* ---------- Header (purple) : all text pure white ---------- */
+
     #roleAssignmentModal .mg-header {
         background: linear-gradient(120deg, #2E0F59 0%, #4C1D95 55%, #5B21B6 100%);
         padding: 1.5rem 1.75rem;
@@ -59,7 +59,6 @@
         text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
 
-    /* ---------- Body ---------- */
     #roleAssignmentModal .mg-body {
         background-color: #F6F7FB;
         padding: 1.75rem;
@@ -137,7 +136,7 @@
         margin: 0;
     }
 
-    /* Permission row rendered as a toggle */
+  
     #roleAssignmentModal .mg-perm-row {
         display: flex;
         align-items: center;
@@ -161,7 +160,7 @@
         flex: 1;
     }
 
-    /* Custom switch built on the real checkbox input (a11y + JS compatible) */
+  
     #roleAssignmentModal .mg-switch {
         position: relative;
         display: inline-block;
@@ -386,20 +385,20 @@
                                     <div class="mg-category-icon" style="background:#E8F7F2; color:#0D9488;">
                                         <i class="bi bi-boxes"></i>
                                     </div>
-                                    <p class="mg-category-title">Inventory Controls</p>
+                                    <p class="mg-category-title">Inventory Controls</p> 
                                 </div>
 
                                 <div class="mg-perm-row">
-                                    <label class="mg-perm-label" for="perm_inv_add">Add Inventory</label>
+                                    <label class="mg-perm-label" for="perm_inv_add">Add Inventory</label> 
                                     <span class="mg-switch">
-                                        <input class="perm-checkbox" type="checkbox" value="inventory.add" id="perm_inv_add">
+                                        <input class="perm-checkbox" type="checkbox" value="inventory.add" id="perm_inv_add"> 
                                         <span class="mg-switch-track"></span>
                                     </span>
                                 </div>
                                 <div class="mg-perm-row">
                                     <label class="mg-perm-label" for="perm_inv_edit">Edit Inventory</label>
                                     <span class="mg-switch">
-                                        <input class="perm-checkbox" type="checkbox" value="inventory.edit" id="perm_inv_edit">
+                                        <input class="perm-checkbox" type="checkbox" value="inventory.edit" id="perm_inv_edit"> 
                                         <span class="mg-switch-track"></span>
                                     </span>
                                 </div>
@@ -480,7 +479,7 @@
             <!-- Modal Footer -->
             <div class="modal-footer mg-footer border-0">
                 <button type="button" class="btn btn-outline-secondary mg-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary mg-btn-save" id="btnSavePermissions">
+                <button type="button" class="btn btn-primary mg-btn-save" id="btnSavePermissions"> 
                     <span id="saveBtnSpinner" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
                     <span id="saveBtnText"><i class="bi bi-check2-circle me-1"></i>Save Changes</span>
                 </button>
