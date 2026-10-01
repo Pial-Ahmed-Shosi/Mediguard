@@ -10,8 +10,8 @@ using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 
 namespace MediGuard.Services
-{     //brunch er kaj 
-    public class UserService : IUserService 
+{     //brunch work for -- This is a test for the user service implementation. Joy bangla!!!
+    public class UserService : IUserService
     {
         private readonly ApplicationDbContext _context; 
         private readonly UserManager<ApplicationUser> _userManager; 

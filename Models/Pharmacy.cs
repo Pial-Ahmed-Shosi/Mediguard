@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace MediGuard.Models
 {
@@ -25,7 +27,11 @@ namespace MediGuard.Models
         public DateTime? MediPlusExpiresAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property for multi-tenant users
+        // Existing Navigation Property (Users)
         public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+
+        // Ticket 19 Navigation Properties (Inventory Classification)
+        public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+        public virtual ICollection<Manufacturer> Manufacturers { get; set; } = new List<Manufacturer>();
     }
 }

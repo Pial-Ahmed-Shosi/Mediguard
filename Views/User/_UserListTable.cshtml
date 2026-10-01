@@ -1,58 +1,150 @@
-@model MediGuard.Models.ViewModels.UserManagementViewModel
+@model List<MediGuard.Models.ViewModels.UserListItemViewModel>
+
+<style>
+    .mg-table thead th {
+        background: #f5f8f9;
+        color: #6b7f86;
+        font-weight: 600;
+        font-size: .8rem;
+        border-bottom: 1px solid #e3ebed;
+        padding: .9rem 1.25rem;
+        white-space: nowrap;
+    }
+    .mg-table tbody td { padding: .9rem 1.25rem; border-color: #e3ebed; }
+    .mg-table tbody tr:hover { background: #fafcfc; }
+
+    .mg-avatar {
+        width: 2.6rem; height: 2.6rem;
+        border-radius: 50%;
+        display: grid; place-items: center;
+        font-weight: 700; font-size: .85rem;
+        flex-shrink: 0;
+        background: #e6f4f1; color: #0b5a54;
+    }
+    .mg-name { color: #12313a; font-weight: 600; line-height: 1.2; }
+    .mg-sub { color: #6b7f86; font-size: .8rem; }
+
+    .mg-role {
+        display: inline-flex; align-items: center; gap: .4rem;
+        border-radius: .5rem;
+        padding: .3rem .7rem;
+        font-size: .8rem; font-weight: 600;
+    }
+    .mg-role-manager  { background: #e8ecf0; color: #1f2d3a; }
+    .mg-role-pharmacy { background: #e6f4f1; color: #0b5a54; }
+    .mg-role-delivery { background: #fff4dd; color: #8a5a00; }
+    .mg-role-default  { background: #eef1f3; color: #55666d; }
+
+    .mg-status {
+        display: inline-flex; align-items: center; gap: .45rem;
+        font-size: .85rem; font-weight: 600;
+    }
+    .mg-status::before {
+        content: ""; width: .55rem; height: .55rem; border-radius: 50%; background: currentColor;
+    }
+    .mg-status-active   { color: #15803d; }
+    .mg-status-inactive { color: #b42318; }
+
+    .mg-action-btn {
+        border: 1px solid #e3ebed; background: #fff; color: #12313a;
+        border-radius: .6rem; font-weight: 500; font-size: .85rem;
+        padding: .4rem .8rem;
+    }
+    .mg-action-btn:hover, .mg-action-btn:focus { background: #e6f4f1; border-color: #0f766e; color: #0b5a54; }
+    .mg-table .dropdown-menu { border: 1px solid #e3ebed; border-radius: .75rem; box-shadow: 0 10px 30px rgba(18,49,58,.12); padding: .4rem; }
+    .mg-table .dropdown-item { border-radius: .5rem; font-size: .9rem; padding: .5rem .75rem; }
+    .mg-table .dropdown-item:hover { background: #e6f4f1; color: #0b5a54; }
+
+    .mg-empty { padding: 3.5rem 1rem; text-align: center; }
+    .mg-empty-icon {
+        width: 4rem; height: 4rem; border-radius: 1rem;
+        background: #e6f4f1; color: #0f766e;
+        display: inline-grid; place-items: center;
+        font-size: 1.7rem; margin-bottom: 1rem;
+    }
+</style>
 
 <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-        <thead class="table-light text-muted">
+    <table class="table align-middle mb-0 mg-table">
+        <thead>
             <tr>
-                <th class="ps-4">Full Name</th>
-                <th>Official Email</th>
-                <th>Role Badge</th>
-                <th>Contact Phone</th>
-                <th>Account Status</th>
-                <th class="text-end pe-4">Actions</th>
+                <th>Employee</th>
+                <th>Role</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @if(Model.Users != null && Model.Users.Any())
+            @if (Model != null && Model.Any())
             {
-                foreach(var user in Model.Users)
+                @foreach (var user in Model)
                 {
+                    var parts = (user.FullName ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var initials = parts.Length == 0
+                        ? "?"
+                        : (parts.Length == 1
+                            ? parts[0].Substring(0, 1)
+                            : parts[0].Substring(0, 1) + parts[^1].Substring(0, 1)).ToUpper();
+
                     <tr>
-                        <td class="ps-4 fw-medium text-dark">@user.FullName</td>
-                        <td>@user.Email</td>
                         <td>
-                            @{
-                                var badgeClass = user.Role switch {
-                                    "Manager" => "bg-dark text-white",
-                                    "Pharmacy Manager" => "bg-primary text-white",
-                                    "Deliveryman" => "bg-warning text-dark",
-                                    _ => "bg-secondary text-white"
-                                };
-                            }
-                            <span class="badge @badgeClass">@user.Role</span>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="mg-avatar">@initials</div>
+                                <div>
+                                    <div class="mg-name">@user.FullName</div>
+                                    <div class="mg-sub"><i class="bi bi-envelope me-1"></i>@user.Email</div>
+                                </div>
+                            </div>
                         </td>
-                        <td>@(!string.IsNullOrEmpty(user.Phone) ? user.Phone : "N/A")</td>
                         <td>
-                            @if(user.IsActive)
+                            @switch (user.Role)
                             {
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3">Active</span>
+                                case "Manager":
+                                    <span class="mg-role mg-role-manager"><i class="bi bi-briefcase-fill"></i>Manager</span>
+                                    break;
+                                case "Pharmacy Manager":
+                                    <span class="mg-role mg-role-pharmacy"><i class="bi bi-capsule"></i>Pharmacy Manager</span>
+                                    break;
+                                case "Deliveryman":
+                                    <span class="mg-role mg-role-delivery"><i class="bi bi-bicycle"></i>Deliveryman</span>
+                                    break;
+                                default:
+                                    <span class="mg-role mg-role-default"><i class="bi bi-person-badge"></i>@user.Role</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(user.Phone))
+                            {
+                                <span><i class="bi bi-telephone me-2 text-muted"></i>@user.Phone</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3">Inactive</span>
+                                <span class="text-muted">Not provided</span>
                             }
                         </td>
-                        <td class="text-end pe-4">
+                        <td>
+                            @if (user.IsActive)
+                            {
+                                <span class="mg-status mg-status-active">Active</span>
+                            }
+                            else
+                            {
+                                <span class="mg-status mg-status-inactive">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-light border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
+                                <button class="btn mg-action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots me-1"></i>Manage
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2 text-muted"></i> Edit</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-key me-2 text-muted"></i> Reset Password</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-shield-lock me-2 text-muted"></i> Assign Role</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle me-2 text-muted"></i> Other Information</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item assign-role-btn" href="#" data-id="@user.Id">
+                                            <i class="bi bi-shield-lock me-2"></i>Assign role
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
@@ -62,9 +154,12 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">
-                        <i class="bi bi-inboxes fs-1 d-block mb-2 text-secondary"></i>
-                        No staff members found matching the criteria.
+                    <td colspan="5" class="p-0">
+                        <div class="mg-empty">
+                            <div class="mg-empty-icon"><i class="bi bi-people"></i></div>
+                            <h6 class="mb-1">No staff found</h6>
+                            <p class="text-muted small mb-0">Try a different filter or search, or add a new employee.</p>
+                        </div>
                     </td>
                 </tr>
             }

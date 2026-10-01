@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediGuard.Models.ViewModels;
 using MediGuard.Services;
-using MediGuard.Filters; // 1. Added namespace for custom filters
+using MediGuard.Filters;
 
 namespace MediGuard.Controllers
 {
@@ -19,24 +20,40 @@ namespace MediGuard.Controllers
         }
 
         // -------------------------------------------------------------------------
-        // 1. Staff List Page
+        // 1. Staff List Page (Initial Load)
         // -------------------------------------------------------------------------
         [HttpGet]
-        [HasPermission("staff.view")] // Requires 'staff.view' permission
-        public IActionResult Index()
+        [HasPermission("staff.view")]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            Guid pharmacyId = GetCurrentTenantId();
+            var model = await _userService.GetStaffListAsync(pharmacyId, search: "", roleFilter: "", page: 1);
+            return View(model);
         }
 
         // -------------------------------------------------------------------------
-        // 2. Fetch Staff Table (AJAX)
+        // 2. Fetch Staff Table (AJAX Search & Filter)
         // -------------------------------------------------------------------------
         [HttpGet]
-        [HasPermission("staff.view")] // Requires 'staff.view' permission
+        [HasPermission("staff.view")]
         public async Task<IActionResult> GetStaffList(string search = "", string roleFilter = "", int page = 1)
         {
             Guid pharmacyId = GetCurrentTenantId();
             var model = await _userService.GetStaffListAsync(pharmacyId, search, roleFilter, page);
+
+            return PartialView("_UserListTable", model);
+        }
+
+        /// <summary>
+        /// Alias endpoint used by user-management.js for live search and filter tabs
+        /// </summary>
+        [HttpGet]
+        [HasPermission("staff.view")]
+        public async Task<IActionResult> GetFilteredUsers(string searchTerm = "", string role = "All", string status = "All", int page = 1)
+        {
+            Guid pharmacyId = GetCurrentTenantId();
+            string roleFilter = (role == "All") ? "" : role;
+            var model = await _userService.GetStaffListAsync(pharmacyId, searchTerm, roleFilter, page);
 
             return PartialView("_UserListTable", model);
         }
@@ -46,7 +63,7 @@ namespace MediGuard.Controllers
         // -------------------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HasPermission("staff.create")] // Requires 'staff.create' permission
+        [HasPermission("staff.create")]
         public async Task<IActionResult> CreateStaff([FromBody] CreateStaffViewModel model)
         {
             if (!ModelState.IsValid)
@@ -70,16 +87,18 @@ namespace MediGuard.Controllers
         // -------------------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HasPermission("staff.permissions")] // Requires 'staff.permissions' permission
-        [RequiresMediPlus]                   // Requires ACTIVE Medi+ Subscription
+        [HasPermission("staff.permissions")]
+        [RequiresMediPlus]
         public async Task<IActionResult> UpdatePermissions([FromBody] UpdatePermissionsViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model == null)
             {
                 return BadRequest(new { success = false, message = "Invalid permission update payload." });
             }
 
             Guid pharmacyId = GetCurrentTenantId();
+
+            // Passes List<int> PermissionIds to IUserService.UpdatePermissionsAsync
             var (success, message) = await _userService.UpdatePermissionsAsync(pharmacyId, model.UserId, model.PermissionIds);
 
             if (!success)
@@ -100,7 +119,7 @@ namespace MediGuard.Controllers
             {
                 return pharmacyId;
             }
-
+            //controller
             throw new UnauthorizedAccessException("Current user tenant identity (PharmacyId) is missing or invalid in context.");
         }
     }
