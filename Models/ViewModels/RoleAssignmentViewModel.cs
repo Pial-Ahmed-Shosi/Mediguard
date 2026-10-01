@@ -2,46 +2,42 @@
 
 namespace MediGuard.Models.ViewModels
 {
-    /// <summary>
-    /// Staff user permission assignment modal data transport model.
-    /// </summary>
+    // Staff user permission assignment modal data transport model.
     public class RoleAssignmentViewModel
     {
         public string UserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string UserRole { get; set; } = string.Empty;
-
-        /// <summary>
-        /// List of active permission keys assigned to the user.
-        /// </summary>
+      
+        // List of active permission keys assigned to the user.
+ 
         public List<string> Permissions { get; set; } = new List<string>();
 
-        /// <summary>
-        /// Compatibility alias mapping to Permissions for view/controller binding flexibility.
-        /// </summary>
+   
+        // Compatibility alias mapping to Permissions for view/controller binding flexibility.
+   
         public List<string> SelectedPermissions
         {
             get => Permissions;
             set => Permissions = value ?? new List<string>();
         }
 
-        /// <summary>
-        /// Indicates if the pharmacy tenant has an active Medi+ subscription.
-        /// </summary>
+        // Indicates if the pharmacy tenant has an active Medi+ subscription.
+      
         public bool IsMediPlusActive { get; set; }
 
-        /// <summary>
-        /// Indicates if the user currently holds b2b.mediplus.access.
-        /// </summary>
+    
+        // Indicates if the user currently holds b2b.mediplus.access.
+    
         public bool HasMediPlusAccess { get; set; }
     }
 
-    /// <summary>
-    /// Payload structure for POST /User/UpdatePermissions API
-    /// </summary>
+ 
+    // Payload structure for POST /User/UpdatePermissions API
+
     public class UpdatePermissionsRequestModel
     {
-        public string UserId { get; set; } = string.Empty;
-        public List<string> Permissions { get; set; } = new List<string>();
+        public string UserId { get; set; } = string.Empty; 
+        public List<string> Permissions { get; set; } =new List<string>();
     }
 }
