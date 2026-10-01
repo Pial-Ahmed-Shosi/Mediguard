@@ -40,7 +40,7 @@ namespace MediGuard.Services
             {
                 query = query.Where(u => u.Role == roleFilter);
             }
-            // Calculate total items and total pages for pagination
+            
             int totalItems = await query.CountAsync();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
@@ -62,7 +62,7 @@ namespace MediGuard.Services
                         .ToList()
                 })
                 .ToListAsync();
-                
+            // Return the paginated list of users along with pagination info 
             return new StaffPagedListViewModel 
             {
                 Users = users,
@@ -86,7 +86,7 @@ namespace MediGuard.Services
                 return (false, "A user with this email address already exists.", null);
             }
 
-            string tempPassword = GenerateTemporaryPassword();
+            string tempPassword = GenerateTemporaryPassword(); 
 
             var user = new ApplicationUser
             {
@@ -100,12 +100,12 @@ namespace MediGuard.Services
                 EmailConfirmed = true 
             };
             // Create the user with the temporary password
-            var result = await _userManager.CreateAsync(user, tempPassword);
+            var result = await _userManager.CreateAsync(user, tempPassword); 
             if (!result.Succeeded)
             {
                 string errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 return (false, $"Failed to create user: {errors}", null);
-            }
+            } 
 
             await _userManager.AddToRoleAsync(user, model.Role);
 
@@ -130,7 +130,7 @@ namespace MediGuard.Services
             // Fixed Line 124: Compare Guid to Guid
             var existingPermissions = _context.UserPermissions.Where(up => up.UserId == userGuid);
             _context.UserPermissions.RemoveRange(existingPermissions);
-
+            // Save changes to remove existing permissions
             if (permissionIds != null && permissionIds.Any()) 
             {
                 // Fixed Line 131: Assign Guid value to UserId
@@ -149,13 +149,13 @@ namespace MediGuard.Services
         // Strict tenant isolation: Ensure that the user being deleted belongs to the same pharmacy as the current user
         private static string GenerateTemporaryPassword()
         {
-            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*";
-            using var rng = RandomNumberGenerator.Create();
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*"; 
+            using var rng = RandomNumberGenerator.Create(); 
             byte[] bytes = new byte[10];
             rng.GetBytes(bytes);
              
-            char[] chars = new char[10];
-            for (int i = 0; i < 10; i++)
+            char[] chars = new char[10]; 
+            for (int i = 0; i < 10; i++) 
             {
                 chars[i] = validChars[bytes[i] % validChars.Length]; 
             }
