@@ -4,8 +4,7 @@ namespace MediGuard.Models.ViewModels
 {
     public class RegisterPharmacyViewModel
     {
-        // --- Pharmacy Business Info ---
-
+        // --- Pharmacy / Organisation Details ---
         [Required(ErrorMessage = "Pharmacy / Organisation name is required.")]
         [Display(Name = "Pharmacy / Organisation Name")]
         public string PharmacyName { get; set; } = string.Empty;
@@ -28,13 +27,13 @@ namespace MediGuard.Models.ViewModels
             set => PharmacyDomain = value;
         }
 
-        [Required(ErrorMessage = "License number is required.")]
+        [Required(ErrorMessage ="License number is required.")]
         [Display(Name = "License Number")]
         public string LicenseNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Business address is required.")]
         [Display(Name = "Business Address")]
-        public string Address { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty; 
 
         // Alias for backwards compatibility
         public string BusinessAddress
