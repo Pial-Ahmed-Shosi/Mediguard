@@ -28,6 +28,9 @@ namespace MediGuard.Data
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Manufacturer> Manufacturers { get; set; } = null!;
 
+        // --- Expiry & Alerts Tables (Ticket 24) ---
+        public DbSet<Notification> Notifications { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -106,6 +109,13 @@ namespace MediGuard.Data
                       .WithMany(p => p.Manufacturers)
                       .HasForeignKey(m => m.PharmacyId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- Ticket 24 Notification Configuration ---
+            builder.Entity<Notification>(entity =>
+            {
+                entity.HasIndex(n => new { n.PharmacyId, n.BatchId, n.UrgencyLevel, n.IsRead })
+                      .HasDatabaseName("idx_notifications_expiry_lookup");
             });
 
             // Seed Standard Roles 1-5

@@ -7,8 +7,8 @@ namespace MediGuard.Services
     public interface INotificationService
     {
         Task CreateOrUpdateExpiryNotificationAsync(
-            int pharmacyId,
-            int batchId,
+            Guid pharmacyId,
+            Guid batchId,
             string batchNumber,
             string medicineName,
             DateTime expiryDate,
