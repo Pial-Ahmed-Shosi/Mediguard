@@ -25,6 +25,7 @@ namespace MediGuard.Models.ViewModels
         public string FullName { get; set; } = string.Empty; 
         public string Email { get; set; } = string.Empty; 
         public string Role { get; set; } = string.Empty; 
+        public string? Phone { get; set; } // Added for user list display
         public Guid PharmacyId { get; set; } // Tenant Pharmacy ID is Guid
         public bool IsActive { get; set; } 
         public List<int> AssignedPermissionIds { get; set; } = new(); 
