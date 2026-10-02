@@ -33,5 +33,11 @@ namespace MediGuard.Models
         // Ticket 19 Navigation Properties (Inventory Classification)
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<Manufacturer> Manufacturers { get; set; } = new List<Manufacturer>();
+
+        // Ticket 13 Navigation Property (Medicines)
+        public virtual ICollection<Medicine> Medicines { get; set; } = new List<Medicine>();
+
+        // Ticket 13 Navigation Property (Batches)
+        public virtual ICollection<Batch> Batches { get; set; } = new List<Batch>();
     }
 }

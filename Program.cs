@@ -48,6 +48,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 // 6.1 Catalog & Category Management Services
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+builder.Services.AddScoped<IMedicineService, MedicineService>(); // <--- ADDED HERE
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>

@@ -14,10 +14,16 @@ namespace MediGuard.Services
             int page,
             int pageSize);
 
-        Task<(bool Success, string Message, Guid? MedicineId)> CreateMedicineAsync(Guid pharmacyId, CreateMedicineDto dto);
+        Task<(bool Success, string Message, Guid? MedicineId)> CreateMedicineAsync(
+            Guid pharmacyId,
+            CreateMedicineDto dto);
 
-        Task<(bool Success, string Message)> UpdateMedicineAsync(Guid pharmacyId, UpdateMedicineDto dto);
+        Task<(bool Success, string Message)> UpdateMedicineAsync(
+            Guid pharmacyId,
+            UpdateMedicineDto dto);
 
-        Task<MedicineSearchResultDto?> GetMedicineByIdAsync(Guid pharmacyId, Guid medicineId);
+        Task<MedicineSearchResultDto?> GetMedicineByIdAsync(
+            Guid pharmacyId,
+            Guid medicineId);
     }
 }

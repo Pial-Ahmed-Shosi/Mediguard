@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,5 +23,8 @@ namespace MediGuard.Models
         // Navigation Property to Pharmacy Tenant
         [ForeignKey(nameof(PharmacyId))]
         public virtual Pharmacy Pharmacy { get; set; } = null!;
+
+        // Navigation Property to Medicines
+        public virtual ICollection<Medicine> Medicines { get; set; } = new List<Medicine>();
     }
 }

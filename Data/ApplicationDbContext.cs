@@ -27,6 +27,7 @@ namespace MediGuard.Data
         // --- Inventory Classification Tables (Ticket 19) ---
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Manufacturer> Manufacturers { get; set; } = null!;
+        public DbSet<Medicine> Medicines { get; set; } = null!;
 
         // --- Expiry & Alerts Tables (Ticket 24) ---
         public DbSet<Notification> Notifications { get; set; } = null!;
@@ -108,6 +109,44 @@ namespace MediGuard.Data
                 entity.HasOne(m => m.Pharmacy)
                       .WithMany(p => p.Manufacturers)
                       .HasForeignKey(m => m.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- Ticket 13 Medicine & Batch Configuration ---
+            // Medicine: Unique (PharmacyId, Barcode) + Foreign Keys
+            builder.Entity<Medicine>(entity =>
+            {
+                entity.HasIndex(m => new { m.PharmacyId, m.Barcode })
+                      .IsUnique()
+                      .HasDatabaseName("idx_medicines_pharmacy_id_barcode");
+
+                entity.HasOne(m => m.Pharmacy)
+                      .WithMany(p => p.Medicines)
+                      .HasForeignKey(m => m.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(m => m.Category)
+                      .WithMany(c => c.Medicines)
+                      .HasForeignKey(m => m.CategoryId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(m => m.Manufacturer)
+                      .WithMany(mf => mf.Medicines)
+                      .HasForeignKey(m => m.ManufacturerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Batch: Foreign Key to Medicine and Pharmacy
+            builder.Entity<Batch>(entity =>
+            {
+                entity.HasOne(b => b.Medicine)
+                      .WithMany(m => m.Batches)
+                      .HasForeignKey(b => b.MedicineId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(b => b.Pharmacy)
+                      .WithMany(p => p.Batches)
+                      .HasForeignKey(b => b.PharmacyId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

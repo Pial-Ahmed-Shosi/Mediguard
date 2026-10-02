@@ -14,6 +14,9 @@ namespace MediGuard.Models
         public Guid PharmacyId { get; set; }
 
         [Required]
+        public Guid MedicineId { get; set; }
+
+        [Required]
         [StringLength(100)]
         public string BatchNumber { get; set; } = string.Empty;
 
@@ -36,5 +39,8 @@ namespace MediGuard.Models
         // Navigation Property
         [ForeignKey("PharmacyId")]
         public virtual Pharmacy? Pharmacy { get; set; }
+
+        [ForeignKey("MedicineId")]
+        public virtual Medicine? Medicine { get; set; }
     }
 }
