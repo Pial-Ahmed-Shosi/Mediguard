@@ -1,12 +1,7 @@
-﻿/**
- * MediGuard - Staff & Permission Management
- * Implementation for Ticket 4 & Ticket 5
- */
-
-$(document).ready(function () {
-    // ==========================================
+﻿$(document).ready(function () {
+   
     // TICKET 4: Filtering & Live Search Logic
-    // ==========================================
+   
     let activeRole = 'All';
     let activeStatus = 'All';
     let debounceTimer;
@@ -74,20 +69,20 @@ $(document).ready(function () {
         });
     }
 
-    // ==========================================
-    // TICKET 5: Modal Triggers & Event Handlers
-    // ==========================================
+
+    //  Modal Triggers & Event Handlers
+  
 
     // Event delegation for "Assign Role" buttons in the dynamic user table
     $(document).on('click', '.assign-role-btn', function (e) {
         e.preventDefault();
-        const $btn =$(this);
-        const userId = $btn.data('id') \vert{}\vert{}$btn.data('userid');
+        const $assignBtn = $(this);
+        const userId = $assignBtn.data('id') || $assignBtn.data('userid');
         
         // Extract row metadata if attributes are not explicitly set on button
-        const $row =$btn.closest('tr');
-        const userName = $btn.data('name') \vert{}\vert{}$row.find('td:first').text().trim();
-        const userRole = $btn.data('role') \vert{}\vert{}$row.find('td:nth-child(3) .badge').text().trim();
+        const $row = $assignBtn.closest('tr');
+        const userName = $assignBtn.data('name') || $row.find('td:first').text().trim();
+        const userRole = $assignBtn.data('role') || $row.find('td:nth-child(3) .badge').text().trim();
 
         openRoleAssignmentModal(userId, userName, userRole);
     });

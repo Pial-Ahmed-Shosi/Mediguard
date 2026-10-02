@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MediGuard.Views.User
+namespace MediGuard.Views.Medicine
 {
-    public class IndexModel : PageModel
+    public class _ManufacturerModalModel : PageModel
     {
         public void OnGet()
         {

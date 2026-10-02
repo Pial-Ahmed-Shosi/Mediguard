@@ -10,14 +10,14 @@ using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 
 namespace MediGuard.Services
-{
+{     //brunch work for -- This is a test for the user service implementation. Joy bangla!!!
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context; 
+        private readonly UserManager<ApplicationUser> _userManager; 
         private static readonly string[] AllowedStaffRoles = { "Pharmacist", "Cashier", "Deliveryman" };
 
-        public UserService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public UserService(ApplicationDbContext context, UserManager<ApplicationUser> userManager) 
         {
             _context = context;
             _userManager = userManager;
@@ -25,22 +25,22 @@ namespace MediGuard.Services
 
         public async Task<StaffPagedListViewModel> GetStaffListAsync(Guid pharmacyId, string search, string roleFilter, int page, int pageSize = 10)
         {
-            // Strict tenant isolation: filter by PharmacyId (Guid)
+            //Strict tenant isolation: filter by PharmacyId (Guid)
             var query = _context.Users
                 .Where(u => u.PharmacyId == pharmacyId)
                 .AsQueryable();
-
+            // Apply search filter (case-insensitive) on FullName and Email
             if (!string.IsNullOrWhiteSpace(search))
             {
                 string searchLower = search.ToLower();
                 query = query.Where(u => u.FullName.ToLower().Contains(searchLower) || (u.Email != null && u.Email.ToLower().Contains(searchLower)));
             }
-
+            //  Apply role filter if provided
             if (!string.IsNullOrWhiteSpace(roleFilter))
             {
                 query = query.Where(u => u.Role == roleFilter);
             }
-
+            
             int totalItems = await query.CountAsync();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
@@ -62,8 +62,8 @@ namespace MediGuard.Services
                         .ToList()
                 })
                 .ToListAsync();
-
-            return new StaffPagedListViewModel
+            // Return the paginated list of users along with pagination info 
+            return new StaffPagedListViewModel 
             {
                 Users = users,
                 CurrentPage = page,
@@ -72,7 +72,7 @@ namespace MediGuard.Services
                 RoleFilter = roleFilter
             };
         }
-
+        // Strict tenant isolation: Ensure that the user being created belongs to the same pharmacy as the current user
         public async Task<(bool Success, string Message, string? TempPassword)> CreateStaffAsync(Guid pharmacyId, CreateStaffViewModel model)
         {
             if (!AllowedStaffRoles.Contains(model.Role, StringComparer.OrdinalIgnoreCase))
@@ -86,26 +86,26 @@ namespace MediGuard.Services
                 return (false, "A user with this email address already exists.", null);
             }
 
-            string tempPassword = GenerateTemporaryPassword();
+            string tempPassword = GenerateTemporaryPassword(); 
 
             var user = new ApplicationUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid().ToString(), 
                 UserName = model.Email,
                 Email = model.Email,
                 FullName = model.FullName,
-                PharmacyId = pharmacyId,
+                PharmacyId = pharmacyId, 
                 Role = model.Role,
                 IsActive = true,
-                EmailConfirmed = true
+                EmailConfirmed = true 
             };
-
-            var result = await _userManager.CreateAsync(user, tempPassword);
+            // Create the user with the temporary password
+            var result = await _userManager.CreateAsync(user, tempPassword); 
             if (!result.Succeeded)
             {
                 string errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 return (false, $"Failed to create user: {errors}", null);
-            }
+            } 
 
             await _userManager.AddToRoleAsync(user, model.Role);
 
@@ -124,42 +124,42 @@ namespace MediGuard.Services
             // Convert string userId to Guid for the UserPermission table
             if (!Guid.TryParse(userId, out Guid userGuid))
             {
-                return (false, "Invalid user ID format.");
+                return (false, "Invalid user ID format."); 
             }
 
             // Fixed Line 124: Compare Guid to Guid
             var existingPermissions = _context.UserPermissions.Where(up => up.UserId == userGuid);
             _context.UserPermissions.RemoveRange(existingPermissions);
-
-            if (permissionIds != null && permissionIds.Any())
+            // Save changes to remove existing permissions
+            if (permissionIds != null && permissionIds.Any()) 
             {
                 // Fixed Line 131: Assign Guid value to UserId
-                var newPermissions = permissionIds.Select(pid => new UserPermission
+                var newPermissions = permissionIds.Select(pid => new UserPermission 
                 {
                     UserId = userGuid,
                     PermissionId = pid
                 });
 
-                await _context.UserPermissions.AddRangeAsync(newPermissions);
+                await _context.UserPermissions.AddRangeAsync(newPermissions); 
             }
 
             await _context.SaveChangesAsync();
-            return (true, "User permissions updated successfully.");
+            return (true, "User permissions updated successfully."); 
         }
-
+        // Strict tenant isolation: Ensure that the user being deleted belongs to the same pharmacy as the current user
         private static string GenerateTemporaryPassword()
         {
-            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*";
-            using var rng = RandomNumberGenerator.Create();
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*"; 
+            using var rng = RandomNumberGenerator.Create(); 
             byte[] bytes = new byte[10];
             rng.GetBytes(bytes);
-
-            char[] chars = new char[10];
-            for (int i = 0; i < 10; i++)
+             
+            char[] chars = new char[10]; 
+            for (int i = 0; i < 10; i++) 
             {
-                chars[i] = validChars[bytes[i] % validChars.Length];
+                chars[i] = validChars[bytes[i] % validChars.Length]; 
             }
-            return "Mg1!" + new string(chars);
+            return "Mg1!" + new string(chars); 
         }
     }
 }

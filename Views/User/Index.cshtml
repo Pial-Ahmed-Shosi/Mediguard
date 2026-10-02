@@ -6,7 +6,7 @@
 
 <style>
     :root {
-        --mg-ink: #12313a;
+        --mg-ink: #12313a; 
         --mg-muted: #6b7f86;
         --mg-teal: #0f766e;
         --mg-teal-dark: #0b5a54;
@@ -15,7 +15,7 @@
         --mg-bg: #f5f8f9;
     }
 
-    .mg-page { background: var(--mg-bg); min-height: 100vh; }
+    .mg-page { background: var(--mg-bg); min-height: 100vh;}
 
     /* Header banner */
     .mg-hero {
@@ -54,7 +54,7 @@
         color: var(--mg-muted);
         font-weight: 500;
         font-size: .9rem;
-        border-radius: .55rem;
+        border-radius: .55rem; 
         padding: .45rem .95rem;
         transition: background .15s, color .15s;
     }
@@ -63,9 +63,9 @@
         background: #fff;
         color: var(--mg-teal-dark);
         box-shadow: 0 1px 3px rgba(18,49,58,.12);
-    }
-    .mg-search .input-group-text { background: var(--mg-bg); border: 1px solid var(--mg-line); border-right: 0; color: var(--mg-muted); border-radius: .65rem 0 0 .65rem; }
-    .mg-search .form-control { background: var(--mg-bg); border: 1px solid var(--mg-line); border-left: 0; border-radius: 0 .65rem .65rem 0; padding: .6rem .9rem; }
+    } 
+    .mg-search .input-group-text { background: var(--mg-bg); border: 1px solid var(--mg-line); border-right: 0; color: var(--mg-muted); border-radius: .65rem 0 0 .65rem;}
+    .mg-search .form-control { background: var(--mg-bg); border: 1px solid var(--mg-line); border-left: 0; border-radius: 0 .65rem .65rem 0; padding: .6rem .9rem;} 
     .mg-search .form-control:focus, .mg-field:focus {
         box-shadow: 0 0 0 .2rem rgba(15,118,110,.15);
         border-color: var(--mg-teal);
@@ -102,7 +102,7 @@
         background: var(--mg-teal);
         color: #fff;
         display: grid; place-items: center;
-        font-size: 1.2rem;
+        font-size: 1.2rem; 
     }
     .mg-field { border: 1px solid var(--mg-line); border-radius: .65rem; padding: .65rem .9rem; }
     .mg-label { font-weight: 600; font-size: .85rem; color: var(--mg-ink); margin-bottom: .35rem; }
@@ -152,7 +152,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 
     <!-- AJAX Table Container -->
     <div id="userTableContainer" class="shadow-sm">
@@ -170,7 +170,7 @@
                 <small class="text-muted">Fill in the details to create an account.</small>
             </div>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button> 
     </div>
     <div class="offcanvas-body">
         <form id="addStaffForm" asp-action="AddStaff" method="post">
@@ -194,7 +194,7 @@
             </div>
             <div class="mb-4">
                 <label asp-for="NewStaff.Phone" class="mg-label">Phone</label>
-                <input asp-for="NewStaff.Phone" class="form-control mg-field" placeholder="+880 1XXX-XXXXXX" />
+                <input asp-for="NewStaff.Phone" class="form-control mg-field" placeholder="+880 1XXX-XXXXXX" /> 
                 <span asp-validation-for="NewStaff.Phone" class="text-danger small"></span>
             </div>
             <button type="submit" class="btn btn-mg w-100">

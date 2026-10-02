@@ -19,9 +19,9 @@ namespace MediGuard.Controllers
             _userService = userService;
         }
 
-        // -------------------------------------------------------------------------
-        // 1. Staff List Page (Initial Load)
-        // -------------------------------------------------------------------------
+      
+        //  Staff List Page (Initial Load)
+      
         [HttpGet]
         [HasPermission("staff.view")]
         public async Task<IActionResult> Index()
@@ -31,9 +31,8 @@ namespace MediGuard.Controllers
             return View(model);
         }
 
-        // -------------------------------------------------------------------------
-        // 2. Fetch Staff Table (AJAX Search & Filter)
-        // -------------------------------------------------------------------------
+        //  Fetch Staff Table (AJAX Search & Filter)
+  
         [HttpGet]
         [HasPermission("staff.view")]
         public async Task<IActionResult> GetStaffList(string search = "", string roleFilter = "", int page = 1)
@@ -44,9 +43,9 @@ namespace MediGuard.Controllers
             return PartialView("_UserListTable", model);
         }
 
-        /// <summary>
-        /// Alias endpoint used by user-management.js for live search and filter tabs
-        /// </summary>
+    
+        // Alias endpoint used by user-management.js for live search and filter tabs
+      
         [HttpGet]
         [HasPermission("staff.view")]
         public async Task<IActionResult> GetFilteredUsers(string searchTerm = "", string role = "All", string status = "All", int page = 1)
@@ -58,9 +57,9 @@ namespace MediGuard.Controllers
             return PartialView("_UserListTable", model);
         }
 
-        // -------------------------------------------------------------------------
-        // 3. Create New Staff Account
-        // -------------------------------------------------------------------------
+
+        //  Create New Staff Account
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission("staff.create")]
@@ -103,23 +102,21 @@ namespace MediGuard.Controllers
 
             if (!success)
             {
-                return BadRequest(new { success = false, message });
+                return BadRequest(new{ success =false, message });
             }
 
-            return Ok(new { success = true, message });
+            return Ok(new { success =true, message });
         }
 
-        // -------------------------------------------------------------------------
-        // Helper: Extract Tenant ID from Middleware Context
-        // -------------------------------------------------------------------------
+        //  Helper Method to Retrieve Current Tenant (Pharmacy) ID
         private Guid GetCurrentTenantId()
         {
-            // Reads PharmacyId populated by TenantRbacMiddleware
+            // Retrieve the PharmacyId from HttpContext.Items, which is set by the TenantIdentificationMiddleware
             if (HttpContext.Items["PharmacyId"] is Guid pharmacyId)
             {
                 return pharmacyId;
             }
-            //controller
+            // If PharmacyId is not present or invalid, throw an exception
             throw new UnauthorizedAccessException("Current user tenant identity (PharmacyId) is missing or invalid in context.");
         }
     }

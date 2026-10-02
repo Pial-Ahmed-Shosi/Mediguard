@@ -5,10 +5,11 @@ using MediGuard.Models.ViewModels;
 
 namespace MediGuard.Services
 {
+    //brunch work for -- This is a test for the user service implementation. Joy bangla!!!
     public interface IUserService
     {
-        Task<StaffPagedListViewModel> GetStaffListAsync(Guid pharmacyId, string search, string roleFilter, int page, int pageSize = 10);
-        Task<(bool Success, string Message, string? TempPassword)> CreateStaffAsync(Guid pharmacyId, CreateStaffViewModel model);
+        Task<StaffPagedListViewModel> GetStaffListAsync(Guid pharmacyId, string search, string roleFilter, int page, int pageSize = 10); 
+        Task<(bool Success, string Message, string? TempPassword)> CreateStaffAsync(Guid pharmacyId, CreateStaffViewModel model); 
         Task<(bool Success, string Message)> UpdatePermissionsAsync(Guid pharmacyId, string userId, List<int> permissionIds);
     }
 }
