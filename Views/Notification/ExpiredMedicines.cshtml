@@ -1,0 +1,587 @@
+﻿@model MediGuard.Models.ViewModels.ExpiredNotificationViewModel
+@{
+    ViewData["Title"] = "Expired & Near-Expiry Medicines";
+}
+
+<style>
+    .ex-page {
+        --ex-ink: #2b1458;
+        --ex-purple: #6d28d9;
+        --ex-purple-dark: #5b21b6;
+        --ex-lavender: #f3efff;
+        --ex-line: #e6e0f5;
+        --ex-muted: #6b6485;
+        --ex-rose: #be123c;
+        --ex-amber: #b45309;
+        color: var(--ex-ink);
+    }
+
+    /* Header */
+    .ex-hero {
+        background: linear-gradient(135deg, #2b1458 0%, #4c1d95 60%, #6d28d9 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.6rem 1.8rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .ex-hero::after {
+            content: "";
+            position: absolute;
+            right: -50px;
+            top: -70px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 30px solid rgba(255,255,255,.07);
+        }
+
+    .ex-hero-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: .9rem;
+        background: rgba(255,255,255,.15);
+        display: grid;
+        place-items: center;
+        font-size: 1.6rem;
+        flex-shrink: 0;
+    }
+
+    .ex-hero h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -.01em;
+    }
+
+    .ex-hero p {
+        margin: .25rem 0 0;
+        color: rgba(255,255,255,.75);
+        font-size: .9rem;
+    }
+
+    /* Metric cards */
+    .ex-metric {
+        background: #fff;
+        border: 1px solid var(--ex-line);
+        border-radius: 1rem;
+        padding: 1.1rem 1.25rem;
+        height: 100%;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        border-left-width: 5px;
+    }
+
+        .ex-metric .ex-m-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: .8rem;
+            display: grid;
+            place-items: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .ex-metric .ex-m-label {
+            font-size: .8rem;
+            color: var(--ex-muted);
+            margin: 0;
+        }
+
+        .ex-metric .ex-m-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin: 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+    .ex-m-expired {
+        border-left-color: #e11d48;
+    }
+
+        .ex-m-expired .ex-m-icon {
+            background: #ffe4ea;
+            color: var(--ex-rose);
+        }
+
+    .ex-m-30 {
+        border-left-color: #f59e0b;
+    }
+
+        .ex-m-30 .ex-m-icon {
+            background: #fef3c7;
+            color: var(--ex-amber);
+        }
+
+    .ex-m-60 {
+        border-left-color: #a78bfa;
+    }
+
+        .ex-m-60 .ex-m-icon {
+            background: var(--ex-lavender);
+            color: var(--ex-purple);
+        }
+
+    .ex-m-risk {
+        border-left-color: var(--ex-purple);
+        background: var(--ex-ink);
+        color: #fff;
+        border-color: var(--ex-ink);
+    }
+
+        .ex-m-risk .ex-m-label {
+            color: rgba(255,255,255,.7);
+        }
+
+        .ex-m-risk .ex-m-icon {
+            background: rgba(255,255,255,.14);
+            color: #fff;
+        }
+
+    /* Toolbar */
+    .ex-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .ex-filters {
+        display: inline-flex;
+        gap: .25rem;
+        padding: .3rem;
+        background: var(--ex-lavender);
+        border-radius: .85rem;
+    }
+
+        .ex-filters .btn {
+            border: 0;
+            border-radius: .6rem;
+            color: var(--ex-purple-dark);
+            font-weight: 600;
+            font-size: .875rem;
+            padding: .45rem 1rem;
+            background: transparent;
+        }
+
+            .ex-filters .btn:hover {
+                background: rgba(109,40,217,.1);
+                color: var(--ex-purple-dark);
+            }
+
+            .ex-filters .btn.active,
+            .ex-filters .btn:active {
+                background: var(--ex-purple);
+                color: #fff;
+                box-shadow: 0 2px 6px rgba(109,40,217,.35);
+            }
+
+    .ex-page .btn-dispose-all {
+        background: var(--ex-rose);
+        border-color: var(--ex-rose);
+        color: #fff;
+        border-radius: .7rem;
+        font-weight: 600;
+    }
+
+        .ex-page .btn-dispose-all:hover {
+            background: #9f1239;
+            border-color: #9f1239;
+            color: #fff;
+        }
+
+        .ex-page .btn-dispose-all:disabled {
+            background: #e9e4f5;
+            border-color: #e9e4f5;
+            color: #9a92b5;
+        }
+
+    /* Table */
+    .ex-table-wrap {
+        background: #fff;
+        border: 1px solid var(--ex-line);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .ex-table {
+        margin: 0;
+        --bs-table-hover-bg: #faf8ff;
+    }
+
+        .ex-table thead th {
+            background: var(--ex-lavender);
+            color: var(--ex-purple-dark);
+            font-size: .8rem;
+            font-weight: 650;
+            border-bottom: 1px solid var(--ex-line);
+            padding: .9rem 1rem;
+            white-space: nowrap;
+        }
+
+        .ex-table tbody td {
+            padding: .9rem 1rem;
+            border-color: #f0ecfa;
+            vertical-align: middle;
+        }
+
+        .ex-table .ex-med {
+            font-weight: 600;
+        }
+
+        .ex-table .ex-batch {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: .82rem;
+            background: #f6f3fd;
+            border-radius: .4rem;
+            padding: .15rem .45rem;
+        }
+
+        .ex-table .form-check-input, .ex-table input[type=checkbox] {
+            accent-color: var(--ex-purple);
+            width: 1.05rem;
+            height: 1.05rem;
+            cursor: pointer;
+        }
+
+        .ex-table tbody tr.batch-row:has(.batch-checkbox:checked) {
+            background: #f5f0ff;
+        }
+
+    .ex-days {
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+        .ex-days.is-expired {
+            color: var(--ex-rose);
+        }
+
+        .ex-days.is-critical {
+            color: var(--ex-amber);
+        }
+
+        .ex-days.is-warning {
+            color: var(--ex-purple);
+        }
+
+    .ex-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .35rem .7rem;
+        border-radius: 2rem;
+        font-size: .75rem;
+        font-weight: 650;
+    }
+
+        .ex-badge::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .ex-badge.expired {
+            background: #ffe4ea;
+            color: var(--ex-rose);
+        }
+
+        .ex-badge.critical {
+            background: #fef3c7;
+            color: var(--ex-amber);
+        }
+
+        .ex-badge.warning {
+            background: var(--ex-lavender);
+            color: var(--ex-purple);
+        }
+
+    .ex-page .btn-dispose-single {
+        border: 1px solid #f3b5c3;
+        color: var(--ex-rose);
+        border-radius: .6rem;
+        font-size: .8rem;
+        font-weight: 600;
+        background: #fff;
+    }
+
+        .ex-page .btn-dispose-single:hover {
+            background: var(--ex-rose);
+            border-color: var(--ex-rose);
+            color: #fff;
+        }
+
+    .ex-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--ex-muted);
+    }
+
+        .ex-empty i {
+            font-size: 2.2rem;
+            color: var(--ex-purple);
+            display: block;
+            margin-bottom: .5rem;
+        }
+
+    /* Modal */
+    #disposeModal .modal-content {
+        border: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(43,20,88,.3);
+    }
+
+    #disposeModal .modal-header {
+        background: var(--ex-ink);
+        color: #fff;
+        border: 0;
+        padding: 1.1rem 1.4rem;
+    }
+
+    #disposeModal .modal-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        font-size: 1.05rem;
+        font-weight: 650;
+    }
+
+    #disposeModal .btn-close {
+        filter: invert(1) grayscale(1) brightness(2);
+    }
+
+    #disposeModal .modal-body {
+        padding: 1.4rem;
+    }
+
+    #disposeModal .ex-warn {
+        display: flex;
+        gap: .7rem;
+        background: #fff1f4;
+        border: 1px solid #f9c9d4;
+        color: #881337;
+        border-radius: .75rem;
+        padding: .8rem 1rem;
+        margin-bottom: 1.1rem;
+        font-size: .9rem;
+    }
+
+    #disposeModal .form-select {
+        border-radius: .6rem;
+        border-color: #d4cbec;
+        padding: .6rem .85rem;
+    }
+
+        #disposeModal .form-select:focus {
+            border-color: var(--ex-purple);
+            box-shadow: 0 0 0 .22rem rgba(109,40,217,.18);
+        }
+
+    #disposeModal .modal-footer {
+        background: #faf8ff;
+        border-top: 1px solid var(--ex-line);
+    }
+
+    #disposeModal .btn-secondary {
+        background: #fff;
+        border: 1px solid var(--ex-line);
+        color: var(--ex-ink);
+        border-radius: .6rem;
+    }
+
+    #disposeModal .btn-danger {
+        background: var(--ex-rose);
+        border-color: var(--ex-rose);
+        border-radius: .6rem;
+        font-weight: 600;
+    }
+
+    .ex-page .btn:focus-visible {
+        outline: 3px solid rgba(109,40,217,.45);
+        outline-offset: 2px;
+    }
+
+    @@media (max-width: 575.98px) {
+        .ex-hero {
+            padding: 1.2rem;
+        }
+
+        .ex-filters {
+            width: 100%;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="container-fluid py-3 ex-page">
+
+    <!-- Header -->
+    <div class="ex-hero">
+        <div class="ex-hero-icon"><i class="bi bi-calendar2-x"></i></div>
+        <div style="position:relative;z-index:1">
+            <h2>Expired &amp; Near-Expiry Medicines</h2>
+            <p>Review batches that have expired or will expire soon, and write them off from stock.</p>
+        </div>
+    </div>
+
+    <!-- Summary metric cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="ex-metric ex-m-expired">
+                <div class="ex-m-icon"><i class="bi bi-x-octagon"></i></div>
+                <div>
+                    <p class="ex-m-label">Total expired batches</p>
+                    <p class="ex-m-value">@Model.TotalExpiredBatches</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="ex-metric ex-m-30">
+                <div class="ex-m-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                    <p class="ex-m-label">Expiring in under 30 days</p>
+                    <p class="ex-m-value">@Model.ExpiringWithin30Days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="ex-metric ex-m-60">
+                <div class="ex-m-icon"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <p class="ex-m-label">Expiring in under 60 days</p>
+                    <p class="ex-m-value">@Model.ExpiringWithin60Days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="ex-metric ex-m-risk">
+                <div class="ex-m-icon"><i class="bi bi-cash-stack"></i></div>
+                <div>
+                    <p class="ex-m-label">Financial value at risk</p>
+                    <p class="ex-m-value">$@Model.FinancialValueAtRisk.ToString("0.00")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls & filters -->
+    <div class="ex-toolbar">
+        <div class="ex-filters" role="group" aria-label="Filter by status">
+            <button class="btn active" onclick="filterStatus('ALL')">All</button>
+            <button class="btn" onclick="filterStatus('EXPIRED')">Already expired</button>
+            <button class="btn" onclick="filterStatus('EXPIRING_SOON')">Expiring soon</button>
+        </div>
+        <button class="btn btn-dispose-all px-3" id="btnBatchDispose" disabled data-bs-toggle="modal" data-bs-target="#disposeModal">
+            <i class="bi bi-trash3 me-1"></i> Dispose selected batches
+        </button>
+    </div>
+
+    <!-- Data table -->
+    <div class="ex-table-wrap">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle ex-table">
+                <thead>
+                    <tr>
+                        <th style="width:48px"><input type="checkbox" id="selectAllCheckbox" aria-label="Select all batches" /></th>
+                        <th>Medicine</th>
+                        <th>Batch number</th>
+                        <th>Available qty</th>
+                        <th>Expiry date</th>
+                        <th>Days remaining</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.BatchItems)
+                    {
+                        var daysClass = item.ExpiryStatus == "EXPIRED" ? "is-expired"
+                                      : item.ExpiryStatus == "CRITICAL_30_DAYS" ? "is-critical" : "is-warning";
+                        <tr class="batch-row" data-status="@item.ExpiryStatus">
+                            <td><input type="checkbox" class="batch-checkbox" value="@item.BatchId" aria-label="Select batch @item.BatchNumber" /></td>
+                            <td class="ex-med">@item.MedicineName</td>
+                            <td><span class="ex-batch">@item.BatchNumber</span></td>
+                            <td>@item.AvailableQty</td>
+                            <td>@item.ExpiryDate.ToShortDateString()</td>
+                            <td><span class="ex-days @daysClass">@item.DaysRemaining</span></td>
+                            <td>
+                                @if (item.ExpiryStatus == "EXPIRED")
+                                {
+                                    <span class="ex-badge expired">Expired</span>
+                                }
+                                else if (item.ExpiryStatus == "CRITICAL_30_DAYS")
+                                {
+                                    <span class="ex-badge critical">Critical (30 days)</span>
+                                }
+                                else
+                                {
+                                    <span class="ex-badge warning">Warning (60 days)</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-dispose-single" data-id="@item.BatchId" data-bs-toggle="modal" data-bs-target="#disposeModal">
+                                    <i class="bi bi-trash3 me-1"></i> Dispose / write off
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.BatchItems.Any())
+        {
+            <div class="ex-empty">
+                <i class="bi bi-check2-circle"></i>
+                No expired or near-expiry batches. Your stock is in good shape.
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Disposal modal -->
+<div class="modal fade" id="disposeModal" tabindex="-1" aria-labelledby="disposeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="disposeModalLabel"><i class="bi bi-trash3"></i> Dispose batch(es)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="ex-warn">
+                    <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                    <span>This writes off the available quantity of the selected batch(es) from stock.</span>
+                </div>
+                <div class="mb-1">
+                    <label for="disposalReason" class="form-label fw-semibold">Disposal reason</label>
+                    <select class="form-select" id="disposalReason" required>
+                        <option value="">Select a reason...</option>
+                        <option value="Damaged">Damaged</option>
+                        <option value="Standard Expiry Destruction">Standard Expiry Destruction</option>
+                    </select>
+                </div>
+                <input type="hidden" id="targetBatchIds" value="" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDisposeBtn">Confirm disposal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/expired-notifications.js"></script>
+}
