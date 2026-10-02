@@ -9,13 +9,13 @@ using MediGuard.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Add MVC View Engine Services
+// Add MVC View Engine Services
 builder.Services.AddControllersWithViews();
 
-//  Add Memory Cache Service (Required for UserDashboard ViewComponent)
+// Add Memory Cache Service (Required for UserDashboard ViewComponent)
 builder.Services.AddMemoryCache();
 
-//  Fetch Connection String from appsettings.json
+// Fetch Connection String from appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json.");
 
@@ -26,7 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Services DI Registration
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// ASP.NET Core Hosted Background Service Registration (Ticket 24)
+// ASP.NET Core Hosted Background Service Registration
 builder.Services.AddHostedService<ExpiryScannerHostedService>();
 
 // Configure ASP.NET Core Identity
@@ -40,14 +40,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-//  Register Application Services (Dependency Injection)
+// Register Application Services (Dependency Injection)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
-// 6.1 Catalog & Category Management Services
+// Catalog & Category Management Services
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+
+// Inventory & Batch Management Service (Ticket 23)
+builder.Services.AddScoped<IBatchService, BatchService>();
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
@@ -73,7 +76,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 // Enable Authentication & Authorization
