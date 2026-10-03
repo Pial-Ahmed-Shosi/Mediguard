@@ -1,4 +1,4 @@
-﻿// File: Models/ViewModels/ExpiryAlertsViewModel.cs
+﻿
 using System;
 using System.Collections.Generic;
 
