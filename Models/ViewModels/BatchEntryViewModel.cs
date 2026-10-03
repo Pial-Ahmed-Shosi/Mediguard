@@ -9,7 +9,7 @@ namespace MediGuard.Models.ViewModels
     {
         [Required(ErrorMessage = "Please select a medicine.")]
         [Display(Name = "Medicine")]
-        public int MedicineId { get; set; }
+        public Guid MedicineId { get; set; }
 
         [Required(ErrorMessage = "Batch number is required.")]
         [StringLength(50, ErrorMessage = "Batch number cannot exceed 50 characters.")]
@@ -50,8 +50,10 @@ namespace MediGuard.Models.ViewModels
 
     public class ExistingBatchDto
     {
-        public int BatchId { get; set; }
+        public Guid BatchId { get; set; }
         public string BatchNumber { get; set; } = string.Empty;
+        public string MedicineName { get; set; } = string.Empty;
+        public string ExpiryStatus { get; set; } = string.Empty;
         public int RemainingQuantity { get; set; }
         public DateTime ManufacturingDate { get; set; }
         public DateTime ExpiryDate { get; set; }

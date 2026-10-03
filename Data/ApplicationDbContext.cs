@@ -18,9 +18,10 @@ namespace MediGuard.Data
         public DbSet<RolePermission> RolePermissions { get; set; } = null!;
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
 
-        // --- Operational & Dashboard Tables (Ticket 13) ---
-        public DbSet<Sale> Sales { get; set; } = null!;
+        // --- Operational & Inventory Tables ---
+        public DbSet<Medicine> Medicines { get; set; } = null!;
         public DbSet<Batch> Batches { get; set; } = null!;
+        public DbSet<Sale> Sales { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
 
@@ -35,13 +36,18 @@ namespace MediGuard.Data
         {
             base.OnModelCreating(builder);
 
-            // Previous Ticket 8 Configuration
+            // ApplicationUser Configuration
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Pharmacy)
                 .WithMany(p => p.Users)
                 .HasForeignKey(u => u.PharmacyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<ApplicationUser>()
+                .HasIndex(u => u.PharmacyId)
+                .HasDatabaseName("idx_users_pharmacy_id");
+
+            // Pharmacy Configuration
             builder.Entity<Pharmacy>()
                 .HasIndex(p => p.Domain)
                 .IsUnique()
@@ -51,13 +57,7 @@ namespace MediGuard.Data
                 .HasIndex(p => p.LicenseNumber)
                 .IsUnique();
 
-            builder.Entity<ApplicationUser>()
-                .HasIndex(u => u.PharmacyId)
-                .HasDatabaseName("idx_users_pharmacy_id");
-
-            // --- Ticket 9 RBAC Configuration ---
-
-            // Composite Primary Key for RolePermissions
+            // --- RBAC Configuration ---
             builder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
 
@@ -73,7 +73,6 @@ namespace MediGuard.Data
                 .HasForeignKey(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Composite Primary Key for UserPermissions
             builder.Entity<UserPermission>()
                 .HasKey(up => new { up.UserId, up.PermissionId });
 
@@ -83,9 +82,7 @@ namespace MediGuard.Data
                 .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // --- Ticket 19 Categories & Manufacturers Configuration ---
-
-            // Category: Unique (PharmacyId, Name) + Foreign Key
+            // --- Categories & Manufacturers Configuration ---
             builder.Entity<Category>(entity =>
             {
                 entity.HasIndex(c => new { c.PharmacyId, c.Name })
@@ -98,7 +95,6 @@ namespace MediGuard.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Manufacturer: Unique (PharmacyId, Name) + Foreign Key
             builder.Entity<Manufacturer>(entity =>
             {
                 entity.HasIndex(m => new { m.PharmacyId, m.Name })
@@ -111,7 +107,35 @@ namespace MediGuard.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // --- Ticket 24 Notification Configuration ---
+            // --- Medicine & Batch Inventory Configurations ---
+            builder.Entity<Medicine>(entity =>
+            {
+                entity.HasIndex(m => new { m.PharmacyId, m.Name })
+                      .HasDatabaseName("idx_medicines_pharmacy_id_name");
+
+                entity.HasOne(m => m.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(m => m.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Batch>(entity =>
+            {
+                entity.HasIndex(b => new { b.PharmacyId, b.MedicineId, b.Status, b.ExpiryDate })
+                      .HasDatabaseName("idx_batches_fefo_lookup");
+
+                entity.HasOne(b => b.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(b => b.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(b => b.Medicine)
+                      .WithMany(m => m.Batches)
+                      .HasForeignKey(b => b.MedicineId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- Notification Configuration ---
             builder.Entity<Notification>(entity =>
             {
                 entity.HasIndex(n => new { n.PharmacyId, n.BatchId, n.UrgencyLevel, n.IsRead })
