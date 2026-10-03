@@ -1,0 +1,88 @@
+@model MediGuard.Models.ViewModels.MedicineCatalogViewModel
+
+@if (Model?.Medicines != null && Model.Medicines.Any())
+{
+    <div class="mg-grid">
+        @foreach (var item in Model.Medicines)
+        {
+            bool isLowStock = item.TotalStock < 10;
+            bool isOut      = item.TotalStock <= 0;
+
+            var stockClass = isOut ? "out" : (isLowStock ? "low" : "in");
+            var stockText  = isOut ? "Out of Stock" : (isLowStock ? "Low Stock" : "In Stock");
+
+            var category = string.IsNullOrEmpty(item.CategoryName) ? "General" : item.CategoryName;
+            var maker    = string.IsNullOrEmpty(item.ManufacturerName) ? "N/A" : item.ManufacturerName;
+            var tone     = category.Sum(c => (int)c) % 5;
+
+            <article class="mg-card" data-mg-card>
+                <div class="mg-card-img">
+                    <span class="mg-badge stock @stockClass">@stockText</span>
+                    @if (item.IsRxRequired)
+                    {
+                        <span class="mg-badge rx"><i class="bi bi-prescription me-1"></i>Rx</span>
+                    }
+                    <i class="bi bi-capsule-pill ph"></i>
+                </div>
+
+                <div class="mg-card-body">
+                    <span class="mg-type t@(tone)">@category</span>
+                    <h3 class="mg-name">@item.BrandName</h3>
+
+                    <ul class="mg-info">
+                        @if (!string.IsNullOrWhiteSpace(item.GenericName))
+                        {
+                            <li><i class="bi bi-capsule"></i>@item.GenericName</li>
+                        }
+                        <li><i class="bi bi-building"></i>@maker</li>
+                        @if (!string.IsNullOrWhiteSpace(item.Unit))
+                        {
+                            <li><i class="bi bi-box"></i>Unit: @item.Unit</li>
+                        }
+                        <li>
+                            <i class="bi @(item.IsRxRequired ? "bi-shield-lock" : "bi-bag-check")"></i>
+                            @(item.IsRxRequired ? "Prescription required" : "Over the counter")
+                        </li>
+                    </ul>
+
+                    <div class="mg-card-foot">
+                        <div class="mg-price @(isLowStock ? "low" : "")">
+                            @item.TotalStock<small>in stock</small>
+                        </div>
+                        <div class="mg-foot-actions">
+                            <a href="/Medicine/Edit/@item.Id" class="mg-icon-btn" title="Edit Medicine Details" aria-label="Edit @item.BrandName">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="/Batch/Index?medicineId=@item.Id" class="mg-icon-btn" title="View Inventory Batches" aria-label="View batches for @item.BrandName">
+                                <i class="bi bi-boxes"></i>
+                            </a>
+                            <button type="button"
+                                    class="mg-add-btn btn-add-stock"
+                                    data-medicine-id="@item.Id"
+                                    data-medicine-name="@item.BrandName"
+                                    title="Add Stock Batch"
+                                    aria-label="Add stock batch for @item.BrandName">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}
+else
+{
+    <div class="mg-empty">
+        <i class="bi bi-capsule"></i>
+        No medicines found matching your search or filter criteria.
+    </div>
+}
+
+<!-- Footer summary line -->
+<div class="mg-note">
+    <span>Showing <strong>@(Model?.Medicines?.Count() ?? 0)</strong> catalog item(s)</span>
+    <span class="d-flex align-items-center gap-2">
+        <span class="mg-dot"></span> Low Stock (&lt; 10 units)
+    </span>
+</div>

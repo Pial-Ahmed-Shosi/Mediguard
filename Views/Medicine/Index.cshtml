@@ -1,0 +1,412 @@
+@model MediGuard.Models.ViewModels.MedicineCatalogViewModel
+@{
+    ViewData["Title"] = "Medicine Catalog";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    .mg-page {
+        --g-900: #063a2c;
+        --g-800: #0a5340;
+        --g-700: #0d6b4e;
+        --g-600: #12805d;
+        --g-500: #1a9a72;
+        --g-100: #e1f3ea;
+        --g-50:  #f1f9f5;
+        --ink:   #14291f;
+        --muted: #6b7f75;
+        --line:  #e3ede7;
+
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: var(--ink);
+        background: #f6f9f7;
+        min-height: 100vh;
+        padding-bottom: 1.5rem;
+    }
+    .mg-wrap { max-width: 1200px; margin: 0 auto; padding: .9rem 1rem 0; }
+
+    /* ---------- Top row ---------- */
+    .mg-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .75rem; }
+    .mg-title { font-size: 1.15rem; font-weight: 800; margin: 0 0 .1rem; color: var(--g-900); display: flex; align-items: center; gap: .5rem; }
+    .mg-title i { color: var(--g-600); }
+    .mg-sub { font-size: .72rem; color: var(--muted); margin: 0; }
+    .mg-top-right { display: flex; align-items: center; gap: .9rem; }
+    .mg-count { font-size: .7rem; color: var(--muted); white-space: nowrap; }
+    .mg-add {
+        display: inline-flex; align-items: center; gap: .4rem;
+        background: var(--g-700); color: #fff;
+        font-size: .74rem; font-weight: 600;
+        padding: .45rem .9rem; border-radius: .6rem;
+        text-decoration: none; transition: background .2s;
+    }
+    .mg-add:hover { background: var(--g-900); color: #fff; }
+
+    /* ---------- Search card ---------- */
+    .mg-search-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: .8rem;
+        padding: .9rem 1rem;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr auto;
+        gap: .75rem;
+        align-items: end;
+        box-shadow: 0 8px 22px -18px rgba(6, 58, 44, .5);
+    }
+    .mg-field label {
+        display: flex; align-items: center; gap: .35rem;
+        font-size: .6rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+        color: #50665b; margin-bottom: .3rem;
+    }
+    .mg-field label i { color: var(--g-600); font-size: .7rem; }
+    .mg-field .form-control,
+    .mg-field .form-select {
+        font-size: .76rem;
+        height: 38px;
+        border: 1px solid var(--line);
+        border-radius: .55rem;
+        background-color: #fbfdfc;
+        color: var(--ink);
+    }
+    .mg-field .form-control::placeholder { color: #9bb0a5; }
+    .mg-field .form-control:focus,
+    .mg-field .form-select:focus { border-color: var(--g-500); background: #fff; box-shadow: 0 0 0 .2rem rgba(26, 154, 114, .18); }
+
+    .mg-rx {
+        height: 38px; display: flex; align-items: center; gap: .55rem;
+        border: 1px solid var(--line); border-radius: .55rem; background: #fbfdfc;
+        padding: 0 .75rem; margin: 0;
+    }
+    .mg-rx .form-check-input { margin: 0; width: 2.2em; height: 1.1em; cursor: pointer; }
+    .mg-rx .form-check-input:checked { background-color: var(--g-600); border-color: var(--g-600); }
+    .mg-rx .form-check-input:focus { border-color: var(--g-500); box-shadow: 0 0 0 .2rem rgba(26, 154, 114, .2); }
+    .mg-rx .form-check-label { font-size: .74rem; font-weight: 600; color: var(--g-800); cursor: pointer; margin: 0; }
+
+    .mg-actions { display: flex; gap: .5rem; }
+    .mg-find {
+        height: 38px; border: 0; border-radius: .6rem;
+        padding: 0 1.6rem; min-width: 150px;
+        background: linear-gradient(90deg, var(--g-800), var(--g-500));
+        color: #fff; font-size: .78rem; font-weight: 600;
+        display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+        transition: filter .2s;
+    }
+    .mg-find:hover { filter: brightness(1.08); }
+    .mg-reset {
+        width: 38px; height: 38px; flex-shrink: 0;
+        border: 1px solid var(--line); border-radius: .6rem;
+        background: #fff; color: var(--g-600);
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background .2s, color .2s;
+    }
+    .mg-reset:hover { background: var(--g-600); color: #fff; }
+
+    /* ---------- Category pills ---------- */
+    .mg-pills { display: flex; flex-wrap: wrap; gap: .45rem; margin: .75rem 0; }
+    .mg-pill {
+        border: 1px solid var(--line); background: #fff; color: #3f574b;
+        font-size: .68rem; font-weight: 500;
+        padding: .38rem .85rem; border-radius: 999px;
+        display: inline-flex; align-items: center; gap: .35rem;
+        transition: all .2s;
+    }
+    .mg-pill:hover { border-color: var(--g-500); color: var(--g-700); }
+    .mg-pill.active { background: var(--g-700); border-color: var(--g-700); color: #fff; }
+
+    /* ---------- Product card grid (used by _MedicineTable) ---------- */
+    .mg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .mg-card {
+        background: #fff;
+        border: 1px solid #edf3ef;
+        border-radius: .8rem;
+        overflow: hidden;
+        display: flex; flex-direction: column;
+        box-shadow: 0 10px 24px -20px rgba(6, 58, 44, .55);
+        transition: box-shadow .2s, transform .2s;
+    }
+    .mg-card:hover { box-shadow: 0 16px 30px -18px rgba(6, 58, 44, .55); transform: translateY(-2px); }
+    .mg-card-img {
+        position: relative; height: 130px;
+        background: #f1f5f3;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .mg-card-img img { max-width: 78%; max-height: 100px; object-fit: contain; }
+    .mg-card-img .ph { font-size: 2.6rem; color: #b9cfc3; }
+    .mg-badge {
+        position: absolute; top: .55rem;
+        font-size: .56rem; font-weight: 700;
+        padding: .2rem .5rem; border-radius: .35rem;
+    }
+    .mg-badge.stock { left: .55rem; }
+    .mg-badge.rx { right: .55rem; background: #fff; color: var(--g-700); border: 1px solid var(--g-100); }
+    .mg-badge.in  { background: #d9f4e4; color: #0b6a3d; }
+    .mg-badge.low { background: #fdf0c8; color: #8a6200; }
+    .mg-badge.out { background: #fde0e0; color: #a12626; }
+
+    .mg-card-body { padding: .85rem .9rem .8rem; display: flex; flex-direction: column; flex: 1; }
+    .mg-type {
+        align-self: flex-start;
+        font-size: .58rem; font-weight: 600;
+        padding: .22rem .55rem; border-radius: .35rem; margin-bottom: .55rem;
+    }
+    .mg-type.t0 { background: #e3f6ec; color: #11704a; }
+    .mg-type.t1 { background: #e0f2f4; color: #0f6f7a; }
+    .mg-type.t2 { background: #fdeccf; color: #9a5a00; }
+    .mg-type.t3 { background: #fde3e3; color: #a63030; }
+    .mg-type.t4 { background: #ece6fb; color: #5b3fb0; }
+
+    .mg-name { font-size: .95rem; font-weight: 700; margin: 0 0 .4rem; color: var(--ink); line-height: 1.25; }
+    .mg-info { list-style: none; padding: 0; margin: 0 0 .7rem; }
+    .mg-info li { font-size: .66rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; margin-bottom: .22rem; }
+    .mg-info li i { color: var(--g-500); font-size: .72rem; }
+
+    .mg-card-foot {
+        margin-top: auto; padding-top: .6rem; border-top: 1px solid #eef3f0;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .mg-price { font-size: 1rem; font-weight: 800; color: var(--g-700); }
+    .mg-price small { font-size: .58rem; font-weight: 500; color: var(--muted); margin-left: .2rem; }
+    .mg-add-btn,
+    .mg-icon-btn {
+        width: 30px; height: 30px; border: 0; border-radius: .5rem;
+        background: var(--g-100); color: var(--g-700);
+        display: inline-flex; align-items: center; justify-content: center;
+        text-decoration: none; font-size: .8rem;
+        transition: background .2s, color .2s;
+    }
+    .mg-add-btn:hover,
+    .mg-icon-btn:hover { background: var(--g-700); color: #fff; }
+    .mg-foot-actions { display: flex; gap: .3rem; }
+    .mg-price.low { color: #c0392b; }
+    .mg-note {
+        display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem;
+        margin-top: .9rem; font-size: .7rem; color: var(--muted);
+    }
+    .mg-dot { width: 9px; height: 9px; border-radius: 50%; background: #d9534f; display: inline-block; }
+
+    .mg-empty { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: .85rem; }
+    .mg-empty i { display: block; font-size: 2rem; color: #b9cfc3; margin-bottom: .5rem; }
+
+    /* ---------- Modal ---------- */
+    .mg-modal .modal-content { border: 0; border-radius: 1.1rem; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(6, 58, 44, .5); }
+    .mg-modal .modal-header { background: var(--g-100); border-bottom: 1px solid var(--line); padding: 1rem 1.4rem; }
+    .mg-modal .modal-title { color: var(--g-900); }
+    .mg-modal .modal-body { padding: 1.3rem 1.4rem; }
+    .mg-modal .modal-footer { background: var(--g-50); border-top: 1px solid var(--line); padding: .9rem 1.4rem; }
+    .mg-modal .form-label { font-size: .8rem; font-weight: 500; color: var(--g-800); }
+    .mg-modal .form-control { border: 1px solid var(--line); border-radius: .6rem; padding: .55rem .85rem; background: var(--g-50); }
+    .mg-modal .form-control[readonly] { background: var(--g-100); color: var(--g-900); font-weight: 600; }
+    .mg-modal .form-control:focus { background: #fff; border-color: var(--g-500); box-shadow: 0 0 0 .2rem rgba(26, 154, 114, .2); }
+    .mg-modal .btn-success { background: var(--g-600); border-color: var(--g-600); border-radius: 999px; padding: .5rem 1.25rem; font-weight: 500; }
+    .mg-modal .btn-success:hover { background: var(--g-800); border-color: var(--g-800); }
+    .mg-modal .btn-light { border-radius: 999px; color: var(--muted); }
+
+    /* ---------- Responsive ---------- */
+    @@media (max-width: 991.98px) {
+        .mg-search-card { grid-template-columns: 1fr 1fr; }
+        .mg-actions { grid-column: 1 / -1; }
+        .mg-find { flex: 1; }
+    }
+    @@media (max-width: 575.98px) {
+        .mg-search-card { grid-template-columns: 1fr; }
+        .mg-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: .7rem; }
+        .mg-top-right { width: 100%; justify-content: space-between; }
+    }
+    @@media (prefers-reduced-motion: reduce) { .mg-page * { transition: none !important; } .mg-card:hover { transform: none; } }
+</style>
+
+<div class="mg-page">
+    <div class="mg-wrap">
+
+        <!-- ================= TOP ROW ================= -->
+        <div class="mg-top">
+            <div>
+                <h1 class="mg-title"><i class="bi bi-capsule"></i>Medicine Catalog</h1>
+                <p class="mg-sub">Search, filter, and monitor stock levels across your pharmacy inventory.</p>
+            </div>
+            <div class="mg-top-right">
+                <span class="mg-count" id="mgCount">0 items found</span>
+                <a href="/Medicine/Create" class="mg-add"><i class="bi bi-plus-lg"></i> Add New Medicine</a>
+            </div>
+        </div>
+
+        <!-- ================= SEARCH CARD ================= -->
+        <form id="medicineFilterForm" class="mg-search-card" onsubmit="return false;">
+
+            <div class="mg-field">
+                <label for="searchKeyword"><i class="bi bi-search"></i> Medicine / Brand name</label>
+                <input type="text"
+                       id="searchKeyword"
+                       name="SearchKeyword"
+                       class="form-control"
+                       placeholder="e.g. Clindacin, Napa, Syringe..."
+                       value="@Model.SearchKeyword"
+                       autocomplete="off">
+            </div>
+
+            <div class="mg-field">
+                <label for="manufacturerFilter"><i class="bi bi-building"></i> Manufacturer</label>
+                <select id="manufacturerFilter" name="ManufacturerId" class="form-select">
+                    <option value="">All Manufacturers</option>
+                    @if (Model.Manufacturers != null)
+                    {
+                        foreach (var mfr in Model.Manufacturers)
+                        {
+                            <option value="@mfr.Value">@mfr.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="mg-field">
+                <label for="rxOnlyFilter"><i class="bi bi-shield-check"></i> Prescription</label>
+                <div class="mg-rx form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="rxOnlyFilter" name="RxOnly" value="true">
+                    <label class="form-check-label" for="rxOnlyFilter">Rx-Only</label>
+                </div>
+            </div>
+
+            <div class="mg-actions">
+                <button type="button" id="searchBtn" class="mg-find"><i class="bi bi-search"></i> Find Items</button>
+                <button type="button" id="resetFiltersBtn" class="mg-reset" title="Reset filters" aria-label="Reset filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+            </div>
+
+            <!-- Real category field (kept for medicine-catalog.js); the pills below drive it -->
+            <select id="categoryFilter" name="CategoryId" class="d-none">
+                <option value="">All Categories</option>
+                @if (Model.Categories != null)
+                {
+                    foreach (var cat in Model.Categories)
+                    {
+                        <option value="@cat.Value">@cat.Text</option>
+                    }
+                }
+            </select>
+        </form>
+
+        <!-- ================= CATEGORY PILLS ================= -->
+        <div class="mg-pills" id="mgPills">
+            <button type="button" class="mg-pill active" data-cat=""><i class="bi bi-grid"></i> All</button>
+            @if (Model.Categories != null)
+            {
+                foreach (var cat in Model.Categories)
+                {
+                    if (string.IsNullOrEmpty(cat.Value)) { continue; }
+                    <button type="button" class="mg-pill" data-cat="@cat.Value">@cat.Text</button>
+                }
+            }
+        </div>
+
+        <!-- ================= CARD GRID ================= -->
+        <div id="medicineTableContainer">
+            @await Html.PartialAsync("_MedicineTable", Model)
+        </div>
+    </div>
+</div>
+
+<!-- ================= ADD STOCK MODAL ================= -->
+<div class="modal fade mg-modal" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addStockModalLabel">
+                    <i class="bi bi-box-seam me-2" style="color:#12805d"></i>Add Stock Batch
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStockForm">
+                    <input type="hidden" id="modalMedicineId" name="MedicineId" value="" />
+                    <div class="mb-3">
+                        <label class="form-label">Target medicine</label>
+                        <input type="text" id="modalMedicineName" class="form-control" readonly />
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Batch number <span class="text-danger">*</span></label>
+                            <input type="text" name="BatchNumber" class="form-control" placeholder="e.g. BATCH-2026-09" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Quantity added <span class="text-danger">*</span></label>
+                            <input type="number" name="Quantity" class="form-control" min="1" placeholder="e.g. 50" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Manufacture date</label>
+                            <input type="date" name="ManufactureDate" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Expiry date <span class="text-danger">*</span></label>
+                            <input type="date" name="ExpiryDate" class="form-control" required />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="saveStockBtn" class="btn btn-success">
+                    <i class="bi bi-check-circle me-1"></i> Save Stock Batch
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/medicine-catalog.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var input = document.getElementById('searchKeyword');
+            var findBtn = document.getElementById('searchBtn');
+            var sel = document.getElementById('categoryFilter');
+            var resetBtn = document.getElementById('resetFiltersBtn');
+            var pills = [].slice.call(document.querySelectorAll('#mgPills .mg-pill'));
+            var container = document.getElementById('medicineTableContainer');
+            var countEl = document.getElementById('mgCount');
+
+            // "Find Items" button and Enter key run the same live search
+            function fire() { input.dispatchEvent(new Event('input', { bubbles: true })); }
+            if (findBtn) findBtn.addEventListener('click', fire);
+            if (input) input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); fire(); }
+            });
+
+            // Category pills drive the hidden #categoryFilter select
+            function syncPills() {
+                pills.forEach(function (p) {
+                    p.classList.toggle('active', (p.getAttribute('data-cat') || '') === (sel.value || ''));
+                });
+            }
+            pills.forEach(function (p) {
+                p.addEventListener('click', function () {
+                    sel.value = p.getAttribute('data-cat') || '';
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                    syncPills();
+                });
+            });
+            sel.addEventListener('change', syncPills);
+            if (resetBtn) resetBtn.addEventListener('click', function () { setTimeout(syncPills, 0); });
+            syncPills();
+
+            // "N items found" follows whatever cards are currently shown
+            function updateCount() {
+                var n = container.querySelectorAll('[data-mg-card]').length;
+                countEl.textContent = n + (n === 1 ? ' item found' : ' items found');
+            }
+            new MutationObserver(updateCount).observe(container, { childList: true, subtree: true });
+            updateCount();
+
+            // Card "+" button fills and opens the Add Stock modal (works after AJAX refreshes too)
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.mg-add-btn');
+                if (!btn) return;
+                var idEl = document.getElementById('modalMedicineId');
+                var nameEl = document.getElementById('modalMedicineName');
+                if (idEl) idEl.value = btn.getAttribute('data-medicine-id') || '';
+                if (nameEl) nameEl.value = btn.getAttribute('data-medicine-name') || '';
+            });
+        })();
+    </script>
+}
