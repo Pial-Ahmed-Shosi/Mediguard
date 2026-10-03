@@ -1,5 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// File: Services/DashboardService.cs
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using MediGuard.Data;
 using MediGuard.Models.ViewModels;
 
@@ -139,6 +144,51 @@ namespace MediGuard.Services
             string cacheKey = $"dashboard_{pharmacyId}_{userId}";
             _cache.Remove(cacheKey);
             _logger.LogInformation("Dashboard cache invalidated for key: {CacheKey}", cacheKey);
+        }
+
+        // ==========================================
+        // Ticket 18: Expiry & Low-Stock Alerts Logic
+        // ==========================================
+        public async Task<ExpiryAlertsViewModel> GetExpiryAndShortageAlertsAsync(Guid pharmacyId)
+        {
+            var today = DateTime.UtcNow.Date;
+            var thirtyDaysFromNow = today.AddDays(30);
+
+            // 1. Critical Expiries (< 30 Days) - Top 5 closest to expiry
+            var criticalExpiries = await _context.Batches
+                .AsNoTracking()
+                .Where(b => b.PharmacyId == pharmacyId && b.Quantity > 0 && b.ExpiryDate <= thirtyDaysFromNow)
+                .OrderBy(b => b.ExpiryDate)
+                .Take(5)
+                .Select(b => new ExpiryAlertItemDto
+                {
+                    BatchId = b.Id,
+                    BatchNumber = b.BatchNumber,
+                    ExpiryDate = b.ExpiryDate,
+                    DaysLeft = (b.ExpiryDate.Date - today).Days,
+                    Quantity = b.Quantity
+                })
+                .ToListAsync();
+
+            // 2. Stock Shortages (< 10 units) - Top 5 lowest quantity items
+            var stockShortages = await _context.Batches
+                .AsNoTracking()
+                .Where(b => b.PharmacyId == pharmacyId && b.Quantity < 10)
+                .OrderBy(b => b.Quantity)
+                .Take(5)
+                .Select(b => new StockShortageItemDto
+                {
+                    BatchId = b.Id,
+                    BatchNumber = b.BatchNumber,
+                    Quantity = b.Quantity
+                })
+                .ToListAsync();
+
+            return new ExpiryAlertsViewModel
+            {
+                CriticalExpiries = criticalExpiries,
+                StockShortages = stockShortages
+            };
         }
     }
 }
