@@ -28,6 +28,17 @@ namespace MediGuard.Models
 
         public bool RequiresPrescription { get; set; } = false;
 
+        // Alias property for view model compatibility with 'IsRxOnly'
+        [NotMapped]
+        public bool IsRxOnly
+        {
+            get => RequiresPrescription;
+            set => RequiresPrescription = value;
+        }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; } = 0.00m;
+
         [MaxLength(30)]
         public string Unit { get; set; } = "Tablet";
 

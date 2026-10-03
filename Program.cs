@@ -45,7 +45,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
-// Catalog & Category Management Services
+// Catalog & Category Management Services (Ticket 22)
+builder.Services.AddScoped<IMedicineService, MedicineService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 
