@@ -38,6 +38,6 @@ namespace MediGuard.Models
         public virtual ICollection<Medicine> Medicines { get; set; } = new List<Medicine>();
 
         // Ticket 13 Navigation Property (Batches)
-        public virtual ICollection<Batch> Batches { get; set; } = new List<Batch>();
+        public virtual ICollection<InventoryBatch> Batches { get; set; } = new List<InventoryBatch>();
     }
 }

@@ -9,33 +9,44 @@ namespace MediGuard.Models
     public class Medicine
     {
         [Key]
+        [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
+        [Column("pharmacy_id")]
         public Guid PharmacyId { get; set; }
 
+        [Column("category_id")]
+        public Guid? CategoryId { get; set; }
+
+        [Column("manufacturer_id")]
+        public Guid? ManufacturerId { get; set; }
+
         [Required]
-        [StringLength(255)]
+        [MaxLength(150)]
+        [Column("brand_name")]
         public string BrandName { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(255)]
+        [MaxLength(150)]
+        [Column("generic_name")]
         public string GenericName { get; set; } = string.Empty;
 
-        public Guid? CategoryId { get; set; }
+        [Column("requires_prescription")]
+        public bool RequiresPrescription { get; set; } = false;
 
-        public Guid? ManufacturerId { get; set; }
-
-        public bool RequiresPrescription { get; set; }
-
-        [StringLength(50)]
+        [MaxLength(30)]
+        [Column("unit")]
         public string Unit { get; set; } = "Tablet";
 
-        [StringLength(100)]
+        [MaxLength(100)]
+        [Column("barcode")]
         public string? Barcode { get; set; }
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [Column("updated_at")]
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation Properties
@@ -48,6 +59,7 @@ namespace MediGuard.Models
         [ForeignKey("ManufacturerId")]
         public virtual Manufacturer? Manufacturer { get; set; }
 
-        public virtual ICollection<Batch> Batches { get; set; } = new List<Batch>();
+        // Collection Navigation for FEFO Inventory Lookup
+        public virtual ICollection<InventoryBatch> InventoryBatches { get; set; } = new List<InventoryBatch>();
     }
 }

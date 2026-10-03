@@ -18,13 +18,13 @@ namespace MediGuard.Data
         public DbSet<RolePermission> RolePermissions { get; set; } = null!;
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
 
-        // --- Operational & Dashboard Tables (Ticket 13) ---
+        // --- Operational & Dashboard Tables ---
         public DbSet<Sale> Sales { get; set; } = null!;
-        public DbSet<Batch> Batches { get; set; } = null!;
+        public DbSet<InventoryBatch> Batches { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
 
-        // --- Inventory Classification Tables (Ticket 19) ---
+        // --- Inventory Classification Tables (Ticket 19 & 20) ---
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Manufacturer> Manufacturers { get; set; } = null!;
         public DbSet<Medicine> Medicines { get; set; } = null!;
@@ -36,7 +36,7 @@ namespace MediGuard.Data
         {
             base.OnModelCreating(builder);
 
-            // Previous Ticket 8 Configuration
+            // --- Ticket 8: Core User & Tenant Setup ---
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Pharmacy)
                 .WithMany(p => p.Users)
@@ -56,9 +56,7 @@ namespace MediGuard.Data
                 .HasIndex(u => u.PharmacyId)
                 .HasDatabaseName("idx_users_pharmacy_id");
 
-            // --- Ticket 9 RBAC Configuration ---
-
-            // Composite Primary Key for RolePermissions
+            // --- Ticket 9: RBAC Configuration ---
             builder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
 
@@ -74,7 +72,6 @@ namespace MediGuard.Data
                 .HasForeignKey(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Composite Primary Key for UserPermissions
             builder.Entity<UserPermission>()
                 .HasKey(up => new { up.UserId, up.PermissionId });
 
@@ -84,9 +81,7 @@ namespace MediGuard.Data
                 .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // --- Ticket 19 Categories & Manufacturers Configuration ---
-
-            // Category: Unique (PharmacyId, Name) + Foreign Key
+            // --- Ticket 19: Categories & Manufacturers Configuration ---
             builder.Entity<Category>(entity =>
             {
                 entity.HasIndex(c => new { c.PharmacyId, c.Name })
@@ -99,7 +94,6 @@ namespace MediGuard.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Manufacturer: Unique (PharmacyId, Name) + Foreign Key
             builder.Entity<Manufacturer>(entity =>
             {
                 entity.HasIndex(m => new { m.PharmacyId, m.Name })
@@ -112,14 +106,20 @@ namespace MediGuard.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // --- Ticket 13 Medicine & Batch Configuration ---
-            // Medicine: Unique (PharmacyId, Barcode) + Foreign Keys
+            // =========================================================================
+            // --- Ticket 20: Medicines & Inventory Batches Configuration ---
+            // =========================================================================
+
+            // 1. Medicines Table & Indexes
             builder.Entity<Medicine>(entity =>
             {
-                entity.HasIndex(m => new { m.PharmacyId, m.Barcode })
-                      .IsUnique()
-                      .HasDatabaseName("idx_medicines_pharmacy_id_barcode");
+                entity.ToTable("medicines");
 
+                // Barcode Lookup Index
+                entity.HasIndex(m => new { m.PharmacyId, m.Barcode })
+                      .HasDatabaseName("idx_medicines_barcode");
+
+                // Cascade Rules
                 entity.HasOne(m => m.Pharmacy)
                       .WithMany(p => p.Medicines)
                       .HasForeignKey(m => m.PharmacyId)
@@ -136,28 +136,38 @@ namespace MediGuard.Data
                       .OnDelete(DeleteBehavior.SetNull);
             });
 
-            // Batch: Foreign Key to Medicine and Pharmacy
-            builder.Entity<Batch>(entity =>
+            // 2. Inventory Batches Table, FEFO Composite Index & Check Constraint
+            builder.Entity<InventoryBatch>(entity =>
             {
-                entity.HasOne(b => b.Medicine)
-                      .WithMany(m => m.Batches)
-                      .HasForeignKey(b => b.MedicineId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                entity.ToTable("inventory_batches");
 
+                // FEFO Composite Index (PharmacyId, MedicineId, Status, ExpiryDate)
+                entity.HasIndex(b => new { b.PharmacyId, b.MedicineId, b.Status, b.ExpiryDate })
+                      .HasDatabaseName("idx_batches_fefo");
+
+                // Database Engine Level Check Constraint (Quantity >= 0)
+                entity.ToTable(t => t.HasCheckConstraint("CK_inventory_batches_quantity", "quantity >= 0"));
+
+                // Cascade Rules
                 entity.HasOne(b => b.Pharmacy)
                       .WithMany(p => p.Batches)
                       .HasForeignKey(b => b.PharmacyId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(b => b.Medicine)
+                      .WithMany(m => m.InventoryBatches)
+                      .HasForeignKey(b => b.MedicineId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // --- Ticket 24 Notification Configuration ---
+            // --- Ticket 24: Notifications Configuration ---
             builder.Entity<Notification>(entity =>
             {
                 entity.HasIndex(n => new { n.PharmacyId, n.BatchId, n.UrgencyLevel, n.IsRead })
                       .HasDatabaseName("idx_notifications_expiry_lookup");
             });
 
-            // Seed Standard Roles 1-5
+            // --- Seed Standard Roles 1-5 ---
             builder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Manager" },
                 new Role { Id = 2, Name = "Pharmacist" },
@@ -166,7 +176,7 @@ namespace MediGuard.Data
                 new Role { Id = 5, Name = "Customer" }
             );
 
-            // Seed Default Permissions
+            // --- Seed Default Permissions ---
             builder.Entity<Permission>().HasData(
                 new Permission { Id = 1, Code = "pos.sell", Category = "POS" },
                 new Permission { Id = 2, Code = "pos.discount", Category = "POS" },

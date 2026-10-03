@@ -74,7 +74,7 @@ namespace MediGuard.Services
                     RequiresPrescription = m.RequiresPrescription,
                     Unit = m.Unit,
                     Barcode = m.Barcode,
-                    TotalStock = m.Batches
+                    TotalStock = m.InventoryBatches
                         .Where(b => b.Status == "ACTIVE" && b.ExpiryDate > nowUtc)
                         .Sum(b => (int?)b.Quantity) ?? 0,
                     CreatedAt = m.CreatedAt
@@ -180,7 +180,7 @@ namespace MediGuard.Services
                     RequiresPrescription = m.RequiresPrescription,
                     Unit = m.Unit,
                     Barcode = m.Barcode,
-                    TotalStock = m.Batches
+                    TotalStock = m.InventoryBatches
                         .Where(b => b.Status == "ACTIVE" && b.ExpiryDate > nowUtc)
                         .Sum(b => (int?)b.Quantity) ?? 0,
                     CreatedAt = m.CreatedAt
