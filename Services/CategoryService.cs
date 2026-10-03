@@ -18,9 +18,15 @@ namespace MediGuard.Services
             _context = context;
         }
 
+        public async Task<IEnumerable<Category>> GetCategoriesByPharmacyAsync(Guid pharmacyId)
+        {
+            return await GetAllAsync(pharmacyId);
+        }
+
         public async Task<List<Category>> GetAllAsync(Guid pharmacyId)
         {
             return await _context.Categories
+                .AsNoTracking()
                 .Where(c => c.PharmacyId == pharmacyId)
                 .OrderBy(c => c.Name)
                 .ToListAsync();
@@ -36,7 +42,7 @@ namespace MediGuard.Services
         {
             string trimmedName = model.Name.Trim();
 
-            // Duplicate check scoped to current tenant
+            // Duplicate check scoped to current pharmacy tenant
             bool exists = await _context.Categories
                 .AnyAsync(c => c.PharmacyId == pharmacyId && c.Name.ToLower() == trimmedName.ToLower());
 
