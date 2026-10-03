@@ -14,16 +14,25 @@ namespace MediGuard.Models
         [Required]
         public Guid PharmacyId { get; set; }
 
-        [Required]
-        [StringLength(150)]
-        public string Name { get; set; } = string.Empty;
-
-        [StringLength(100)]
-        public string? GenericName { get; set; }
-
         public Guid? CategoryId { get; set; }
 
         public Guid? ManufacturerId { get; set; }
+
+        [Required]
+        [MaxLength(150)]
+        public string BrandName { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(150)]
+        public string GenericName { get; set; } = string.Empty;
+
+        public bool RequiresPrescription { get; set; } = false;
+
+        [MaxLength(30)]
+        public string Unit { get; set; } = "Tablet";
+
+        [MaxLength(100)]
+        public string? Barcode { get; set; }
 
         public bool IsActive { get; set; } = true;
 
@@ -31,17 +40,26 @@ namespace MediGuard.Models
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("PharmacyId")]
+        // Property wrapper for backward compatibility with views/services referencing 'Name'
+        [NotMapped]
+        public string Name
+        {
+            get => BrandName;
+            set => BrandName = value;
+        }
+
+        // Foreign Key Navigation Properties
+        [ForeignKey(nameof(PharmacyId))]
         public virtual Pharmacy? Pharmacy { get; set; }
 
-        [ForeignKey("CategoryId")]
+        [ForeignKey(nameof(CategoryId))]
         public virtual Category? Category { get; set; }
 
-        [ForeignKey("ManufacturerId")]
+        [ForeignKey(nameof(ManufacturerId))]
         public virtual Manufacturer? Manufacturer { get; set; }
 
-        // Collection Navigation for FEFO Inventory Lookup
+        // Collection Navigation Properties
+        public virtual ICollection<InventoryBatch> InventoryBatches { get; set; } = new List<InventoryBatch>();
         public virtual ICollection<Batch> Batches { get; set; } = new List<Batch>();
     }
 }
