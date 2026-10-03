@@ -1,0 +1,97 @@
+﻿@* File: Views/Shared/Components/ExpiryAlerts/Default.cshtml *@
+@model MediGuard.Models.ViewModels.ExpiryAlertsViewModel
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Urgent Stock & Expiry Alerts
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        <!-- Collapsible List Tabs -->
+        <ul class="nav nav-tabs nav-fill bg-light" id="alertTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-semibold text-danger py-2" id="expiry-tab" data-bs-toggle="tab" data-bs-target="#expiry-content" type="button" role="tab">
+                    Critical Expiries (< 30 Days)
+                    <span class="badge bg-danger rounded-pill ms-1">@Model.CriticalExpiries.Count</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold text-warning py-2" id="shortage-tab" data-bs-toggle="tab" data-bs-target="#shortage-content" type="button" role="tab">
+                    Stock Shortages (< 10 units)
+                    <span class="badge bg-warning text-dark rounded-pill ms-1">@Model.StockShortages.Count</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="alertTabContent">
+            <!-- Critical Expiries Tab Content -->
+            <div class="tab-pane fade show active" id="expiry-content" role="tabpanel">
+                @if (Model.CriticalExpiries.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.CriticalExpiries)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="mb-1 text-dark fw-bold">Batch: @item.BatchNumber</h6>
+                                    <div class="small text-muted">
+                                        Qty: @item.Quantity |
+                                        <span class="text-danger fw-semibold">
+                                            @(item.DaysLeft < 0 ? "Expired" : $"{item.DaysLeft} days left")
+                                        </span>
+                                    </div>
+                                </div>
+                                <a href="/Batch/Manage/@item.BatchId" class="btn btn-sm btn-outline-danger shadow-sm">
+                                    Manage
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted small">
+                        No critical expiries within 30 days.
+                    </div>
+                }
+            </div>
+
+            <!-- Stock Shortages Tab Content -->
+            <div class="tab-pane fade" id="shortage-content" role="tabpanel">
+                @if (Model.StockShortages.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.StockShortages)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="mb-1 text-dark fw-bold">Batch: @item.BatchNumber</h6>
+                                    <div class="small text-muted">
+                                        Qty Left: <span class="badge bg-warning text-dark fw-bold">@item.Quantity units</span>
+                                    </div>
+                                </div>
+                                <a href="/Batch/Manage/@item.BatchId" class="btn btn-sm btn-outline-primary shadow-sm">
+                                    Order
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted small">
+                        No inventory items under low stock threshold.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Quick Link -->
+    <div class="card-footer bg-light text-center py-2 border-top-0">
+        <a href="/Notification/ExpiredMedicines" class="small fw-bold text-decoration-none text-primary">
+            View Full Expired Medicines Notification Page &rarr;
+        </a>
+    </div>
+</div>

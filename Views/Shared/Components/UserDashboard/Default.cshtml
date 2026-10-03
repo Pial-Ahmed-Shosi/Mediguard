@@ -14,7 +14,7 @@
         </div>
 
         <!-- Role-Specific KPI Cards -->
-        <div class="row g-2">
+        <div class="row g-2 mb-3">
             @if (User.IsInRole("Manager") || Model.RoleName.Equals("Manager", StringComparison.OrdinalIgnoreCase))
             {
                 <div class="col-md-3">
@@ -122,5 +122,15 @@
                 </div>
             }
         </div>
+
+        <!-- Ticket 18: Expiry & Low-Stock Alerts ViewComponent (Rendered for Manager & Pharmacist) -->
+        @if (User.IsInRole("Manager") || User.IsInRole("Pharmacist") ||
+             Model.RoleName.Equals("Manager", StringComparison.OrdinalIgnoreCase) ||
+             Model.RoleName.Equals("Pharmacist", StringComparison.OrdinalIgnoreCase))
+        {
+            <div class="mt-3">
+                @await Component.InvokeAsync("ExpiryAlerts")
+            </div>
+        }
     </div>
-</div>-
+</div>
