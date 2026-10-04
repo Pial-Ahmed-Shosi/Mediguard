@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using MediGuard.Data;
 using MediGuard.Services;
+using MediGuard.Models.ViewModels;
 using MediGuard.Models.ViewModels.Medicine;
 
 namespace MediGuard.Controllers
@@ -15,15 +19,18 @@ namespace MediGuard.Controllers
         private readonly IMedicineService _medicineService;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
+        private readonly ApplicationDbContext _context;
 
         public MedicineController(
             IMedicineService medicineService,
             ICategoryService categoryService,
-            IManufacturerService manufacturerService)
+            IManufacturerService manufacturerService,
+            ApplicationDbContext context)
         {
             _medicineService = medicineService;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
+            _context = context;
         }
 
         private Guid GetCurrentPharmacyId()
@@ -37,12 +44,7 @@ namespace MediGuard.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(
-            string? term,
-            Guid? categoryId,
-            bool? rxOnly,
-            int page = 1,
-            int pageSize = 10)
+        public async Task<IActionResult> Index()
         {
             var pharmacyId = GetCurrentPharmacyId();
             if (pharmacyId == Guid.Empty)
@@ -51,18 +53,75 @@ namespace MediGuard.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var result = await _medicineService.SearchMedicinesAsync(
-                pharmacyId,
-                term,
-                categoryId,
-                rxOnly,
-                page,
-                pageSize);
-
+            // Populate initial dropdowns dynamically from tenant-scoped data
             var categories = await _categoryService.GetCategoriesByPharmacyAsync(pharmacyId);
-            ViewBag.Categories = new SelectList(categories, "Id", "Name", categoryId);
+            var manufacturers = await _manufacturerService.GetManufacturersByPharmacyAsync(pharmacyId);
 
-            return View(result);
+            var vm = new MedicineCatalogViewModel
+            {
+                Categories = categories.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList(),
+                Manufacturers = manufacturers.Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.Name }).ToList()
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadMedicineTable(string? search, Guid? categoryId, Guid? manufacturerId, bool rxOnly)
+        {
+            var pharmacyId = GetCurrentPharmacyId();
+            if (pharmacyId == Guid.Empty)
+            {
+                return BadRequest("Invalid pharmacy tenant context.");
+            }
+
+            var query = _context.Medicines
+                .Include(m => m.Category)
+                .Include(m => m.Manufacturer)
+                .Where(m => m.PharmacyId == pharmacyId)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var lowerSearch = search.Trim().ToLower();
+                query = query.Where(m => m.BrandName.ToLower().Contains(lowerSearch)
+                                      || m.GenericName.ToLower().Contains(lowerSearch)
+                                      || (m.Barcode != null && m.Barcode.ToLower().Contains(lowerSearch)));
+            }
+
+            if (categoryId.HasValue && categoryId.Value != Guid.Empty)
+            {
+                query = query.Where(m => m.CategoryId == categoryId);
+            }
+
+            if (manufacturerId.HasValue && manufacturerId.Value != Guid.Empty)
+            {
+                query = query.Where(m => m.ManufacturerId == manufacturerId);
+            }
+
+            if (rxOnly)
+            {
+                query = query.Where(m => m.IsRxOnly);
+            }
+
+            var medicines = await query.Select(m => new MedicineGridItemViewModel
+            {
+                Id = m.Id,
+                BrandName = m.BrandName,
+                GenericName = m.GenericName,
+                Barcode = m.Barcode,
+                CategoryName = m.Category != null ? m.Category.Name : "N/A",
+                ManufacturerName = m.Manufacturer != null ? m.Manufacturer.Name : "N/A",
+                Unit = m.Unit,
+                Price = m.Price,
+                IsRxOnly = m.IsRxOnly,
+                // Ticket 20 Schema Compliance: Using InventoryBatches instead of Batches
+                TotalAvailableStock = _context.InventoryBatches
+                    .Where(b => b.MedicineId == m.Id && b.PharmacyId == pharmacyId && b.Status == "ACTIVE")
+                    .Sum(b => (int?)b.Quantity) ?? 0
+            }).ToListAsync();
+
+            return PartialView("_MedicineTable", medicines);
         }
 
         [HttpGet]
