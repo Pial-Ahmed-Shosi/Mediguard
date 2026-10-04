@@ -1,0 +1,189 @@
+@model MediGuard.Models.ViewModels.MedicineCatalogViewModel
+@{
+    ViewData["Title"] = "Medicine Catalog";
+}
+
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-1">Medicine Catalog</h2>
+            <p class="text-muted mb-0 small">Compare prices across verified pharmacies near you.</p>
+        </div>
+        <a href="/Medicine/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add New Medicine
+        </a>
+    </div>
+
+    <!-- Filter Toolbar - matches image style -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <!-- Medicine / Item Name -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">
+                        <i class="bi bi-capsule me-1"></i> MEDICINE / ITEM NAME
+                    </label>
+                    <input type="text" id="searchKeyword" class="form-control form-control-lg"
+                           placeholder="e.g. Clindacin, Napa, Syringe...">
+                </div>
+
+                <!-- Location / Area (kept for visual match; can be wired later) -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">
+                        <i class="bi bi-geo-alt me-1"></i> LOCATION / AREA
+                    </label>
+                    <input type="text" id="locationFilter" class="form-control form-control-lg"
+                           placeholder="e.g. Dhanmondi, Gulshan...">
+                </div>
+
+                <!-- Pharmacy / Hospital -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">
+                        <i class="bi bi-building me-1"></i> PHARMACY / HOSPITAL
+                    </label>
+                    <input type="text" id="pharmacyFilter" class="form-control form-control-lg"
+                           placeholder="e.g. Lazz Pharma, Square Hospital...">
+                </div>
+
+                <!-- Find Button -->
+                <div class="col-lg-3 col-md-6">
+                    <button type="button" id="btnFindItems" class="btn btn-lg w-100 text-white"
+                            style="background: linear-gradient(135deg, #0d9488, #0f766e); border: none;">
+                        <i class="bi bi-search me-2"></i> Find Items
+                    </button>
+                </div>
+            </div>
+
+            <!-- Extra filters (still functional with existing JS) -->
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <select id="categoryFilter" class="form-select" asp-items="Model.Categories">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select id="manufacturerFilter" class="form-select" asp-items="Model.Manufacturers">
+                        <option value="">All Manufacturers</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-center">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="rxOnlyFilter">
+                        <label class="form-check-label fw-semibold" for="rxOnlyFilter">Rx-Only</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Pills (visual match to image) -->
+    <div class="d-flex flex-wrap gap-2 mb-4" id="categoryPills">
+        <button type="button" class="btn btn-sm rounded-pill category-pill active" data-category="">
+            <i class="bi bi-grid me-1"></i> All
+        </button>
+        <!-- These will be populated / handled by JS if desired.
+             For now they are static visual matches. -->
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="Tablets">
+            <i class="bi bi-capsule me-1"></i> Tablets & Capsules
+        </button>
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="Syrups">
+            <i class="bi bi-droplet me-1"></i> Syrups & Liquids
+        </button>
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="Injections">
+            <i class="bi bi-eyedropper me-1"></i> Injections
+        </button>
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="Devices">
+            <i class="bi bi-thermometer me-1"></i> Devices
+        </button>
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="IV Fluids">
+            <i class="bi bi-water me-1"></i> IV Fluids
+        </button>
+        <button type="button" class="btn btn-sm rounded-pill category-pill" data-category="Bandages">
+            <i class="bi bi-bandaid me-1"></i> Bandages
+        </button>
+    </div>
+
+    <!-- Results count -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted small" id="resultsCount">Loading...</span>
+    </div>
+
+    <!-- AJAX Results Container -->
+    <div id="medicineTableContainer">
+        <div class="text-center py-5 text-muted">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            Loading catalog...
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Category pills styling to match image */
+    .category-pill {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-weight: 500;
+        padding: 0.4rem 1rem;
+        transition: all 0.2s;
+    }
+    .category-pill:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+    .category-pill.active {
+        background: #0d9488;
+        border-color: #0d9488;
+        color: white;
+    }
+
+    /* Card hover effect */
+    .medicine-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #e2e8f0;
+    }
+    .medicine-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
+    }
+
+    .stock-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+    }
+
+    .price-tag {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f766e;
+    }
+
+    .unit-label {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+</style>
+
+@section Scripts {
+    <script src="~/js/medicine-catalog.js"></script>
+    <script>
+        // Simple category pill toggle (visual only – actual filtering still uses the select)
+        document.querySelectorAll('.category-pill').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Optionally sync with the select filter
+                const catValue = this.dataset.category || '';
+                const select = document.getElementById('categoryFilter');
+                if (select) {
+                    // Try to match option text or leave as visual only
+                    select.value = '';
+                    // Trigger change if you want
+                    // select.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    </script>
+}

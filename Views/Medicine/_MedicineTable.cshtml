@@ -1,0 +1,129 @@
+@model IEnumerable<MediGuard.Models.ViewModels.MedicineGridItemViewModel>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-inbox display-4 text-muted"></i>
+        </div>
+        <h5 class="text-muted">No medicines found matching the applied filters.</h5>
+        <p class="text-muted small">Try adjusting your search or filters.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            var isLowStock = item.TotalAvailableStock < 10;
+            var isOutOfStock = item.TotalAvailableStock <= 0;
+            var stockClass = isOutOfStock ? "bg-danger" : (isLowStock ? "bg-warning text-dark" : "bg-success");
+            var stockText = isOutOfStock ? "Out of Stock" : (isLowStock ? "Limited Stock" : "In Stock");
+
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card medicine-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                    <!-- Stock + Rating header -->
+                    <div class="position-relative">
+                        <!-- Placeholder image area (no image field in model) -->
+                        <div class="bg-light d-flex align-items-center justify-content-center"
+                             style="height: 160px;">
+                            <i class="bi bi-capsule display-4 text-secondary opacity-50"></i>
+                        </div>
+
+                        <!-- Stock badge -->
+                        <span class="badge @stockClass stock-badge position-absolute top-0 start-0 m-2">
+                            @stockText
+                        </span>
+
+                        <!-- Fake rating for visual match (remove if not desired) -->
+                        <span class="badge bg-white text-dark border position-absolute top-0 end-0 m-2"
+                              style="font-size: 0.75rem;">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            @(Math.Round(3.8 + (item.Id % 12) * 0.1, 1))
+                        </span>
+                    </div>
+
+                    <div class="card-body d-flex flex-column p-3">
+                        <!-- Type + Strength badge -->
+                        <div class="mb-2">
+                            <span class="badge rounded-pill bg-light text-secondary border"
+                                  style="font-size: 0.7rem; font-weight: 500;">
+                                @item.CategoryName | @item.Unit
+                            </span>
+                        </div>
+
+                        <!-- Brand Name -->
+                        <h6 class="card-title fw-bold mb-1 text-dark">
+                            @item.BrandName
+                        </h6>
+
+                        <!-- Generic Name -->
+                        <p class="small text-muted mb-2">@item.GenericName</p>
+
+                        <!-- Manufacturer + Pharmacy-style info -->
+                        <div class="small text-muted mb-2">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="bi bi-building me-1"></i>
+                                <span>@item.ManufacturerName</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                @if (item.RequiresPrescription)
+                                {
+                                    <i class="bi bi-prescription me-1 text-warning"></i>
+                                    <span class="text-warning fw-semibold">Rx Only</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle me-1 text-success"></i>
+                                    <span class="text-success">OTC</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Stock quantity -->
+                        <div class="mb-3">
+                            <span class="fw-semibold @(isLowStock ? "text-danger" : "text-success")">
+                                Stock: @item.TotalAvailableStock
+                            </span>
+                            @if (isLowStock)
+                            {
+                                <i class="bi bi-exclamation-triangle-fill text-danger ms-1"
+                                   title="Low Stock"></i>
+                            }
+                        </div>
+
+                        <!-- Footer: Price placeholder + Actions -->
+                        <div class="mt-auto pt-2 border-top">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Price area – no price field in model, so show unit only -->
+                                <div>
+                                    <span class="price-tag">—</span>
+                                    <span class="unit-label">/ @item.Unit.ToLower()</span>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="btn-group btn-group-sm">
+                                    <a href="/Medicine/Edit/@item.Id"
+                                       class="btn btn-outline-secondary"
+                                       title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="/Medicine/Batches/@item.Id"
+                                       class="btn btn-outline-info"
+                                       title="View Batches">
+                                        <i class="bi bi-box-seam"></i>
+                                    </a>
+                                    <a href="/Inventory/CreateBatch?medicineId=@item.Id"
+                                       class="btn btn-success"
+                                       title="Add Stock">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
