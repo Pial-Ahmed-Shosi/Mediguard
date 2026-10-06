@@ -36,7 +36,7 @@ namespace MediGuard.Models
         [Required]
         public DateTime ExpiryDate { get; set; }
 
-        // Ei Status property-ti Expiry Scanner-er CS1061 error fix korbe
+        // Ei Status property-ti Expiry Scanner-er CS1061 error 
         [Required]
         [StringLength(50)]
         public string Status { get; set; } = "ACTIVE"; // "ACTIVE", "EXPIRED", "FROZEN"
