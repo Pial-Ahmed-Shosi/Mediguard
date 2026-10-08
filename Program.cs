@@ -56,6 +56,9 @@ builder.Services.AddScoped<IBatchService, BatchService>();
 // Inventory Deduction Service (Ticket 30)
 builder.Services.AddScoped<IInventoryDeductionService, InventoryDeductionService>();
 
+// File Storage Service (Supabase Storage) Registration (Ticket 38)
+builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
+
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {
