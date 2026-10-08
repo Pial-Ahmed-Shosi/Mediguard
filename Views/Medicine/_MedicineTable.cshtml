@@ -39,7 +39,7 @@ else
                         <span class="badge bg-white text-dark border position-absolute top-0 end-0 m-2"
                               style="font-size: 0.75rem;">
                             <i class="bi bi-star-fill text-warning"></i>
-                            @(Math.Round(3.8 + (item.Id % 12) * 0.1, 1))
+                            @(Math.Round(3.8 + (item.Id.GetHashCode() % 12) * 0.1, 1))
                         </span>
                     </div>
 
