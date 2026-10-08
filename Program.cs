@@ -59,6 +59,9 @@ builder.Services.AddScoped<IInventoryDeductionService, InventoryDeductionService
 // File Storage Service (Supabase Storage) Registration (Ticket 38)
 builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
 
+// Prescription Management Service (Ticket 39)
+builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {
