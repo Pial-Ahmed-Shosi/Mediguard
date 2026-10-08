@@ -53,6 +53,9 @@ builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 // Inventory & Batch Management Service (Ticket 23)
 builder.Services.AddScoped<IBatchService, BatchService>();
 
+// Inventory Deduction Service (Ticket 30)
+builder.Services.AddScoped<IInventoryDeductionService, InventoryDeductionService>();
+
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {
