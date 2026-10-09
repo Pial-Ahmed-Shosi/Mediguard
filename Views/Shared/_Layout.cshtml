@@ -150,6 +150,15 @@
                             </a>
                         </li>
                     }
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Admin" && currentAction == "MediPlusConfig" ? "active" : "")"
+                               asp-controller="Admin" asp-action="MediPlusConfig">
+                                <i class="bi bi-shield-plus text-teal me-1"></i> Medi+ B2B
+                            </a>
+                        </li>
+                    }
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
