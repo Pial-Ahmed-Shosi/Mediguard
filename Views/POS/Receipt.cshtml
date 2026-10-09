@@ -1,0 +1,199 @@
+@model MediGuard.Models.ViewModels.ReceiptViewModel
+@{
+    Layout = null;
+
+    // Fallback sample data if rendered without an explicit model instance
+    var pharmacyName = Model?.PharmacyName ?? "MediGuard Central Pharmacy";
+    var pharmacyAddress = Model?.PharmacyAddress ?? "123 Healthcare Ave, Medical District";
+    var pharmacyPhone = Model?.PharmacyPhone ?? "+1 (800) 555-0199";
+    var taxId = Model?.TaxId ?? "TX-89472019";
+    var licenseNumber = Model?.LicenseNumber ?? "PHARM-LIC-2026-88";
+
+    var receiptNumber = Model?.ReceiptNumber ?? $"REC-{DateTime.UtcNow:yyyyMMdd}-1042";
+    var transactionDate = Model?.TransactionDate ?? DateTime.Now;
+    var cashierName = Model?.CashierName ?? (User.Identity?.Name ?? "Staff Cashier");
+    var orderType = Model?.OrderType ?? "POS";
+
+    var items = Model?.Items != null && Model.Items.Any()
+        ? Model.Items
+        : new List<MediGuard.Models.ViewModels.ReceiptItemViewModel>
+        {
+            new MediGuard.Models.ViewModels.ReceiptItemViewModel
+            {
+                ItemName = "Paracetamol 500mg (Tablet)",
+                Quantity = 2,
+                UnitPrice = 5.50m,
+                LineTotal = 11.00m,
+                BatchNumber = "BATCH-2026-A1"
+            },
+            new MediGuard.Models.ViewModels.ReceiptItemViewModel
+            {
+                ItemName = "Amoxicillin 250mg (Capsule)",
+                Quantity = 1,
+                UnitPrice = 14.00m,
+                LineTotal = 14.00m,
+                BatchNumber = "BATCH-2026-B3"
+            },
+            new MediGuard.Models.ViewModels.ReceiptItemViewModel
+            {
+                ItemName = "Vitamin C 500mg (Chewable)",
+                Quantity = 3,
+                UnitPrice = 4.00m,
+                LineTotal = 12.00m,
+                BatchNumber = "BATCH-2026-C8"
+            }
+        };
+
+    var subtotal = Model?.Subtotal > 0 ? Model.Subtotal : items.Sum(i => i.LineTotal);
+    var taxAmount = Model?.TaxAmount ?? Math.Round(subtotal * 0.05m, 2);
+    var discountAmount = Model?.DiscountAmount ?? 2.00m;
+    var grandTotal = Model?.GrandTotal > 0 ? Model.GrandTotal : (subtotal + taxAmount - discountAmount);
+    var paymentMethod = Model?.PaymentMethod ?? "CASH";
+    var paidAmount = Model?.PaidAmount > 0 ? Model.PaidAmount : 40.00m;
+    var changeAmount = Model?.ChangeAmount > 0 ? Model.ChangeAmount : Math.Max(0, paidAmount - grandTotal);
+    var footerMsg = Model?.FooterMessage ?? "Thank you for visiting! Keep receipt for returns.";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receipt #@receiptNumber - MediGuard</title>
+    <link rel="stylesheet" href="~/css/receipt-print.css" asp-append-version="true" />
+</head>
+<body>
+
+    <!-- On-screen preview toolbar (hidden automatically on print) -->
+    <div class="screen-preview-toolbar no-print">
+        <a href="/POS" class="btn-screen btn-screen-outline">&larr; Back to POS</a>
+        <button type="button" class="btn-screen btn-screen-primary" onclick="window.print();">
+            &#128438; Print Receipt
+        </button>
+    </div>
+
+    <!-- Thermal 80mm Receipt Container -->
+    <div class="receipt-wrapper">
+        
+        <!-- 1. Pharmacy Header -->
+        <header class="receipt-header">
+            <div class="pharmacy-title">@pharmacyName</div>
+            <div class="pharmacy-details">
+                <div>@pharmacyAddress</div>
+                <div>Tel: @pharmacyPhone</div>
+                <div>Tax ID: @taxId</div>
+                <div>License #: @licenseNumber</div>
+            </div>
+        </header>
+
+        <div class="receipt-divider-double"></div>
+
+        <!-- 2. Transaction Metadata -->
+        <section class="receipt-meta">
+            <div class="meta-row">
+                <span>Receipt #:</span>
+                <span class="fw-bold">@receiptNumber</span>
+            </div>
+            <div class="meta-row">
+                <span>Date/Time:</span>
+                <span>@transactionDate.ToString("yyyy-MM-dd HH:mm:ss")</span>
+            </div>
+            <div class="meta-row">
+                <span>Cashier:</span>
+                <span>@cashierName</span>
+            </div>
+            <div class="meta-row">
+                <span>Order Type:</span>
+                <span class="fw-bold">[@orderType]</span>
+            </div>
+        </section>
+
+        <div class="receipt-divider-dashed"></div>
+
+        <!-- 3. Line Items Table -->
+        <table class="receipt-items-table">
+            <thead>
+                <tr>
+                    <th class="col-qty">Qty</th>
+                    <th class="col-name">Item Name</th>
+                    <th class="col-total">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in items)
+                {
+                    <tr>
+                        <td class="col-qty">@item.Quantity</td>
+                        <td class="col-name">
+                            <div>@item.ItemName</div>
+                            <div class="item-subdetail">@@ $@item.UnitPrice.ToString("F2")</div>
+                            @if (!string.IsNullOrEmpty(item.BatchNumber))
+                            {
+                                <div class="item-subdetail">Lot: @item.BatchNumber</div>
+                            }
+                        </td>
+                        <td class="col-total fw-bold">$@item.LineTotal.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="receipt-divider-dashed"></div>
+
+        <!-- 4. Calculations & Totals -->
+        <section class="receipt-totals">
+            <div class="totals-line">
+                <span>Subtotal:</span>
+                <span>$@subtotal.ToString("F2")</span>
+            </div>
+            <div class="totals-line">
+                <span>Tax:</span>
+                <span>$@taxAmount.ToString("F2")</span>
+            </div>
+            @if (discountAmount > 0)
+            {
+                <div class="totals-line">
+                    <span>Discount:</span>
+                    <span>-$@discountAmount.ToString("F2")</span>
+                </div>
+            }
+            <div class="totals-line grand-total-line">
+                <span class="fw-bold">GRAND TOTAL:</span>
+                <span class="fw-bold">$@grandTotal.ToString("F2")</span>
+            </div>
+        </section>
+
+        <!-- 5. Payment Breakdown -->
+        <section class="payment-breakdown">
+            <div class="totals-line">
+                <span>Payment Method:</span>
+                <span class="fw-bold">@paymentMethod</span>
+            </div>
+            <div class="totals-line">
+                <span>Paid Amount:</span>
+                <span>$@paidAmount.ToString("F2")</span>
+            </div>
+            <div class="totals-line">
+                <span>Change:</span>
+                <span class="fw-bold">$@changeAmount.ToString("F2")</span>
+            </div>
+        </section>
+
+        <div class="receipt-divider-dashed"></div>
+
+        <!-- 6. Footer Message & Verification Barcode -->
+        <footer class="receipt-footer">
+            <div class="barcode-text">* @receiptNumber *</div>
+            <div class="fw-bold">@footerMsg</div>
+            <div style="font-size: 8pt; margin-top: 4px;">Powered by MediGuard Health OS</div>
+        </footer>
+
+    </div>
+
+    <!-- Auto-launch print dialog on page load -->
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>
