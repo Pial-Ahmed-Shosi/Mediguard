@@ -159,6 +159,15 @@
                             </a>
                         </li>
                     }
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Cashier") || User.IsInRole("Pharmacist") || User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "POS" ? "active" : "")"
+                               asp-controller="POS" asp-action="Index">
+                                <i class="bi bi-cart3 text-teal me-1"></i> POS
+                            </a>
+                        </li>
+                    }
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">

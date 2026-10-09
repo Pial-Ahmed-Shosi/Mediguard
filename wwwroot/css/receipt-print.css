@@ -1,0 +1,265 @@
+/* ==========================================================================
+   Ticket 27: Thermal Receipt Printable Stylesheet (80mm / 3.15in)
+   Optimized for thermal POS printers (Epson TM-T88, Star Micronics, Munbyn)
+   ========================================================================== */
+
+@page {
+    size: 80mm auto;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 80mm;
+    margin: 0 auto;
+    padding: 0;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: 'Courier New', Courier, Consolas, monospace;
+    font-size: 10pt;
+    line-height: 1.25;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* Receipt Wrapper */
+.receipt-wrapper {
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: 3mm 2mm 8mm 2mm;
+    background: #ffffff;
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-start {
+    text-align: left;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.fw-bold {
+    font-weight: bold;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+/* Thermal Dividers */
+.receipt-divider-dashed {
+    border-top: 1px dashed #000000;
+    margin: 5px 0;
+    width: 100%;
+}
+
+.receipt-divider-double {
+    border-top: 2px solid #000000;
+    margin: 6px 0;
+    width: 100%;
+}
+
+.receipt-divider-dotted {
+    border-top: 1px dotted #000000;
+    margin: 4px 0;
+    width: 100%;
+}
+
+/* Header Section */
+.receipt-header {
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.pharmacy-title {
+    font-size: 11pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.pharmacy-details {
+    font-size: 9pt;
+    line-height: 1.2;
+}
+
+/* Transaction Metadata */
+.receipt-meta {
+    font-size: 9.5pt;
+    margin: 4px 0;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+/* Line Items Table */
+.receipt-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin: 4px 0;
+}
+
+.receipt-items-table th {
+    font-weight: bold;
+    padding: 3px 0;
+    border-bottom: 1px dashed #000000;
+}
+
+.col-qty {
+    width: 15%;
+    text-align: left;
+}
+
+.col-name {
+    width: 50%;
+    text-align: left;
+    word-break: break-word;
+}
+
+.col-total {
+    width: 35%;
+    text-align: right;
+}
+
+.receipt-items-table td {
+    padding: 3px 0;
+    vertical-align: top;
+}
+
+.item-subdetail {
+    font-size: 8.5pt;
+    color: #222222;
+}
+
+/* Totals Section */
+.receipt-totals {
+    font-size: 9.5pt;
+    margin: 4px 0;
+}
+
+.totals-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.grand-total-line {
+    font-size: 11pt;
+    font-weight: bold;
+    padding: 4px 0;
+    border-top: 1px dashed #000000;
+    border-bottom: 1px dashed #000000;
+    margin: 4px 0;
+}
+
+/* Payment Breakdown */
+.payment-breakdown {
+    margin: 4px 0;
+    font-size: 9.5pt;
+}
+
+/* Footer */
+.receipt-footer {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 9pt;
+    line-height: 1.3;
+}
+
+.barcode-text {
+    text-align: center;
+    letter-spacing: 4px;
+    font-size: 11pt;
+    margin: 6px 0 2px 0;
+}
+
+/* Screen Preview Floating Action Bar */
+.screen-preview-toolbar {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    display: flex;
+    gap: 8px;
+    z-index: 9999;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.btn-screen {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-screen-primary {
+    background-color: #0f766e;
+    color: #ffffff;
+}
+
+.btn-screen-primary:hover {
+    background-color: #0b5a54;
+}
+
+.btn-screen-outline {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.btn-screen-outline:hover {
+    background-color: #e2e8f0;
+}
+
+/* Print Overrides */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        width: 80mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .receipt-wrapper {
+        width: 80mm !important;
+        max-width: 80mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    tr, .totals-line, .meta-row {
+        page-break-inside: avoid;
+    }
+}

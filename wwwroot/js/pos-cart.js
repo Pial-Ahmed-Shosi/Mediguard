@@ -1,4 +1,4 @@
-﻿/**
+/**
  * POS Cart Real-Time Engine (Ticket 26)
  * Handles in-memory state, batch stock limits, live tax/discount calculations, and checkout validation.
  */
@@ -346,8 +346,11 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         console.log("Submitting Checkout Payload:", payload);
-        alert(`Sale completed successfully!\nGrand Total: ৳${totals.grandTotal.toFixed(2)}\nChange Due: ৳${(totals.changeDue > 0 ? totals.changeDue : 0).toFixed(2)}`);
         
+        // Auto-launch 80mm thermal receipt printing popup window (Ticket 27)
+        const receiptUrl = `/POS/Receipt?total=${totals.grandTotal.toFixed(2)}&paid=${totals.amountTendered.toFixed(2)}&paymentMethod=${encodeURIComponent(selectPaymentMethod.value)}`;
+        window.open(receiptUrl, '_blank', 'width=450,height=700,menubar=no,toolbar=no,location=no');
+
         window.clearPosCart();
     });
 
