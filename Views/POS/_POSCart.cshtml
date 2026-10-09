@@ -1,0 +1,503 @@
+﻿<style>
+    /* ============ THEME: "Mint & Amber" ============ */
+    :root {
+        --pc-primary: #00897B;
+        --pc-primary-dark: #00574F;
+        --pc-primary-deep: #003B36;
+        --pc-primary-soft: #E0F5F2;
+        --pc-accent: #FFB300;
+        --pc-accent-dark: #E69500;
+        --pc-danger: #E5484D;
+        --pc-success: #12A150;
+        --pc-ink: #0F2A29;
+        --pc-muted: #6B8583;
+        --pc-line: #E3EEEC;
+        --pc-surface: #FFFFFF;
+        --pc-bg: #F4FAF9;
+        --pc-radius: 18px;
+        --pc-shadow: 0 10px 40px -12px rgba(0, 87, 79, 0.28);
+    }
+
+    .pos-cart-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--pc-surface);
+        border-radius: var(--pc-radius);
+        box-shadow: var(--pc-shadow);
+        border: 1px solid var(--pc-line);
+        overflow: hidden;
+        color: var(--pc-ink);
+    }
+
+    /* ---------- Header ---------- */
+    .pos-cart-header {
+        position: relative;
+        padding: 1.1rem 1.35rem;
+        background: linear-gradient(135deg, var(--pc-primary-deep) 0%, var(--pc-primary-dark) 55%, var(--pc-primary) 100%);
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        overflow: hidden;
+    }
+    .pos-cart-header::after {
+        content: "";
+        position: absolute;
+        right: -40px;
+        top: -60px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 179, 0, 0.35), transparent 70%);
+        pointer-events: none;
+    }
+    .pos-cart-header h5 { color: #fff; letter-spacing: 0.2px; }
+    .pos-cart-header .cart-icon-wrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        margin-right: 0.75rem;
+    }
+    #cartItemCountBadge {
+        background: var(--pc-accent) !important;
+        color: var(--pc-primary-deep);
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 0.35em 0.8em;
+        margin-left: 0.6rem !important;
+        box-shadow: 0 2px 8px rgba(255, 179, 0, 0.45);
+    }
+    #btnClearPosCart {
+        position: relative;
+        z-index: 1;
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    #btnClearPosCart:hover {
+        background: var(--pc-danger);
+        border-color: var(--pc-danger);
+        transform: translateY(-1px);
+    }
+
+    /* ---------- Alerts ---------- */
+    #stockWarningContainer .alert,
+    #checkoutErrorContainer .alert {
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        border-left: 4px solid;
+    }
+    #stockWarningContainer .alert {
+        background: #FFF6DB;
+        color: #8A5A00;
+        border-left-color: var(--pc-accent);
+    }
+    #checkoutErrorContainer .alert {
+        background: #FDECEC;
+        color: #A12328;
+        border-left-color: var(--pc-danger);
+    }
+
+    /* ---------- Items ---------- */
+    .pos-cart-items-wrapper {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 0.75rem 1rem;
+        max-height: calc(100vh - 480px);
+        background: var(--pc-bg);
+        scrollbar-width: thin;
+        scrollbar-color: var(--pc-primary) transparent;
+    }
+    .pos-cart-items-wrapper::-webkit-scrollbar { width: 6px; }
+    .pos-cart-items-wrapper::-webkit-scrollbar-thumb {
+        background: var(--pc-primary);
+        border-radius: 10px;
+    }
+    .pos-cart-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+    .pos-cart-table th {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--pc-muted);
+        padding: 0.4rem 0.6rem;
+        border-bottom: none;
+        position: sticky;
+        top: -0.75rem;
+        background: var(--pc-bg);
+        z-index: 2;
+    }
+    .pos-cart-table td {
+        padding: 0.7rem 0.6rem;
+        background: var(--pc-surface);
+        border-top: 1px solid var(--pc-line);
+        border-bottom: 1px solid var(--pc-line);
+        vertical-align: middle;
+        font-size: 0.9rem;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pos-cart-table tr td:first-child {
+        border-left: 4px solid var(--pc-primary);
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+    .pos-cart-table tr td:last-child {
+        border-right: 1px solid var(--pc-line);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    .pos-cart-table tbody tr {
+        animation: pcRowIn 0.28s ease both;
+    }
+    .pos-cart-table tbody tr:hover td {
+        background: var(--pc-primary-soft);
+        box-shadow: 0 6px 16px -10px rgba(0, 87, 79, 0.5);
+    }
+    @keyframes pcRowIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Qty & discount controls ---------- */
+    .qty-control-btn {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-weight: 700;
+        border: 1px solid var(--pc-line);
+        background: var(--pc-primary-soft);
+        color: var(--pc-primary-dark);
+        transition: all 0.15s ease;
+    }
+    .qty-control-btn:hover {
+        background: var(--pc-primary);
+        color: #fff;
+        border-color: var(--pc-primary);
+        transform: scale(1.08);
+    }
+    .qty-control-btn:active { transform: scale(0.94); }
+    .qty-input,
+    .disc-input {
+        text-align: center;
+        font-weight: 600;
+        border: 1.5px solid var(--pc-line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--pc-ink);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .qty-input { width: 50px; font-size: 0.92rem; padding: 3px 4px; }
+    .disc-input { width: 48px; font-size: 0.85rem; padding: 3px 2px; }
+    .qty-input:focus,
+    .disc-input:focus {
+        outline: none;
+        border-color: var(--pc-primary);
+        box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.18);
+    }
+
+    /* ---------- Empty state ---------- */
+    #emptyCartPlaceholder {
+        color: var(--pc-muted);
+    }
+    #emptyCartPlaceholder .empty-icon {
+        width: 92px;
+        height: 92px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.6rem;
+        color: var(--pc-primary);
+        background: radial-gradient(circle at 30% 30%, #fff, var(--pc-primary-soft));
+        border: 2px dashed rgba(0, 137, 123, 0.35);
+        animation: pcFloat 3s ease-in-out infinite;
+    }
+    @keyframes pcFloat {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-6px); }
+    }
+
+    /* ---------- Footer / summary ---------- */
+    .pos-cart-footer {
+        padding: 1.1rem 1.35rem 1.35rem;
+        background: var(--pc-surface);
+        border-top: 1px solid var(--pc-line);
+        box-shadow: 0 -10px 24px -18px rgba(0, 87, 79, 0.4);
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .summary-row .form-control {
+        border: 1.5px solid var(--pc-line);
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    .summary-row .form-control:focus,
+    .tendered-box .form-control:focus,
+    .tendered-box .form-select:focus {
+        border-color: var(--pc-primary);
+        box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.18);
+    }
+    .summary-row.grand-total {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, var(--pc-primary-dark), var(--pc-primary));
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
+        margin: 0.8rem 0 0.9rem;
+        border-top: none;
+        box-shadow: 0 10px 22px -10px rgba(0, 87, 79, 0.7);
+    }
+    .summary-row.grand-total #lblGrandTotal {
+        color: var(--pc-accent);
+        text-shadow: 0 1px 8px rgba(255, 179, 0, 0.35);
+    }
+
+    /* ---------- Payment box ---------- */
+    .tendered-box {
+        background: var(--pc-bg);
+        border: 1.5px solid var(--pc-line);
+        border-radius: 14px;
+        padding: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    .tendered-box .form-label { color: var(--pc-primary-dark); }
+    .tendered-box .form-control,
+    .tendered-box .form-select {
+        border: 1.5px solid var(--pc-line);
+        border-radius: 10px;
+    }
+    .quick-cash {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.65rem;
+    }
+    .quick-cash button {
+        flex: 1 1 0;
+        min-width: 52px;
+        border: 1.5px solid rgba(0, 137, 123, 0.3);
+        background: #fff;
+        color: var(--pc-primary-dark);
+        font-weight: 700;
+        font-size: 0.78rem;
+        border-radius: 999px;
+        padding: 0.3rem 0.4rem;
+        transition: all 0.15s ease;
+    }
+    .quick-cash button:hover {
+        background: var(--pc-accent);
+        border-color: var(--pc-accent);
+        color: var(--pc-primary-deep);
+        transform: translateY(-1px);
+    }
+    #lblChangeDue {
+        color: var(--pc-success) !important;
+        font-weight: 800;
+        background: rgba(18, 161, 80, 0.1);
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+    }
+
+    /* ---------- Checkout button ---------- */
+    .btn-pay-submit {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--pc-accent) 0%, var(--pc-accent-dark) 100%);
+        color: var(--pc-primary-deep);
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+        width: 100%;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: none;
+        box-shadow: 0 12px 24px -10px rgba(230, 149, 0, 0.8);
+        transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .btn-pay-submit::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -80%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+        transform: skewX(-20deg);
+        transition: left 0.6s ease;
+    }
+    .btn-pay-submit:hover:not(:disabled)::before { left: 130%; }
+    .btn-pay-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        box-shadow: 0 16px 28px -10px rgba(230, 149, 0, 0.9);
+    }
+    .btn-pay-submit:active:not(:disabled) { transform: translateY(0) scale(0.99); }
+    .btn-pay-submit:disabled {
+        background: #CFDCDA;
+        color: #84989596;
+        color: #849895;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="pos-cart-container">
+    <!-- Cart Header -->
+    <div class="pos-cart-header">
+        <div class="d-flex align-items-center position-relative" style="z-index:1;">
+            <span class="cart-icon-wrap"><i class="bi bi-cart-check fs-5"></i></span>
+            <h5 class="fw-bold mb-0">Customer Basket</h5>
+            <span class="badge ms-2" id="cartItemCountBadge">0 items</span>
+        </div>
+        <button type="button" class="btn btn-sm" id="btnClearPosCart" title="Clear Basket (ESC)">
+            <i class="bi bi-trash me-1"></i> Clear
+        </button>
+    </div>
+
+    <!-- Inline Warning Container for Stock Over-limit -->
+    <div id="stockWarningContainer" class="px-3 pt-2 d-none">
+        <div class="alert alert-warning alert-dismissible fade show mb-0 p-2 fs-7" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            <span id="stockWarningText">Requested quantity exceeds available batch stock!</span>
+        </div>
+    </div>
+
+    <!-- Inline Error Container for Checkout Validation -->
+    <div id="checkoutErrorContainer" class="px-3 pt-2 d-none">
+        <div class="alert alert-danger alert-dismissible fade show mb-0 p-2 fs-7" role="alert">
+            <i class="bi bi-x-circle-fill me-1"></i>
+            <span id="checkoutErrorText">Amount tendered is less than Grand Total!</span>
+        </div>
+    </div>
+
+    <!-- Cart Items Table -->
+    <div class="pos-cart-items-wrapper">
+        <table class="pos-cart-table">
+            <thead>
+                <tr>
+                    <th style="width: 32%;">Item &amp; Batch</th>
+                    <th style="width: 18%;">Price</th>
+                    <th style="width: 25%; text-align: center;">Qty</th>
+                    <th style="width: 12%; text-align: center;">Disc %</th>
+                    <th style="width: 13%; text-align: right;">Total</th>
+                    <th style="width: 5%;"></th>
+                </tr>
+            </thead>
+            <tbody id="posCartTableBody">
+                <!-- Dynamic Cart Rows Rendered by pos-cart.js -->
+            </tbody>
+        </table>
+        <div id="emptyCartPlaceholder" class="text-center py-5">
+            <div class="empty-icon"><i class="bi bi-basket3"></i></div>
+            <p class="mb-1 fw-bold fs-6" style="color: var(--pc-primary-dark);">Basket is empty</p>
+            <small>Scan barcode or click items to add</small>
+        </div>
+    </div>
+
+    <!-- Cart Real-Time Calculation Footer -->
+    <div class="pos-cart-footer">
+        <div class="summary-row">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-bold" id="lblSubtotal">৳0.00</span>
+        </div>
+        <div class="summary-row">
+            <span class="text-muted">Tax Rate (%)</span>
+            <div class="d-flex align-items-center" style="width: 110px;">
+                <input type="number" id="inputTaxRate" class="form-control form-control-sm text-end me-1" value="5.00" min="0" step="0.5" />
+                <span class="text-muted fs-7">%</span>
+            </div>
+        </div>
+        <div class="summary-row">
+            <span class="text-muted">Overall Discount (৳)</span>
+            <div style="width: 110px;">
+                <input type="number" id="inputOverallDiscount" class="form-control form-control-sm text-end" value="0.00" min="0" step="1" />
+            </div>
+        </div>
+
+        <div class="summary-row grand-total">
+            <span><i class="bi bi-receipt me-2"></i>Grand Total</span>
+            <span id="lblGrandTotal">৳0.00</span>
+        </div>
+
+        <!-- Payment Method & Tendered Box -->
+        <div class="tendered-box">
+            <!-- Quick cash helpers: fill the tendered field and fire 'input' so existing JS recalculates -->
+            <div class="quick-cash" id="quickCashRow">
+                <button type="button" data-cash="100">৳100</button>
+                <button type="button" data-cash="500">৳500</button>
+                <button type="button" data-cash="1000">৳1000</button>
+                <button type="button" data-cash="exact">Exact</button>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-6">
+                    <label class="form-label fs-7 fw-bold mb-1">Payment Method</label>
+                    <select id="selectPaymentMethod" class="form-select form-select-sm">
+                        <option value="CASH" selected>💵 Cash</option>
+                        <option value="CARD">💳 Card</option>
+                        <option value="MFS">📱 MFS (bKash/Nagad)</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fs-7 fw-bold mb-1">Amount Tendered (৳)</label>
+                    <input type="number" id="inputAmountTendered" class="form-control form-control-sm fw-bold text-end" value="0.00" min="0" step="1" />
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2" style="border-top: 1px dashed #BFD6D3;">
+                <span class="fw-bold fs-7 text-uppercase" style="color: var(--pc-muted); letter-spacing: .06em;">Change Due</span>
+                <span class="fs-6" id="lblChangeDue">৳0.00</span>
+            </div>
+        </div>
+
+        <!-- Checkout Action Button -->
+        <button type="button" id="btnSubmitCheckout" class="btn-pay-submit mt-3" disabled>
+            <i class="bi bi-credit-card-2-front me-2"></i> Complete Sale (F8)
+        </button>
+    </div>
+</div>
+
+<script>
+    // Optional quick-cash shortcuts (UI only; your pos-cart.js logic still does the math)
+    (function () {
+        var row = document.getElementById('quickCashRow');
+        if (!row) return;
+        row.addEventListener('click', function (e) {
+            var btn = e.target.closest('button[data-cash]');
+            if (!btn) return;
+            var input = document.getElementById('inputAmountTendered');
+            var value = btn.getAttribute('data-cash');
+            if (value === 'exact') {
+                var txt = (document.getElementById('lblGrandTotal').textContent || '').replace(/[^0-9.]/g, '');
+                value = parseFloat(txt) || 0;
+            }
+            input.value = parseFloat(value).toFixed(2);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    })();
+</script>
