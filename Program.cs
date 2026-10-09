@@ -1,11 +1,12 @@
+using MediGuard.Data;
+using MediGuard.Middlewares;
+using MediGuard.Models;
+using MediGuard.Services;
+using MediGuardApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using MediGuard.Data;
-using MediGuard.Models;
-using MediGuard.Services;
-using MediGuard.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +24,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Services DI Registration
-builder.Services.AddScoped<INotificationService, NotificationService>();
-
 // ASP.NET Core Hosted Background Service Registration
 builder.Services.AddHostedService<ExpiryScannerHostedService>();
 
@@ -40,7 +38,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Register Application Services (Dependency Injection)
+// --- Register Application Services (Dependency Injection) ---
+
+// Core Services
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
@@ -61,6 +62,14 @@ builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
 
 // Prescription Management Service (Ticket 39)
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+
+// Deliveryman & Order Fulfillment Service (Ticket 40)
+builder.Services.AddScoped<IDeliveryService, DeliveryService>();
+
+// Medi+ B2B Order Processing Service (Ticket 41)
+builder.Services.AddScoped<IMediPlusB2BService, MediPlusB2BService>();
+
+// --- Authentication & Security Configuration ---
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>
