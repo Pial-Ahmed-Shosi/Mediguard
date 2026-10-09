@@ -1,0 +1,295 @@
+﻿@model MediGuard.Models.ViewModels.PaymentCheckoutViewModel
+
+@{
+    ViewData["Title"] = "Secure Checkout";
+    Layout = "_Layout";
+}
+
+<div class="checkout-page container py-4 py-lg-5">
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="back-link">
+            &larr; Back
+        </a>
+        <h1 class="checkout-title mt-3">Complete your order</h1>
+        <p class="text-muted mb-0">
+            Review your order and securely complete your payment.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT: ORDER SUMMARY -->
+        <div class="col-lg-7">
+            <section class="checkout-card">
+                <h2 class="section-title">Order summary</h2>
+
+                @if (Model.Items == null || Model.Items.Count == 0)
+                {
+                    <p class="text-muted">No items were found for this order.</p>
+                }
+                else
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <div class="order-item">
+                            <div>
+                                <div class="medicine-name">
+                                    @item.MedicineName
+                                </div>
+                                <div class="item-detail">
+                                    Quantity: @item.Quantity
+                                    &times;
+                                    @item.UnitPrice.ToString("C2")
+                                </div>
+                            </div>
+                            <strong>@item.LineTotal.ToString("C2")</strong>
+                        </div>
+                    }
+                }
+
+                <hr />
+
+                <div class="amount-row">
+                    <span>Subtotal</span>
+                    <span>@Model.Subtotal.ToString("C2")</span>
+                </div>
+
+                <div class="amount-row">
+                    <span>Delivery fee</span>
+                    <span>@Model.DeliveryFee.ToString("C2")</span>
+                </div>
+
+                <hr />
+
+                <div class="amount-row total-row">
+                    <span>Total</span>
+                    <span>@Model.TotalAmount.ToString("C2")</span>
+                </div>
+            </section>
+
+            <section class="checkout-card mt-4">
+                <h2 class="section-title">Delivery address</h2>
+                <div class="address-name">@Model.CustomerName</div>
+                <div class="text-muted">@Model.CustomerEmail</div>
+                <p class="address-text mb-0">@Model.ShippingAddress</p>
+            </section>
+        </div>
+
+        <!-- RIGHT: ONLINE PAYMENT -->
+        <div class="col-lg-5">
+            <section class="payment-card"
+                     id="paymentCheckout"
+                     data-order-id="@Model.OrderId"
+                     data-publishable-key="@Model.StripePublishableKey">
+
+                <div class="secure-heading">
+                    <div class="secure-icon">&#128274;</div>
+                    <div>
+                        <h2 class="section-title mb-1">Secure payment</h2>
+                        <p class="text-muted small mb-0">
+                            Your card details are handled by Stripe.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="payment-total">
+                    <span>Amount to pay</span>
+                    <strong>@Model.TotalAmount.ToString("C2")</strong>
+                </div>
+
+                <form id="payment-form">
+                    @Html.AntiForgeryToken()
+
+                    <label class="form-label fw-semibold" for="payment-element">
+                        Card or supported payment method
+                    </label>
+
+                    <!-- Stripe securely mounts its payment UI here. -->
+                    <div id="payment-element" class="payment-element">
+                        <p class="text-muted mb-0">
+                            Payment form will load here.
+                        </p>
+                    </div>
+
+                    <div id="payment-message"
+                         class="payment-message"
+                         role="alert"
+                         aria-live="polite"
+                         hidden></div>
+
+                    <button type="submit"
+                            id="pay-button"
+                            class="btn pay-button w-100 mt-4"
+                            disabled>
+                        <span id="pay-button-text">
+                            Loading secure payment...
+                        </span>
+                        <span id="pay-spinner"
+                              class="spinner-border spinner-border-sm ms-2"
+                              role="status"
+                              aria-label="Processing"
+                              hidden></span>
+                    </button>
+
+                    <p class="secure-note mt-3 mb-0">
+                        &#128274; Secure checkout. Never share your card PIN
+                        or banking password.
+                    </p>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    .checkout-page {
+        max-width: 1120px;
+        color: #193b43;
+    }
+
+    .back-link {
+        color: #168779;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .checkout-title {
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        font-weight: 750;
+        letter-spacing: -.5px;
+    }
+
+    .checkout-card,
+    .payment-card {
+        background: #fff;
+        border: 1px solid #e1eae8;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 28px rgba(22, 62, 60, .05);
+    }
+
+    .payment-card {
+        border-top: 4px solid #188b7c;
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 15px 0;
+        border-bottom: 1px solid #edf1f0;
+    }
+
+    .medicine-name, .address-name {
+        font-weight: 650;
+    }
+
+    .item-detail {
+        color: #738482;
+        font-size: .9rem;
+        margin-top: 4px;
+    }
+
+    .amount-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 13px 0;
+        color: #536966;
+    }
+
+    .total-row {
+        color: #193b43;
+        font-size: 1.1rem;
+        font-weight: 750;
+    }
+
+    .address-text {
+        margin-top: 10px;
+        white-space: pre-line;
+        line-height: 1.6;
+    }
+
+    .secure-heading {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .secure-icon {
+        display: grid;
+        place-items: center;
+        width: 45px;
+        height: 45px;
+        border-radius: 13px;
+        background: #e8f6f2;
+        font-size: 1.25rem;
+    }
+
+    .payment-total {
+        background: #f2f8f6;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 24px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .payment-total strong {
+            font-size: 1.35rem;
+        }
+
+    .payment-element {
+        border: 1px solid #dbe5e2;
+        border-radius: 10px;
+        padding: 15px;
+        min-height: 65px;
+    }
+
+    .pay-button {
+        background: #168779;
+        color: white;
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        border: none;
+    }
+
+        .pay-button:hover:not(:disabled) {
+            background: #106e63;
+            color: white;
+        }
+
+        .pay-button:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+    .secure-note {
+        font-size: .82rem;
+        line-height: 1.5;
+        color: #71827f;
+        text-align: center;
+    }
+
+    .payment-message {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 9px;
+        color: #9b2929;
+        background: #fff0f0;
+        font-size: .92rem;
+    }
+</style>
+
+<!-- Load Stripe.js from Stripe's official hosted URL. -->
+<script src="https://js.stripe.com/v3/"></script>
+<script src="~/js/payment-checkout.js" asp-append-version="true"></script>
