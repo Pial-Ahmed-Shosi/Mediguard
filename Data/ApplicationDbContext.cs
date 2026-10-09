@@ -24,6 +24,8 @@ namespace MediGuard.Data
         public DbSet<InventoryBatch> InventoryBatches { get; set; } = null!;
         public DbSet<Sale> Sales { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<OrderItem> OrderItems { get; set; } = null!;
+        public DbSet<Delivery> Deliveries { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
 
         // --- Inventory Classification Tables (Ticket 19) ---
@@ -250,6 +252,137 @@ namespace MediGuard.Data
 
                 // Composite FEFO Index: idx_batches_fefo on (PharmacyId, MedicineId, Status, ExpiryDate ASC)
                 entity.HasIndex(b => new { b.PharmacyId, b.MedicineId, b.Status, b.ExpiryDate }, "idx_batches_fefo");
+            });
+
+            // -------------------------------------------------------------
+            // Order Entity Configuration
+            // -------------------------------------------------------------
+            builder.Entity<Order>(entity =>
+            {
+                entity.HasKey(o => o.Id);
+
+                entity.Property(o => o.Id)
+                      .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(o => o.Status)
+                      .IsRequired()
+                      .HasMaxLength(50)
+                      .HasDefaultValue("PENDING");
+
+                entity.Property(o => o.OrderStatus)
+                      .IsRequired()
+                      .HasMaxLength(50)
+                      .HasDefaultValue("PENDING");
+
+                entity.Property(o => o.TotalAmount)
+                      .HasColumnType("decimal(10, 2)")
+                      .HasDefaultValue(0m);
+
+                entity.Property(o => o.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(o => new { o.PharmacyId, o.CreatedAt })
+                      .HasDatabaseName("idx_orders_pharmacy_date");
+
+                // Relationships
+                entity.HasOne(o => o.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(o => o.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(o => o.Customer)
+                      .WithMany()
+                      .HasForeignKey(o => o.CustomerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(o => o.Deliveryman)
+                      .WithMany()
+                      .HasForeignKey(o => o.DeliverymanId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(o => o.SupplierPharmacy)
+                      .WithMany()
+                      .HasForeignKey(o => o.SupplierPharmacyId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // One-to-many with OrderItems
+                entity.HasMany(o => o.OrderItems)
+                      .WithOne(oi => oi.Order)
+                      .HasForeignKey(oi => oi.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // -------------------------------------------------------------
+            // OrderItem Entity Configuration
+            // -------------------------------------------------------------
+            builder.Entity<OrderItem>(entity =>
+            {
+                entity.HasKey(oi => oi.Id);
+
+                entity.Property(oi => oi.Id)
+                      .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(oi => oi.Quantity)
+                      .IsRequired();
+
+                entity.Property(oi => oi.UnitPrice)
+                      .HasColumnType("decimal(10, 2)")
+                      .IsRequired();
+
+                entity.Property(oi => oi.LineTotal)
+                      .HasColumnType("decimal(10, 2)");
+
+                entity.Property(oi => oi.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(oi => new { oi.OrderId, oi.MedicineId })
+                      .HasDatabaseName("idx_orderitems_order_medicine");
+
+                // Relationships
+                entity.HasOne(oi => oi.Medicine)
+                      .WithMany()
+                      .HasForeignKey(oi => oi.MedicineId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // -------------------------------------------------------------
+            // Delivery Entity Configuration
+            // -------------------------------------------------------------
+            builder.Entity<Delivery>(entity =>
+            {
+                entity.ToTable("deliveries");
+
+                entity.HasKey(d => d.Id);
+
+                entity.Property(d => d.Id)
+                      .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(d => d.Status)
+                      .IsRequired()
+                      .HasMaxLength(20)
+                      .HasDefaultValue("PENDING");
+
+                entity.Property(d => d.DeliveryType)
+                      .IsRequired()
+                      .HasMaxLength(50)
+                      .HasDefaultValue("STANDARD");
+
+                entity.Property(d => d.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(d => new { d.OrderId, d.Status })
+                      .HasDatabaseName("idx_deliveries_order_status");
+
+                // Relationships
+                entity.HasOne(d => d.Order)
+                      .WithMany()
+                      .HasForeignKey(d => d.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Deliveryman)
+                      .WithMany()
+                      .HasForeignKey(d => d.DeliverymanId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             // -------------------------------------------------------------

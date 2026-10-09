@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MediGuardApp.Models.ViewModels;
+using MediGuard.Models.ViewModels;
 
-namespace MediGuardApp.Services
+namespace MediGuard.Services
 {
     public interface IDeliveryService
     {

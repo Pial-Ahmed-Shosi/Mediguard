@@ -18,6 +18,16 @@ namespace MediGuard.Models.ViewModels
         public string CashierName { get; set; } = "Staff Cashier";
         public string OrderType { get; set; } = "POS";
 
+        // Customer Information
+        public string CustomerName { get; set; } = string.Empty;
+        public string? CustomerPhone { get; set; }
+        public string? CustomerEmail { get; set; }
+
+        // Order Information
+        public Guid? OrderId { get; set; }
+        public bool IsB2BOrder { get; set; } = false;
+        public string? ShippingAddress { get; set; }
+
         // Line Items Table
         public List<ReceiptItemViewModel> Items { get; set; } = new();
 

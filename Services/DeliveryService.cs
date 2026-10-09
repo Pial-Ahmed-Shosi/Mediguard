@@ -1,13 +1,13 @@
 using MediGuard.Data;
-using MediGuardApp.Models;
-using MediGuardApp.Models.ViewModels;
+using MediGuard.Models;
+using MediGuard.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediGuardApp.Services
+namespace MediGuard.Services
 {
     public class DeliveryService : IDeliveryService
     {
@@ -23,7 +23,7 @@ namespace MediGuardApp.Services
             var normalizedStatus = statusFilter?.Trim().ToUpper() ?? "PENDING";
 
             // Enforce tenant user-id scoping and status filtering
-            var query = _context.Set<Delivery>()
+            var query = _context.Deliveries
                 .Include(d => d.Order)
                     .ThenInclude(o => o.Customer)
                 .Include(d => d.Order)
@@ -37,34 +37,32 @@ namespace MediGuardApp.Services
 
             return deliveries.Select(d => new DeliveryDetailsDto
             {
+                Id = d.Id,
                 DeliveryId = d.Id,
                 OrderId = d.OrderId,
-                OrderType = d.Order.PharmacyId.HasValue ? "B2B" : "B2C",
+                OrderType = d.Order.IsB2BOrder ? "B2B" : "B2C",
                 Status = d.Status,
+                DeliveryType = d.DeliveryType,
                 CreatedAt = d.CreatedAt,
                 CompletedAt = d.CompletedAt,
                 CancellationReason = d.CancellationReason,
                 TotalAmount = d.Order.TotalAmount,
 
                 // Recipient Metadata for both B2C and B2B
-                RecipientName = d.Order.PharmacyId.HasValue
-                    ? d.Order.Pharmacy?.ContactPerson ?? d.Order.Customer?.FullName ?? "N/A"
+                RecipientName = d.Order.IsB2BOrder
+                    ? d.Order.Pharmacy?.Name ?? d.Order.Customer?.FullName ?? "N/A"
                     : d.Order.Customer?.FullName ?? "N/A",
 
-                RecipientPhone = d.Order.PharmacyId.HasValue
-                    ? d.Order.Pharmacy?.Phone ?? d.Order.Customer?.PhoneNumber ?? "N/A"
-                    : d.Order.Customer?.PhoneNumber ?? "N/A",
+                RecipientPhone = d.Order.Customer?.PhoneNumber ?? "N/A",
 
-                ShippingAddress = d.Order.PharmacyId.HasValue
-                    ? d.Order.Pharmacy?.Address ?? d.Order.ShippingAddress
-                    : d.Order.ShippingAddress,
+                ShippingAddress = d.Order.ShippingAddress ?? "Address not provided",
 
                 PharmacyName = d.Order.Pharmacy?.Name,
 
                 // Order Items mapping
                 Items = d.Order.OrderItems.Select(oi => new DeliveryOrderItemDto
                 {
-                    MedicineName = oi.Medicine?.Name ?? "Unknown Medicine",
+                    MedicineName = oi.Medicine?.BrandName ?? "Unknown Medicine",
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
                 }).ToList()
@@ -87,13 +85,13 @@ namespace MediGuardApp.Services
             }
 
             // Require reason for cancellation
-            if (newStatus == "CANCELLED" && string.IsNullOrWhiteSpace(dto.Reason))
+            if (newStatus == "CANCELLED" && string.IsNullOrWhiteSpace(dto.CancellationReason))
             {
                 return (false, "A reason is required when cancelling a delivery.");
             }
 
             // Retrieve delivery record belonging strictly to this deliveryman
-            var delivery = await _context.Set<Delivery>()
+            var delivery = await _context.Deliveries
                 .Include(d => d.Order)
                 .FirstOrDefaultAsync(d => d.Id == dto.DeliveryId && d.DeliverymanId == deliverymanId);
 
@@ -122,7 +120,7 @@ namespace MediGuardApp.Services
             {
                 delivery.Status = "CANCELLED";
                 delivery.CompletedAt = now;
-                delivery.CancellationReason = dto.Reason?.Trim();
+                delivery.CancellationReason = dto.CancellationReason?.Trim();
 
                 // Synchronize linked order status
                 if (delivery.Order != null)

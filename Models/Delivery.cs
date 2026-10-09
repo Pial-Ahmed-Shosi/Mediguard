@@ -1,9 +1,8 @@
-﻿using MediGuard.Models;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MediGuardApp.Models
+namespace MediGuard.Models
 {
     [Table("deliveries")]
     public class Delivery
@@ -29,6 +28,11 @@ namespace MediGuardApp.Models
         [MaxLength(20)]
         [Column("status")]
         public string Status { get; set; } = "PENDING"; // PENDING, DONE, CANCELLED
+
+        [Required]
+        [MaxLength(50)]
+        [Column("delivery_type")]
+        public string DeliveryType { get; set; } = "STANDARD"; // STANDARD, EXPRESS, SAME_DAY
 
         [Column("completed_at")]
         public DateTime? CompletedAt { get; set; }
