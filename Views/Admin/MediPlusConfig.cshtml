@@ -1,0 +1,591 @@
+@model MediGuard.Models.ViewModels.MediPlusConfigViewModel
+@{
+    ViewData["Title"] = "Medi+ B2B Network Configuration";
+    bool isActive = Model.IsActive;
+}
+
+<style>
+    :root {
+        --mg-teal: #0f766e;
+        --mg-teal-dark: #0b5a54;
+        --mg-teal-light: #14b8a6;
+        --mg-mint: #e6f4f1;
+        --mg-mint-subtle: #f0fdfa;
+        --mg-ink: #0f172a;
+        --mg-muted: #64748b;
+        --mg-border: #e2e8f0;
+        --mg-card-bg: #ffffff;
+    }
+
+    .mediplus-page {
+        min-height: calc(100vh - 120px);
+        background-color: #f8fafc;
+        padding-bottom: 3rem;
+    }
+
+    /* Subscription Status Banner */
+    .mediplus-hero {
+        background: linear-gradient(135deg, #0b5a54 0%, #0f766e 60%, #134e4a 100%);
+        border-radius: 1.25rem;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px -5px rgba(15, 118, 110, 0.25);
+    }
+
+    .mediplus-hero::after {
+        content: "\F732"; /* bi-shield-check */
+        font-family: "bootstrap-icons";
+        position: absolute;
+        right: 1.5rem;
+        bottom: -2rem;
+        font-size: 11rem;
+        opacity: 0.07;
+        pointer-events: none;
+    }
+
+    .tier-badge {
+        font-size: 0.82rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 0.4rem 0.85rem;
+        border-radius: 2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .tier-badge-active {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+        border: 1px solid rgba(134, 239, 172, 0.3);
+    }
+
+    .tier-badge-inactive {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fde68a;
+        border: 1px solid rgba(253, 230, 138, 0.3);
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: currentColor;
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(134, 239, 172, 0.7); }
+        70% { box-shadow: 0 0 0 8px rgba(134, 239, 172, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(134, 239, 172, 0); }
+    }
+
+    /* Cards */
+    .card-settings {
+        background: #ffffff;
+        border: 1px solid var(--mg-border);
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-settings-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--mg-border);
+        padding: 1.25rem 1.75rem;
+        border-top-left-radius: 1.25rem;
+        border-top-right-radius: 1.25rem;
+    }
+
+    .card-settings-body {
+        padding: 1.75rem;
+    }
+
+    /* Lock Overlay for Inactive Subscriptions */
+    .lock-wrapper {
+        position: relative;
+    }
+
+    .lock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(4px);
+        border-radius: 1.25rem;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .lock-icon-circle {
+        width: 64px;
+        height: 64px;
+        background: #fef3c7;
+        color: #d97706;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
+    }
+
+    /* Switch toggle styling */
+    .form-switch .form-check-input {
+        width: 3rem;
+        height: 1.6rem;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: var(--mg-teal);
+        border-color: var(--mg-teal);
+    }
+
+    /* API Key Box */
+    .api-key-box {
+        background-color: #0f172a;
+        color: #38bdf8;
+        font-family: 'Consolas', 'Courier New', monospace;
+        border-radius: 0.75rem;
+        padding: 0.85rem 1.25rem;
+        border: 1px solid #1e293b;
+        letter-spacing: 0.04em;
+    }
+
+    /* Partner search list */
+    .partner-card {
+        border: 1px solid var(--mg-border);
+        border-radius: 0.85rem;
+        background: #ffffff;
+        padding: 1rem 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .partner-card:hover {
+        border-color: var(--mg-teal-light);
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .status-badge-reachable {
+        background: #dcfce7;
+        color: #15803d;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 2rem;
+    }
+
+    .status-badge-unreachable {
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 2rem;
+    }
+
+    /* Toast Notification Positioning */
+    .toast-container {
+        z-index: 1090;
+    }
+</style>
+
+<div class="mediplus-page">
+    <div class="container pt-4">
+
+        @if (!string.IsNullOrEmpty(ViewBag.NoticeMessage as string))
+        {
+            <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-triangle-fill fs-3 text-warning"></i>
+                    <div>
+                        <strong>Notice:</strong> @ViewBag.NoticeMessage
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- 1. Subscription Status Area Banner -->
+        <div class="mediplus-hero p-4 p-md-5 mb-4 position-relative">
+            <div class="row align-items-center justify-content-between g-4">
+                <div class="col-lg-7">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span id="tierBadge" class="tier-badge @(isActive ? "tier-badge-active" : "tier-badge-inactive")">
+                            @if (isActive)
+                            {
+                                <span class="pulse-dot"></span>
+                                <span id="tierBadgeText">Medi+ B2B Tier</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-lock-fill"></i>
+                                <span id="tierBadgeText">Free Tier</span>
+                            }
+                        </span>
+
+                        <span id="statusBadge" class="badge @(Model.Status == "Active" ? "bg-success" : (Model.Status == "Expired" ? "bg-danger" : "bg-warning text-dark")) px-3 py-2 rounded-pill fw-semibold">
+                            Status: <span id="statusBadgeText">@Model.Status</span>
+                        </span>
+                    </div>
+
+                    <h1 class="display-6 fw-bold mb-2 text-white">Medi+ B2B Wholesale Connection</h1>
+                    <p class="lead text-white-50 mb-3" style="max-width: 600px;">
+                        Enable multi-tenant pharmaceutical inventory exchange, synchronize wholesale catalog sharing, and securely trade stock across verified partner pharmacies.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-4 text-white-50 small">
+                        <div>
+                            <i class="bi bi-building me-1 text-white"></i>
+                            <strong>@Model.PharmacyName</strong> (@Model.LicenseNumber)
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar3 me-1 text-white"></i>
+                            Next Billing: <span id="nextBillingDateDisplay" class="text-white fw-semibold">@(Model.NextBillingDate?.ToString("MMM dd, yyyy") ?? "Not Subscribed")</span>
+                        </div>
+                        <div>
+                            <i class="bi bi-tag me-1 text-white"></i>
+                            Plan Rate: <span class="text-white fw-semibold">$@Model.MonthlyFee.ToString("F0")/month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-lg-end">
+                    <div id="subscriptionCtaContainer">
+                        @if (!isActive)
+                        {
+                            <div class="p-3 rounded-4 bg-white bg-opacity-10 backdrop-blur d-inline-block text-start text-lg-end">
+                                <div class="text-white-50 small mb-1">Unlock Inter-Pharmacy Wholesale Network</div>
+                                <div class="fs-4 fw-bold text-white mb-3">$49<span class="fs-6 fw-normal text-white-50">/month</span></div>
+                                <button type="button" class="btn btn-warning btn-lg px-4 py-2 fw-bold text-dark shadow-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#upgradeModal" id="btnUpgradeCta">
+                                    <i class="bi bi-lightning-charge-fill me-1"></i> Upgrade / Pay Now ($49/mo)
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="p-3 rounded-4 bg-white bg-opacity-10 backdrop-blur d-inline-block text-start text-lg-end">
+                                <div class="badge bg-success bg-opacity-75 fs-6 px-3 py-2 mb-2">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Subscription Active
+                                </div>
+                                <div class="text-white-50 small">
+                                    Renews on @(Model.NextBillingDate?.ToString("MMMM dd, yyyy") ?? "End of Month")
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. B2B Configuration Section -->
+        <div class="row g-4">
+            <!-- Left Column: B2B Supplier Settings & API Keys -->
+            <div class="col-lg-7">
+                <!-- Settings Card with Lock Overlay if Inactive -->
+                <div class="card-settings lock-wrapper mb-4" id="settingsCardWrapper">
+                    
+                    <!-- Overlay displayed when subscription is inactive -->
+                    <div id="lockOverlay" class="lock-overlay @(isActive ? "d-none" : "")">
+                        <div class="lock-icon-circle">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">B2B Network Settings Locked</h4>
+                        <p class="text-muted mb-4" style="max-width: 420px;">
+                            Inter-pharmacy supplier wholesale toggles and automated order acceptance require an active <strong>Medi+ B2B Tier</strong> subscription.
+                        </p>
+                        <button type="button" class="btn btn-teal-solid px-4 py-2 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                            <i class="bi bi-stars me-1"></i> Activate Medi+ ($49/mo)
+                        </button>
+                    </div>
+
+                    <div class="card-settings-header d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">
+                                <i class="bi bi-sliders2-vertical text-teal me-2"></i>B2B Network Connection Settings
+                            </h5>
+                            <span class="text-muted small">Configure wholesale visibility, acceptance rules, and purchase minimums.</span>
+                        </div>
+                        <span class="badge @(isActive ? "bg-teal-subtle text-teal" : "bg-secondary") rounded-pill px-3 py-2">
+                            @(isActive ? "Network Ready" : "Locked")
+                        </span>
+                    </div>
+
+                    <div class="card-settings-body">
+                        <form id="b2bConfigForm">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Supplier Connection Toggle -->
+                            <div class="p-3 rounded-4 bg-light mb-3 border border-light-subtle">
+                                <div class="form-check form-switch d-flex align-items-center justify-content-between ps-0">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark d-block" for="isSupplierConnectionEnabled">
+                                            Allow Wholesale Stock Discovery
+                                        </label>
+                                        <small class="text-muted">
+                                            Allows other certified Medi+ pharmacies to view your eligible inventory for wholesale orders.
+                                        </small>
+                                    </div>
+                                    <input class="form-check-input ms-3" type="checkbox" role="switch" id="isSupplierConnectionEnabled" name="IsSupplierConnectionEnabled" value="true" @(Model.IsSupplierConnectionEnabled ? "checked" : "") @(!isActive ? "disabled" : "")>
+                                </div>
+                            </div>
+
+                            <!-- Minimum Wholesale Order Value -->
+                            <div class="mb-3">
+                                <label for="minWholesaleOrderValue" class="form-label fw-bold text-dark">
+                                    Minimum Wholesale Order Value
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white text-muted fw-bold">$</span>
+                                    <input type="number" step="10.00" min="0" max="100000" class="form-control" id="minWholesaleOrderValue" name="MinimumWholesaleOrderValue" value="@Model.MinimumWholesaleOrderValue" placeholder="250.00" @(!isActive ? "disabled" : "")>
+                                    <span class="input-group-text bg-light text-muted small">USD</span>
+                                </div>
+                                <div class="form-text">Purchasers ordering from your inventory must satisfy this order subtotal threshold.</div>
+                            </div>
+
+                            <!-- Auto-Accept B2B Orders -->
+                            <div class="p-3 rounded-4 bg-light mb-4 border border-light-subtle">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoAcceptB2BOrders" name="AutoAcceptB2BOrders" value="true" @(Model.AutoAcceptB2BOrders ? "checked" : "") @(!isActive ? "disabled" : "")>
+                                    <label class="form-check-label fw-bold text-dark" for="autoAcceptB2BOrders">
+                                        Auto-Accept Inbound B2B Orders
+                                    </label>
+                                    <div class="text-muted small">
+                                        Automatically move verified orders into processing without requiring manual manager confirmation.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Save Configuration Button -->
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                <span class="text-muted small">
+                                    <i class="bi bi-clock-history me-1"></i> Changes take effect immediately across network nodes.
+                                </span>
+                                <button type="button" class="btn btn-teal-solid px-4 py-2 rounded-pill fw-bold" id="btnSaveConfig" @(!isActive ? "disabled" : "")>
+                                    <span class="spinner-border spinner-border-sm me-2 d-none" id="saveSpinner" role="status" aria-hidden="true"></span>
+                                    <i class="bi bi-check2-circle me-1" id="saveIcon"></i> Save Configuration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- API Key Management Card -->
+                <div class="card-settings lock-wrapper mb-4">
+                    <div id="apiKeyLockOverlay" class="lock-overlay @(isActive ? "d-none" : "")">
+                        <div class="lock-icon-circle">
+                            <i class="bi bi-key-fill"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">API Credentials Locked</h5>
+                        <p class="text-muted small mb-3">Subscription required to provision wholesale EDI / B2B tokens.</p>
+                    </div>
+
+                    <div class="card-settings-header d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">
+                                <i class="bi bi-key-fill text-teal me-2"></i>B2B Wholesale API Integration
+                            </h5>
+                            <span class="text-muted small">Connect automated ERP and pharmacy warehouse management tools.</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="btnGenerateApiKey" @(!isActive ? "disabled" : "")>
+                            <i class="bi bi-arrow-repeat me-1"></i> Generate New Key
+                        </button>
+                    </div>
+
+                    <div class="card-settings-body">
+                        <!-- Key Output Container -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">B2B API Public Key</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control font-monospace bg-light" id="displayApiKey" value="@(string.IsNullOrEmpty(Model.ApiKey) ? "mp_live_未生成 (Click Generate New Key)" : Model.ApiKey)" readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="btnCopyApiKey" title="Copy to clipboard">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label small fw-bold text-muted text-uppercase">B2B API Secret</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control font-monospace bg-light" id="displayApiSecret" value="••••••••••••••••••••••••••••••••" readonly>
+                                <button class="btn btn-outline-secondary" type="button" id="btnToggleSecret" title="Toggle Secret Visibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" id="btnCopyApiSecret" title="Copy Secret">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                Keep your secret confidential. It grants full programmatic access to inter-pharmacy inventory sync.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Reachable B2B Partner Nodes Search Bar & List -->
+            <div class="col-lg-5">
+                <div class="card-settings">
+                    <div class="card-settings-header">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="fw-bold mb-0 text-dark">
+                                <i class="bi bi-diagram-3-fill text-teal me-2"></i>Reachable B2B Nodes
+                            </h5>
+                            <span class="badge bg-light text-muted border rounded-pill">
+                                <span id="partnerCount">@Model.PartnerPharmacies.Count</span> nodes
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-0">Search registered network pharmacies to trade wholesale inventory.</p>
+                    </div>
+
+                    <div class="card-settings-body">
+                        <!-- Partner Search Input -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-muted">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="partnerSearchInput" placeholder="Search by name, city, or license...">
+                                <button class="btn btn-outline-secondary border-start-0" type="button" id="btnClearSearch" title="Clear Search">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filter Pills -->
+                        <div class="d-flex gap-2 mb-3">
+                            <button type="button" class="btn btn-sm btn-teal-solid rounded-pill active" id="filterAllPartners">
+                                All (@Model.PartnerPharmacies.Count)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="filterReachablePartners">
+                                Active Medi+ (@Model.PartnerPharmacies.Count(p => p.IsMediPlusActive))
+                            </button>
+                        </div>
+
+                        <!-- Reachable Nodes Scroll List -->
+                        <div class="d-flex flex-column gap-2" id="partnerListContainer" style="max-height: 480px; overflow-y: auto;">
+                            @if (!Model.PartnerPharmacies.Any())
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    No other partner pharmacies discovered on the network yet.
+                                </div>
+                            }
+                            else
+                            {
+                                @foreach (var partner in Model.PartnerPharmacies)
+                                {
+                                    <div class="partner-card" data-name="@partner.Name.ToLowerInvariant()" data-city="@partner.City.ToLowerInvariant()" data-license="@partner.LicenseNumber.ToLowerInvariant()" data-active="@partner.IsMediPlusActive.ToString().ToLowerInvariant()">
+                                        <div class="d-flex align-items-start justify-content-between mb-1">
+                                            <div class="fw-bold text-dark">@partner.Name</div>
+                                            @if (partner.IsMediPlusActive)
+                                            {
+                                                <span class="status-badge-reachable">
+                                                    <i class="bi bi-broadcast me-1"></i> Reachable
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-unreachable">
+                                                    Offline
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="text-muted small mb-2">
+                                            <i class="bi bi-geo-alt me-1"></i> @partner.City &bull; Lic: @partner.LicenseNumber
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between small pt-1 border-top border-light-subtle">
+                                            <span class="text-muted">Min Order: <strong>$@partner.MinimumOrderValue.ToString("F0")</strong></span>
+                                            @if (partner.IsMediPlusActive && isActive)
+                                            {
+                                                <a href="/MediPlusB2B/Create" class="btn btn-sm btn-outline-teal rounded-pill py-0 px-2 small">
+                                                    Create Order &rarr;
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Unavailable</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Modal: Upgrade / Pay Now ($49/mo) CTA -->
+<div class="modal fade" id="upgradeModal" tabindex="-1" aria-labelledby="upgradeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-teal text-white p-4" style="background: linear-gradient(135deg, var(--mg-teal-dark), var(--mg-teal));">
+                <div>
+                    <h5 class="modal-title fw-bold text-white" id="upgradeModalLabel">
+                        <i class="bi bi-shield-plus me-2"></i>Subscribe to Medi+ B2B Tier
+                    </h5>
+                    <div class="text-white-50 small">Wholesale Inter-Pharmacy Supply Network</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold text-uppercase mb-2">Monthly Subscription</span>
+                    <h2 class="fw-bold text-dark mb-0">$49.00 <span class="fs-6 fw-normal text-muted">/ month</span></h2>
+                    <p class="text-muted small">Billed monthly to your registered pharmacy account.</p>
+                </div>
+
+                <div class="bg-light p-3 rounded-3 mb-4">
+                    <h6 class="fw-bold text-dark mb-2 small text-uppercase">Included B2B Features:</h6>
+                    <ul class="list-unstyled mb-0 small text-secondary d-flex flex-column gap-2">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Inter-pharmacy wholesale stock visibility</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Automated wholesale order placement & fulfillment</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Dedicated B2B API keys for warehouse management</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Real-time partner discovery across verified nodes</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info border-0 rounded-3 small mb-0">
+                    <i class="bi bi-info-circle-fill me-1"></i> Demo Checkout: Clicking Confirm will immediately provision Medi+ credentials for <strong>@Model.PharmacyName</strong>.
+                </div>
+            </div>
+            <div class="modal-footer p-3 bg-light border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-teal-solid rounded-pill px-4 fw-bold" id="btnConfirmSubscribe">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="subscribeSpinner"></span>
+                    Confirm &amp; Pay ($49/mo)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Bootstrap 5 Toast Container for AJAX Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-white border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                <i class="bi bi-check-circle-fill fs-5" id="toastIcon"></i>
+                <span id="toastText">Action completed successfully.</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/mediplus-config.js" asp-append-version="true"></script>
+}

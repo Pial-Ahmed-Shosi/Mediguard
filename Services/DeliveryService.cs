@@ -1,5 +1,4 @@
-﻿using MediGuard.Data;
-using MediGuardApp.Data;
+using MediGuard.Data;
 using MediGuardApp.Models;
 using MediGuardApp.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
