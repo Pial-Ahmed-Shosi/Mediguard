@@ -1,11 +1,12 @@
+using MediGuard.Data;
+using MediGuard.Middlewares;
+using MediGuard.Models;
+using MediGuard.Services;
+using MediGuardApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using MediGuard.Data;
-using MediGuard.Models;
-using MediGuard.Services;
-using MediGuard.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,9 @@ builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
 
 // Prescription Management Service (Ticket 39)
 builder.Services.AddScoped<IPrescriptionService, PrescriptionService>();
+
+// Deliveryman & Order Fulfillment Service (Ticket 40)
+builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 
 // Configure Cookie Authentication
 builder.Services.ConfigureApplicationCookie(options =>

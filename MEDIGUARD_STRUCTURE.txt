@@ -50,6 +50,107 @@ C:.
 |           |   System.Composition.Runtime.dll
 |           |   System.Composition.TypedParts.dll
 |           |   
+|           +---BuildHost-net472
+|           |   |   Microsoft.Build.Locator.dll
+|           |   |   Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe
+|           |   |   Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe.config
+|           |   |   Microsoft.IO.Redist.dll
+|           |   |   Newtonsoft.Json.dll
+|           |   |   System.Buffers.dll
+|           |   |   System.Collections.Immutable.dll
+|           |   |   System.CommandLine.dll
+|           |   |   System.Memory.dll
+|           |   |   System.Numerics.Vectors.dll
+|           |   |   System.Runtime.CompilerServices.Unsafe.dll
+|           |   |   System.Threading.Tasks.Extensions.dll
+|           |   |   
+|           |   +---cs
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---de
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---es
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---fr
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---it
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ja
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ko
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---pl
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---pt-BR
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ru
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---tr
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---zh-Hans
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   \---zh-Hant
+|           |           System.CommandLine.resources.dll
+|           |           
+|           +---BuildHost-netcore
+|           |   |   Microsoft.Build.Locator.dll
+|           |   |   Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.deps.json
+|           |   |   Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
+|           |   |   Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.runtimeconfig.json
+|           |   |   Newtonsoft.Json.dll
+|           |   |   System.Collections.Immutable.dll
+|           |   |   System.CommandLine.dll
+|           |   |   
+|           |   +---cs
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---de
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---es
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---fr
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---it
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ja
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ko
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---pl
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---pt-BR
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---ru
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---tr
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   +---zh-Hans
+|           |   |       System.CommandLine.resources.dll
+|           |   |       
+|           |   \---zh-Hant
+|           |           System.CommandLine.resources.dll
+|           |           
 |           +---cs
 |           |       Microsoft.CodeAnalysis.CSharp.resources.dll
 |           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
@@ -150,6 +251,7 @@ C:.
 |       ManufacturerController.cs
 |       MedicineController.cs
 |       NotificationController.cs
+|       PrescriptionController.cs
 |       UserController.cs
 |       
 +---Data
@@ -176,6 +278,8 @@ C:.
 |       20260925174147_medi.Designer.cs
 |       20261002194330_AddNotificationsAndBatchStatus.cs
 |       20261002194330_AddNotificationsAndBatchStatus.Designer.cs
+|       20261008225128_FixModelMismatch.cs
+|       20261008225128_FixModelMismatch.Designer.cs
 |       ApplicationDbContextModelSnapshot.cs
 |       
 +---Models
@@ -366,10 +470,12 @@ C:.
 |       IMedicineService.cs
 |       INotificationService.cs
 |       InventoryDeductionService.cs
+|       IPrescriptionService.cs
 |       IUserService.cs
 |       ManufacturerService.cs
 |       MedicineService.cs
 |       NotificationService.cs
+|       PrescriptionService.cs
 |       SupabaseStorageService.cs
 |       UserService.cs
 |       
