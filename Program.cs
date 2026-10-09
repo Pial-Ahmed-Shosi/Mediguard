@@ -2,7 +2,6 @@ using MediGuard.Data;
 using MediGuard.Middlewares;
 using MediGuard.Models;
 using MediGuard.Services;
-using MediGuardApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

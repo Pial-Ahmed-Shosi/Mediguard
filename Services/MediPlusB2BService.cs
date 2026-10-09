@@ -1,7 +1,6 @@
 ﻿using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Models.ViewModels;
-using MediGuardApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;

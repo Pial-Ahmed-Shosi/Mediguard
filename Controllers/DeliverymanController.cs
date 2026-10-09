@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediGuardApp.Models.ViewModels;
-using MediGuardApp.Services;
+using MediGuard.Models.ViewModels;
+using MediGuard.Services;
 
-namespace MediGuardApp.Controllers
+namespace MediGuard.Controllers
 {
     [Authorize(Roles = "Deliveryman")]
     public class DeliverymanController : Controller
