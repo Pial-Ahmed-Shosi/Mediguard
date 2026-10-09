@@ -1,0 +1,597 @@
+═══════════════════════════════════════════════════════════════════════════════════
+					MEDIGUARD AUTHENTICATION SYSTEM STRUCTURE
+═══════════════════════════════════════════════════════════════════════════════════
+
+PROJECT: MediGuard (.NET 10 - ASP.NET Core with Identity)
+PURPOSE: Multi-tier pharmaceutical management system with Role-Based Access Control (RBAC)
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+
+1. AUTHENTICATION MODELS
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Models/ApplicationUser.cs
+──────────────────────────────────
+CLASS: ApplicationUser
+EXTENDS: IdentityUser (from Microsoft.AspNetCore.Identity)
+
+PROPERTIES:
+  • FullName : string [Required, MaxLength(150)]
+	└─ User's complete name
+
+  • PharmacyId : Guid? [Nullable]
+	├─ Foreign Key to Pharmacy entity
+	└─ Multi-tenant context - links user to specific pharmacy
+
+  • Pharmacy : Pharmacy? [Navigation Property]
+	└─ Relationship to associated Pharmacy
+
+  • PersonalInfoNote : string? [Nullable]
+	└─ Additional personal information
+
+  • Role : string [MaxLength(50), Default: "Staff"]
+	└─ User role assignment ("Staff", "Pharmacy Manager", etc.)
+
+  • IsActive : bool [Default: true]
+	└─ Account activation status
+
+  • CreatedAt : DateTime [Default: DateTime.UtcNow]
+	└─ Account creation timestamp
+
+INHERITED FROM IdentityUser:
+  • Id, UserName, Email, PasswordHash, PhoneNumber, etc.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+2. VIEW MODELS (Data Transfer Objects for UI)
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Models/ViewModels/LoginViewModel.cs
+──────────────────────────────────────────
+CLASS: LoginViewModel
+PURPOSE: Handles user login form submission
+
+PROPERTIES:
+  • Email : string [Required, EmailAddress]
+	└─ User email address with validation
+
+  • Password : string [Required, DataType.Password]
+	└─ User password (hidden field)
+
+  • RememberMe : bool [Default: false]
+	└─ Remember me checkbox for persistent login
+
+  • Role : string [Default: "Regular User"]
+	└─ Role classification
+
+
+FILE: Models/ViewModels/RegisterViewModel.cs
+──────────────────────────────────────────────
+CLASS: RegisterViewModel
+PURPOSE: Handles user registration form for multiple role types
+
+COMMON FIELDS (All Roles):
+  • Role : string [Required, Default: "Regular User"]
+	└─ Roles: "Regular User", "Pharmacy Manager", "Deliveryman", "Admin"
+
+  • FullName : string [Required, MaxLength(150)]
+	└─ User full name
+
+  • Email : string [Required, EmailAddress]
+	└─ Email address with validation
+
+  • Password : string [Required, MinLength(6)]
+	└─ Password (minimum 6 characters)
+
+  • ConfirmPassword : string [Required, Compare with Password]
+	└─ Password confirmation with comparison validation
+
+ROLE-SPECIFIC FIELDS (Conditionally Used):
+
+  FOR REGULAR USER:
+	• PhoneNumber : string? [Nullable]
+	• DeliveryAddress : string? [Nullable]
+
+  FOR PHARMACY MANAGER:
+	• PharmacyName : string? [Nullable]
+	• PharmacyLicenseNumber : string? [Nullable]
+
+  FOR DELIVERYMAN:
+	• VehicleType : string? [Nullable]
+	• DrivingLicenseNumber : string? [Nullable]
+
+  FOR ADMIN:
+	• AdminAccessCode : string? [Nullable]
+	• Department : string? [Nullable]
+
+
+FILE: Models/ViewModels/RegisterPharmacyViewModel.cs
+────────────────────────────────────────────────────
+CLASS: RegisterPharmacyViewModel
+PURPOSE: Pharmacy registration with manager account creation
+
+PROPERTIES:
+  • PharmacyName : string [Required]
+  • PharmacyDomain : string [Required] - Organization domain (e.g., @citypharmacy.com)
+  • LicenseNumber : string [Required]
+  • Address : string [Required]
+  • City : string [Required]
+  • ManagerEmail : string [Required, EmailAddress]
+	└─ Must match pharmacy domain
+  • FullName : string [Required]
+  • Phone : string [Optional]
+  • PersonalInfoNote : string [Optional]
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+3. SERVICE LAYER (Business Logic)
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Services/IAuthService.cs
+──────────────────────────────
+INTERFACE: IAuthService
+PURPOSE: Contract for authentication operations
+
+METHODS:
+
+  ① ValidateManagerEmailDomain(email: string, domain: string)
+	 ├─ Parameters: Manager email, pharmacy domain
+	 ├─ Returns: (IsValid: bool, ErrorMessage: string?)
+	 └─ Validates manager emails match pharmacy domain (not public email providers)
+
+  ② AuthenticateUserAsync(email: string, password: string)
+	 ├─ Parameters: User email, password
+	 ├─ Returns: (IsSuccess: bool, ErrorMessage: string?, ClaimsPrincipal?)
+	 └─ Authenticates user and returns Claims Principal for session
+
+  ③ RegisterPharmacyWithManagerAsync(model: RegisterPharmacyViewModel)
+	 ├─ Parameters: Pharmacy registration data with manager details
+	 ├─ Returns: (IsSuccess: bool, ErrorMessage: string?)
+	 └─ Creates pharmacy and manager user account atomically
+
+
+FILE: Services/AuthService.cs
+───────────────────────────────
+CLASS: AuthService
+IMPLEMENTS: IAuthService
+PURPOSE: Authentication business logic implementation
+
+DEPENDENCIES:
+  • UserManager<ApplicationUser> - Identity user management
+  • RoleManager<IdentityRole> - Role management
+  • ApplicationDbContext - Database access
+
+FORBIDDEN EMAIL DOMAINS (For Managers):
+  • gmail.com, yahoo.com, hotmail.com, outlook.com
+  • icloud.com, protonmail.com, aol.com, yandex.com, zoho.com
+
+KEY METHODS:
+
+  ① ValidateManagerEmailDomain(email, domain)
+	 Process:
+	 ├─ Validates email format
+	 ├─ Checks if email domain is in forbidden list
+	 ├─ Ensures email domain matches pharmacy domain
+	 └─ Returns validation result
+
+  ② AuthenticateUserAsync(email, password)
+	 Process:
+	 ├─ Query user from database (include Pharmacy)
+	 ├─ Check if user exists
+	 ├─ Verify user account is active
+	 ├─ Validate password against hash
+	 ├─ Enforce domain check for managers
+	 ├─ Retrieve user roles
+	 ├─ Build Claims (NameIdentifier, Name, Email, Role, PharmacyId, IsMediPlusActive)
+	 ├─ Create ClaimsIdentity with CookieAuthentication scheme
+	 └─ Return authentication result with ClaimsPrincipal
+
+  ③ RegisterPharmacyWithManagerAsync(model)
+	 Process:
+	 ├─ Validate manager email domain
+	 ├─ Check if email already exists
+	 ├─ BEGIN TRANSACTION (Atomic operation)
+	 ├─ Create Pharmacy entity
+	 ├─ Save pharmacy to database
+	 ├─ Ensure "Pharmacy Manager" role exists (create if not)
+	 ├─ Create manager user account
+	 ├─ Set user as active with confirmed email
+	 ├─ Assign to pharmacy
+	 ├─ COMMIT TRANSACTION
+	 └─ Return success/error
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+4. CONTROLLER LAYER (HTTP Handlers)
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Controllers/AccountController.cs
+──────────────────────────────────────
+CLASS: AccountController : Controller
+ATTRIBUTE: [AllowAnonymous] - No authentication required
+PURPOSE: Handle account registration and login operations
+
+DEPENDENCIES:
+  • IAuthService - Authentication service
+  • UserManager<ApplicationUser> - User management
+  • SignInManager<ApplicationUser> - Sign-in operations
+
+ENDPOINTS:
+
+  ① GET /Account/Register
+	 └─ Shows user registration form
+
+  ② POST /Account/Register
+	 Process:
+	 ├─ Validate ModelState
+	 ├─ Domain check for Pharmacy Managers (reject public email domains)
+	 ├─ Create ApplicationUser entity
+	 ├─ Call UserManager.CreateAsync (creates user and hashes password)
+	 ├─ Sign in user on success
+	 └─ Redirect to UserProfile or return validation errors
+
+  ③ GET /Account/RegisterPharmacy
+	 └─ Shows pharmacy + manager registration form
+
+  ④ POST /Account/RegisterPharmacy
+	 Process:
+	 ├─ Validate email domain via AuthService
+	 ├─ Validate ModelState
+	 ├─ Call AuthService.RegisterPharmacyWithManagerAsync
+	 ├─ Handle transaction (success/failure)
+	 └─ Redirect to dashboard or show errors
+
+  ⑤ GET /Account/Login
+	 └─ Shows login form
+
+  ⑥ POST /Account/Login
+	 Process:
+	 ├─ Validate ModelState
+	 ├─ Call AuthService.AuthenticateUserAsync
+	 ├─ On success: SignInManager.SignInAsync with ClaimsPrincipal
+	 ├─ Set "RememberMe" persistent login option
+	 ├─ Handle failed authentication/inactive accounts
+	 └─ Redirect to dashboard or show error
+
+  ⑦ GET /Account/Logout
+	 └─ Signs out user and clears authentication cookie
+
+  ⑧ GET /Account/UserProfile
+	 └─ Shows user profile information
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+5. MIDDLEWARE (Cross-Cutting Authentication Logic)
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Middlewares/TenantRbacMiddleware.cs
+────────────────────────────────────────
+CLASS: TenantRbacMiddleware
+PURPOSE: Multi-tenant RBAC enforcement on every request
+
+PROCESS FOR AUTHENTICATED REQUESTS:
+
+  1. Check if request.User.Identity.IsAuthenticated
+  ├─ Get user ID from claims
+  ├─ Parse UserIdStr to Guid
+
+  2. TENANT ISOLATION:
+  ├─ Query database for user with pharmacy relationship
+  ├─ Extract PharmacyId and store in context.Items["PharmacyId"]
+  ├─ Check Pharmacy.IsMediPlusActive subscription status
+  └─ Store in context.Items["IsMediPlusActive"]
+
+  3. PERMISSION AGGREGATION:
+  ├─ Query RolePermissions based on user.Role
+  ├─ Query UserPermissions (role overrides/grants)
+  ├─ Merge both into HashSet<string> (case-insensitive)
+  └─ Store in context.Items["UserPermissions"]
+
+  4. PASS TO NEXT MIDDLEWARE
+  └─ Permissions available to filters, controllers, views via HttpContext.Items
+
+RESULT:
+  • HttpContext.Items["PharmacyId"] - Current tenant identifier
+  • HttpContext.Items["IsMediPlusActive"] - Feature availability flag
+  • HttpContext.Items["UserPermissions"] - Compiled permission set
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+6. AUTHORIZATION FILTERS & ATTRIBUTES
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Filters/HasPermissionAttribute.cs
+────────────────────────────────────────
+ATTRIBUTE: [HasPermission("PERMISSION_CODE")]
+PURPOSE: Declarative permission checking on controller actions
+
+Usage:
+  [HasPermission("CREATE_BATCH")]
+  public async Task<IActionResult> CreateBatch() { ... }
+
+Process:
+  ├─ Extract permission code from attribute
+  ├─ Retrieve HttpContext.Items["UserPermissions"]
+  ├─ Check if user has permission
+  ├─ Allow or return Forbidden (403) response
+
+
+FILE: Filters/RequiresMediPlusAttribute.cs
+───────────────────────────────────────────
+ATTRIBUTE: [RequiresMediPlus]
+PURPOSE: Feature flag check - only active MediPlus subscribers
+
+Usage:
+  [RequiresMediPlus]
+  public async Task<IActionResult> PremiumFeature() { ... }
+
+Process:
+  ├─ Check HttpContext.Items["IsMediPlusActive"]
+  ├─ Allow if true
+  └─ Return Forbidden if false
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+7. VIEWS (User Interface)
+═════════════════════════════════════════════════════════════════════════════════
+
+FILE: Views/Account/Login.cshtml
+────────────────────────────────
+MODEL: LoginViewModel
+PURPOSE: Login form UI
+
+FEATURES:
+  • Email input field (required, email validation)
+  • Password input field (required)
+  • Remember Me checkbox
+  • Submit button
+  • Error message display
+  • Responsive design with custom CSS variables
+  • Link to Register page
+
+
+FILE: Views/Account/Register.cshtml
+────────────────────────────────────
+MODEL: RegisterViewModel
+PURPOSE: User registration form UI
+
+FEATURES:
+  • Role selection dropdown (Regular User, Manager, Deliveryman, Admin)
+  • Common fields: FullName, Email, Password, ConfirmPassword
+  • Dynamic role-specific fields (shown/hidden based on role selection)
+  • Client-side and server-side validation
+  • Error message display
+  • Responsive design
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+8. AUTHENTICATION FLOW DIAGRAM
+═════════════════════════════════════════════════════════════════════════════════
+
+REGISTRATION FLOW:
+─────────────────
+
+  User fills Register form
+		 ↓
+  POST /Account/Register
+		 ↓
+  Validate ModelState
+		 ↓
+  Check email domain (if Manager)
+		 ├─ Public domain? → Reject with error
+		 └─ Valid domain? → Continue
+		 ↓
+  UserManager.CreateAsync(user, password)
+		 ├─ Hash password
+		 ├─ Create user in database
+		 └─ Add to Identity tables
+		 ↓
+  SignInManager.SignInAsync
+		 ├─ Create authentication cookie
+		 └─ Issue ClaimsPrincipal
+		 ↓
+  Redirect to Dashboard/Profile
+		 ↓
+  User session established
+
+
+PHARMACY REGISTRATION FLOW:
+──────────────────────────
+
+  User fills RegisterPharmacy form
+		 ↓
+  POST /Account/RegisterPharmacy
+		 ↓
+  Validate manager email domain
+		 ├─ Check against forbidden domains
+		 ├─ Check domain matches pharmacy domain
+		 └─ Reject if invalid
+		 ↓
+  AuthService.RegisterPharmacyWithManagerAsync
+		 ├─ BEGIN TRANSACTION
+		 ├─ Create Pharmacy entity
+		 ├─ Save pharmacy
+		 ├─ Ensure "Pharmacy Manager" role exists
+		 ├─ Create manager user with PharmacyId
+		 ├─ Save user
+		 └─ COMMIT TRANSACTION
+		 ↓
+  Redirect to login or dashboard
+		 ↓
+  Pharmacy + Manager account created
+
+
+LOGIN FLOW:
+──────────
+
+  User enters email + password
+		 ↓
+  POST /Account/Login
+		 ↓
+  Validate ModelState
+		 ↓
+  AuthService.AuthenticateUserAsync(email, password)
+		 ├─ Query user from database
+		 ├─ Check IsActive flag
+		 ├─ Verify password hash
+		 ├─ Load user roles
+		 ├─ Enforce domain check for managers
+		 ├─ Build Claims list:
+		 │  ├─ NameIdentifier (UserId)
+		 │  ├─ Name (FullName or Email)
+		 │  ├─ Email
+		 │  ├─ Role
+		 │  ├─ PharmacyId
+		 │  └─ IsMediPlusActive
+		 ├─ Create ClaimsIdentity
+		 └─ Return ClaimsPrincipal
+		 ↓
+  SignInManager.SignInAsync(claimsPrincipal)
+		 ├─ Create authentication cookie
+		 ├─ Store claims in cookie
+		 └─ Set RememberMe if selected
+		 ↓
+  Redirect to Dashboard
+		 ↓
+  Session established
+
+
+REQUEST PROCESSING WITH RBAC:
+──────────────────────────────
+
+  Authenticated HTTP Request arrives
+		 ↓
+  TenantRbacMiddleware.InvokeAsync
+		 ├─ Check if user authenticated
+		 ├─ Extract UserId from claims
+		 ├─ Query user + pharmacy
+		 ├─ Set context.Items["PharmacyId"]
+		 ├─ Set context.Items["IsMediPlusActive"]
+		 ├─ Load role permissions
+		 ├─ Load user-specific permissions
+		 ├─ Merge into permissions set
+		 └─ Set context.Items["UserPermissions"]
+		 ↓
+  Next middleware/controller
+		 ↓
+  Controller checks [HasPermission] attributes
+		 ├─ Extract permission from HttpContext.Items
+		 ├─ Compare with user permissions
+		 ├─ Allow or reject (403)
+		 └─ Process request
+		 ↓
+  Response sent to client
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+9. SECURITY FEATURES
+═════════════════════════════════════════════════════════════════════════════════
+
+✓ PASSWORD HASHING
+  • Uses Identity Framework password hashing (PBKDF2)
+  • Bcrypt-compatible with configurable work factor
+
+✓ EMAIL DOMAIN VALIDATION
+  • Pharmacy managers must use official domain emails
+  • Blocks public email providers (Gmail, Yahoo, Outlook, etc.)
+  • Enforced at registration AND login
+
+✓ MULTI-TENANT ISOLATION
+  • Users linked to PharmacyId
+  • TenantRbacMiddleware enforces tenant context
+  • Database queries filtered by tenant
+
+✓ ROLE-BASED ACCESS CONTROL (RBAC)
+  • Role → Permissions mapping
+  • User-specific permission overrides
+  • [HasPermission] attribute enforcement
+
+✓ FEATURE FLAG SYSTEM
+  • MediPlus subscription status
+  • Premium features restricted via [RequiresMediPlus]
+
+✓ ANTI-FORGERY PROTECTION
+  • [ValidateAntiForgeryToken] on all POST actions
+  • CSRF token validation
+
+✓ ACCOUNT STATUS
+  • IsActive flag prevents inactive users from logging in
+
+✓ ATOMIC TRANSACTIONS
+  • Pharmacy registration uses database transaction
+  • Ensures consistency if creation fails mid-process
+
+✓ COOKIE AUTHENTICATION
+  • Secure, HttpOnly cookies
+  • Configurable expiration and sliding expiration
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+10. CONFIGURATION IN PROGRAM.CS
+═════════════════════════════════════════════════════════════════════════════════
+
+Key Setup:
+
+  builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+	.AddEntityFrameworkStores<ApplicationDbContext>()
+	.AddDefaultTokenProviders();
+
+  builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+	.AddCookie(options => {
+		options.LoginPath = "/Account/Login";
+		options.AccessDeniedPath = "/Account/AccessDenied";
+		options.ExpireTimeSpan = TimeSpan.FromDays(7);
+		options.SlidingExpiration = true;
+	});
+
+  builder.Services.AddAuthorization();
+
+  builder.Services.AddScoped<IAuthService, AuthService>();
+
+  app.UseAuthentication();
+  app.UseMiddleware<TenantRbacMiddleware>();
+  app.UseAuthorization();
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+11. RELATED DATABASE ENTITIES
+═════════════════════════════════════════════════════════════════════════════════
+
+ApplicationUser ←→ Pharmacy (1:1 relationship via PharmacyId)
+
+ApplicationUser ←→ Role (Many:Many via UserRoles from Identity)
+
+Role ←→ Permission (Many:Many via RolePermission)
+  • RolePermission junction table
+
+ApplicationUser ←→ Permission (Many:Many via UserPermission)
+  • UserPermission junction table with IsGranted flag
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+SUMMARY:
+=========
+
+MediGuard Authentication System provides:
+  1. Multi-role support (Regular User, Manager, Deliveryman, Admin)
+  2. Multi-tenant architecture (Pharmacy-based isolation)
+  3. Role-based access control with permission inheritance
+  4. Email domain validation for manager accounts
+  5. Feature flags for premium (MediPlus) functionality
+  6. Secure password handling via Identity Framework
+  7. Atomic pharmacy + manager registration
+  8. Per-request RBAC evaluation via middleware
+
+═══════════════════════════════════════════════════════════════════════════════════

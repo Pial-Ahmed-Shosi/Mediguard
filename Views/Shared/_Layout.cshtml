@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -142,11 +142,14 @@
                         <a class="nav-link @(currentController == "Home" && currentAction == "Services" ? "active" : "")"
                            asp-controller="Home" asp-action="Services">Services</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Notification" asp-action="ExpiredMedicines">
-                            Expired Notifications
-                        </a>
-                    </li>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("Pharmacist")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Notification" asp-action="ExpiredMedicines">
+                                Expired Notifications
+                            </a>
+                        </li>
+                    }
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">

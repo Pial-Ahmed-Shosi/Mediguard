@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace MediGuard.Models.ViewModels.Medicine
+namespace MediGuard.Models.ViewModels
 {
     public class MedicineCatalogViewModel
     {

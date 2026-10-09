@@ -1,0 +1,525 @@
+Folder PATH listing for volume WINDOWS
+Volume serial number is 1C2B-9D27
+C:.
+|   .gitignore
+|   appsettings.Development.json
+|   appsettings.json
+|   AUTHENTICATION_STRUCTURE.txt
+|   MediGuard.csproj
+|   MediGuard.csproj.user
+|   MediGuard.slnx
+|   MEDIGUARD_STRUCTURE.txt
+|   Program.cs
+|   README.md
+|   
++---bin
+|   \---Debug
+|       \---net10.0
+|           |   appsettings.Development.json
+|           |   appsettings.json
+|           |   Humanizer.dll
+|           |   MediGuard.deps.json
+|           |   MediGuard.dll
+|           |   MediGuard.exe
+|           |   MediGuard.pdb
+|           |   MediGuard.runtimeconfig.json
+|           |   MediGuard.staticwebassets.endpoints.json
+|           |   MediGuard.staticwebassets.runtime.json
+|           |   Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+|           |   Microsoft.Build.Framework.dll
+|           |   Microsoft.CodeAnalysis.CSharp.dll
+|           |   Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+|           |   Microsoft.CodeAnalysis.dll
+|           |   Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll
+|           |   Microsoft.CodeAnalysis.Workspaces.dll
+|           |   Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+|           |   Microsoft.EntityFrameworkCore.Abstractions.dll
+|           |   Microsoft.EntityFrameworkCore.Design.dll
+|           |   Microsoft.EntityFrameworkCore.dll
+|           |   Microsoft.EntityFrameworkCore.Relational.dll
+|           |   Microsoft.Extensions.DependencyModel.dll
+|           |   Microsoft.VisualStudio.SolutionPersistence.dll
+|           |   Mono.TextTemplating.dll
+|           |   Newtonsoft.Json.dll
+|           |   Npgsql.dll
+|           |   Npgsql.EntityFrameworkCore.PostgreSQL.dll
+|           |   System.CodeDom.dll
+|           |   System.Composition.AttributedModel.dll
+|           |   System.Composition.Convention.dll
+|           |   System.Composition.Hosting.dll
+|           |   System.Composition.Runtime.dll
+|           |   System.Composition.TypedParts.dll
+|           |   
+|           +---cs
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---de
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---es
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---fr
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---it
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---ja
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---ko
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---pl
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---pt-BR
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---ru
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---tr
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           +---zh-Hans
+|           |       Microsoft.CodeAnalysis.CSharp.resources.dll
+|           |       Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|           |       Microsoft.CodeAnalysis.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|           |       Microsoft.CodeAnalysis.Workspaces.resources.dll
+|           |       
+|           \---zh-Hant
+|                   Microsoft.CodeAnalysis.CSharp.resources.dll
+|                   Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+|                   Microsoft.CodeAnalysis.resources.dll
+|                   Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+|                   Microsoft.CodeAnalysis.Workspaces.resources.dll
+|                   
++---Controllers
+|       AccountController.cs
+|       CategoryController.cs
+|       DashboardController.cs
+|       HomeController.cs
+|       InventoryController.cs
+|       ManufacturerController.cs
+|       MedicineController.cs
+|       NotificationController.cs
+|       UserController.cs
+|       
++---Data
+|       ApplicationDbContext.cs
+|       
++---Exceptions
+|       InsufficientStockException.cs
+|       
++---Filters
+|       HasPermissionAttribute.cs
+|       PermissionFilter.cs
+|       RequiresMediPlusAttribute.cs
+|       RequiresMediPlusFilter.cs
+|       
++---Middlewares
+|       TenantRbacMiddleware.cs
+|       
++---Migrations
+|       20260925140103_InitialMigrate.cs
+|       20260925140103_InitialMigrate.Designer.cs
+|       20260925173001_AddRbacAndPermissionsSchema.cs
+|       20260925173001_AddRbacAndPermissionsSchema.Designer.cs
+|       20260925174147_medi.cs
+|       20260925174147_medi.Designer.cs
+|       20261002194330_AddNotificationsAndBatchStatus.cs
+|       20261002194330_AddNotificationsAndBatchStatus.Designer.cs
+|       ApplicationDbContextModelSnapshot.cs
+|       
++---Models
+|   |   ApplicationUser.cs
+|   |   Batch.cs
+|   |   Category.cs
+|   |   ErrorViewModel.cs
+|   |   InventoryBatch.cs
+|   |   Manufacturer.cs
+|   |   Medicine.cs
+|   |   Notification.cs
+|   |   Order.cs
+|   |   Permission.cs
+|   |   Pharmacy.cs
+|   |   Prescription.cs
+|   |   Role.cs
+|   |   RolePermission.cs
+|   |   Sale.cs
+|   |   UserPermission.cs
+|   |   
+|   \---ViewModels
+|       |   BatchEntryViewModel.cs
+|       |   CategoryViewModels.cs
+|       |   DashboardSummaryViewModel.cs
+|       |   ExpiredNotificationViewModel.cs
+|       |   ExpiryAlertsViewModel.cs
+|       |   LoginViewModel.cs
+|       |   ManufacturerViewModels.cs
+|       |   MedicineCatalogViewModel.cs
+|       |   RegisterPharmacyViewModel.cs
+|       |   RegisterViewModel.cs
+|       |   RoleAssignmentViewModel.cs
+|       |   UserManagementViewModel.cs
+|       |   UserViewModels.cs
+|       |   
+|       \---Medicine
+|               MedicineViewModels.cs
+|               
++---obj
+|   |   MediGuard.csproj.nuget.dgspec.json
+|   |   MediGuard.csproj.nuget.g.props
+|   |   MediGuard.csproj.nuget.g.targets
+|   |   project.assets.json
+|   |   project.nuget.cache
+|   |   
+|   \---Debug
+|       \---net10.0
+|           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+|           |   ApiEndpoints.json
+|           |   apphost.exe
+|           |   MediGuard.AssemblyInfo.cs
+|           |   MediGuard.AssemblyInfoInputs.cache
+|           |   MediGuard.assets.cache
+|           |   MediGuard.csproj.AssemblyReference.cache
+|           |   MediGuard.csproj.BuildWithSkipAnalyzers
+|           |   MediGuard.csproj.CoreCompileInputs.cache
+|           |   MediGuard.csproj.FileListAbsolute.txt
+|           |   MediGuard.csproj.Up2Date
+|           |   MediGuard.dll
+|           |   MediGuard.GeneratedMSBuildEditorConfig.editorconfig
+|           |   MediGuard.genruntimeconfig.cache
+|           |   MediGuard.GlobalUsings.g.cs
+|           |   MediGuard.MvcApplicationPartsAssemblyInfo.cache
+|           |   MediGuard.pdb
+|           |   MediGuard.RazorAssemblyInfo.cache
+|           |   MediGuard.RazorAssemblyInfo.cs
+|           |   MediGuard.sourcelink.json
+|           |   rbcswa.dswa.cache.json
+|           |   rjimswa.dswa.cache.json
+|           |   rjsmcshtml.dswa.cache.json
+|           |   rjsmrazor.dswa.cache.json
+|           |   rpswa.dswa.cache.json
+|           |   staticwebassets.build.endpoints.json
+|           |   staticwebassets.build.json
+|           |   staticwebassets.build.json.cache
+|           |   staticwebassets.development.json
+|           |   staticwebassets.references.upToDateCheck.txt
+|           |   staticwebassets.removed.txt
+|           |   staticwebassets.upToDateCheck.txt
+|           |   swae.build.ex.cache
+|           |   
+|           +---compressed
+|           |       0kq1x7cay9-{0}-mlv21k5csn-mlv21k5csn.gz
+|           |       1qlevwbsoq-{0}-43atpzeawx-43atpzeawx.gz
+|           |       1r0zffhgvl-{0}-83jwlth58m-83jwlth58m.gz
+|           |       1tx654nr4p-{0}-356vix0kms-356vix0kms.gz
+|           |       2e4uq013z5-{0}-ausgxo2sd3-ausgxo2sd3.gz
+|           |       3jr45pjk48-{0}-c2jlpeoesf-c2jlpeoesf.gz
+|           |       3q8n1qwie6-{0}-c2oey78nd0-c2oey78nd0.gz
+|           |       52n85uucr0-{0}-fsbi9cje9m-fsbi9cje9m.gz
+|           |       5meb1ydn49-{0}-h1s4sie4z3-h1s4sie4z3.gz
+|           |       5ogbxu3xoo-{0}-8oei2pepbp-8oei2pepbp.gz
+|           |       6815xwf239-{0}-6pdc2jztkx-6pdc2jztkx.gz
+|           |       73nffnmpg2-{0}-y7v9cxd14o-y7v9cxd14o.gz
+|           |       7gdruexlve-{0}-ltid2c489k-ltid2c489k.gz
+|           |       7x1kp57gsy-{0}-nvvlpmu67g-nvvlpmu67g.gz
+|           |       7zeij5oxws-{0}-wl58j5mj3v-wl58j5mj3v.gz
+|           |       85vikg0tr6-{0}-d4r6k3f320-d4r6k3f320.gz
+|           |       8isz5548rp-{0}-87fc7y1x7t-87fc7y1x7t.gz
+|           |       8ol8shnqrf-{0}-xvp3kq03qx-xvp3kq03qx.gz
+|           |       8rdriwrx0v-{0}-ee0r1s7dh0-ee0r1s7dh0.gz
+|           |       8tpehe0tl5-{0}-r27m3pzy8g-r27m3pzy8g.gz
+|           |       9edliht1mi-{0}-x0q3zqp4vz-x0q3zqp4vz.gz
+|           |       9qxqgesmcd-{0}-tmc1g35s3z-tmc1g35s3z.gz
+|           |       af1w2whdbc-{0}-jd9uben2k1-jd9uben2k1.gz
+|           |       asdefmur6q-{0}-hd3gran6i8-hd3gran6i8.gz
+|           |       ccqxy0z2rm-{0}-cosvhxvwiu-cosvhxvwiu.gz
+|           |       cj1tfrh9zy-{0}-rxsg74s51o-rxsg74s51o.gz
+|           |       cuei3338k2-{0}-worgj0nhwm-worgj0nhwm.gz
+|           |       dwhbonpyja-{0}-mrlpezrjn3-mrlpezrjn3.gz
+|           |       e1itht0els-{0}-4vm8opo7wu-4vm8opo7wu.gz
+|           |       ein00yqw4x-{0}-k1tebzja6v-k1tebzja6v.gz
+|           |       f53bvy1dyj-{0}-61n19gt1b8-61n19gt1b8.gz
+|           |       f6e2mr7mah-{0}-q9ht133ko3-q9ht133ko3.gz
+|           |       fanm2zxgbf-{0}-u9q1upor1n-u9q1upor1n.gz
+|           |       fimdhryrqz-{0}-pj5nd1wqec-pj5nd1wqec.gz
+|           |       gbbmpetbk7-{0}-v0zj4ognzu-v0zj4ognzu.gz
+|           |       genzoc25zr-{0}-keugtjm085-keugtjm085.gz
+|           |       goelxxywyj-{0}-fvhpjtyr6v-fvhpjtyr6v.gz
+|           |       h1axhfp2fh-{0}-m9qm4tazc0-m9qm4tazc0.gz
+|           |       hevr70sa6v-{0}-t1cqhe9u97-t1cqhe9u97.gz
+|           |       hgoy0qmvbo-{0}-ft3s53vfgj-ft3s53vfgj.gz
+|           |       hn8iti8vgs-{0}-aspxcdfuc2-aspxcdfuc2.gz
+|           |       hr7skifp56-{0}-9vr69e8ynj-9vr69e8ynj.gz
+|           |       hx45pf82qq-{0}-22vffe00uq-22vffe00uq.gz
+|           |       hxgxb7l568-{0}-jjsuc0puko-jjsuc0puko.gz
+|           |       i7ihlixjb6-{0}-iovd86k7lj-iovd86k7lj.gz
+|           |       kk4bdk39al-{0}-ynyaa8k90p-ynyaa8k90p.gz
+|           |       l48av56utl-{0}-d6nrnj6jjx-d6nrnj6jjx.gz
+|           |       l7kraea3af-{0}-4d85u1mtcx-4d85u1mtcx.gz
+|           |       mqk4kwcrt7-{0}-gye83jo8yx-gye83jo8yx.gz
+|           |       mvyizqlqpx-{0}-kbrnm935zg-kbrnm935zg.gz
+|           |       n63nd6yz4g-{0}-gk0pw8i4co-gk0pw8i4co.gz
+|           |       nssuycb7lv-{0}-sejl45xvog-sejl45xvog.gz
+|           |       one5e412f0-{0}-0j3bgjxly4-0j3bgjxly4.gz
+|           |       p1mc8bmw5k-{0}-4094rpi4f9-4094rpi4f9.gz
+|           |       p1ne283min-{0}-zub09dkrxp-zub09dkrxp.gz
+|           |       q0p25623ze-{0}-j5mq2jizvt-j5mq2jizvt.gz
+|           |       q2wxz8msop-{0}-03hjc8e09r-03hjc8e09r.gz
+|           |       qidhx9wbi9-{0}-rot4zahr6y-rot4zahr6y.gz
+|           |       rr0ot2gczb-{0}-k07adxc64l-k07adxc64l.gz
+|           |       sg5385t0ac-{0}-aexeepp0ev-aexeepp0ev.gz
+|           |       sq1gnc6p1i-{0}-ttgo8qnofa-ttgo8qnofa.gz
+|           |       tkmnq8elii-{0}-c63t5i9ira-c63t5i9ira.gz
+|           |       uwye797bi4-{0}-b9sayid5wm-b9sayid5wm.gz
+|           |       vb3xb4fydr-{0}-qesaa3a1fm-qesaa3a1fm.gz
+|           |       vwa6gjergf-{0}-hrwsygsryq-hrwsygsryq.gz
+|           |       wgxz2ium7b-{0}-8vyfqsqgz1-8vyfqsqgz1.gz
+|           |       xxf4bie1q2-{0}-0j0k8t6df4-0j0k8t6df4.gz
+|           |       yjzaw22o30-{0}-48y08845bh-48y08845bh.gz
+|           |       ykx9ot8qun-{0}-r4e9w2rdcm-r4e9w2rdcm.gz
+|           |       zp02x85ngb-{0}-k07adxc64l-k07adxc64l.gz
+|           |       
+|           +---ref
+|           |       MediGuard.dll
+|           |       
+|           +---refint
+|           |       MediGuard.dll
+|           |       
+|           +---scopedcss
+|           |   +---bundle
+|           |   |       MediGuard.styles.css
+|           |   |       
+|           |   +---projectbundle
+|           |   |       MediGuard.bundle.scp.css
+|           |   |       
+|           |   \---Views
+|           |       \---Shared
+|           |               _Layout.cshtml.rz.scp.css
+|           |               
+|           \---staticwebassets
++---Properties
+|       launchSettings.json
+|       
++---Services
+|       AuthService.cs
+|       BatchService.cs
+|       CategoryService.cs
+|       DashboardService.cs
+|       ExpiryScannerHostedService.cs
+|       IAuthService.cs
+|       IBatchService.cs
+|       ICategoryService.cs
+|       IDashboardService.cs
+|       IFileStorageService.cs
+|       IInventoryDeductionService.cs
+|       IManufacturerService.cs
+|       IMedicineService.cs
+|       INotificationService.cs
+|       InventoryDeductionService.cs
+|       IUserService.cs
+|       ManufacturerService.cs
+|       MedicineService.cs
+|       NotificationService.cs
+|       SupabaseStorageService.cs
+|       UserService.cs
+|       
++---ViewComponents
+|       ExpiryAlertsViewComponent.cs
+|       UserDashboardViewComponent.cs
+|       
++---Views
+|   |   _ViewImports.cshtml
+|   |   _ViewStart.cshtml
+|   |   
+|   +---Account
+|   |       Login.cshtml
+|   |       Register.cshtml
+|   |       
+|   +---Home
+|   |       About.cshtml
+|   |       Index.cshtml
+|   |       Privacy.cshtml
+|   |       Services.cshtml
+|   |       
+|   +---Inventory
+|   |       CreateBatch.cshtml
+|   |       
+|   +---Medicine
+|   |       Index.cshtml
+|   |       _CategoryModal.cshtml
+|   |       _ManufacturerModal.cshtml
+|   |       _ManufacturerModal.cshtml.cs
+|   |       _MedicineTable.cshtml
+|   |       
+|   +---Notification
+|   |       ExpiredMedicines.cshtml
+|   |       
+|   +---Pharmacy
+|   |       Register.cshtml
+|   |       
+|   +---Shared
+|   |   |   Error.cshtml
+|   |   |   _Layout.cshtml
+|   |   |   _Layout.cshtml.css
+|   |   |   _ValidationScriptsPartial.cshtml
+|   |   |   
+|   |   \---Components
+|   |       +---ExpiryAlerts
+|   |       |       Default.cshtml
+|   |       |       
+|   |       \---UserDashboard
+|   |               Default.cshtml
+|   |               
+|   \---User
+|           Index.cshtml
+|           _RoleAssignmentModal.cshtml
+|           _UserListTable.cshtml
+|           
+\---wwwroot
+    |   favicon.ico
+    |   
+    +---css
+    |       site.css
+    |       
+    +---images
+    |       Medi imag.png
+    |       
+    +---js
+    |       auth-validation.js
+    |       batch-entry.js
+    |       category-manufacturer-modal.js
+    |       Duser-management.js
+    |       expired-notifications.js
+    |       medicine-catalog.js
+    |       user-management.js
+    |       
+    \---lib
+        +---bootstrap
+        |   |   LICENSE
+        |   |   
+        |   \---dist
+        |       +---css
+        |       |       bootstrap-grid.css
+        |       |       bootstrap-grid.css.map
+        |       |       bootstrap-grid.min.css
+        |       |       bootstrap-grid.min.css.map
+        |       |       bootstrap-grid.rtl.css
+        |       |       bootstrap-grid.rtl.css.map
+        |       |       bootstrap-grid.rtl.min.css
+        |       |       bootstrap-grid.rtl.min.css.map
+        |       |       bootstrap-reboot.css
+        |       |       bootstrap-reboot.css.map
+        |       |       bootstrap-reboot.min.css
+        |       |       bootstrap-reboot.min.css.map
+        |       |       bootstrap-reboot.rtl.css
+        |       |       bootstrap-reboot.rtl.css.map
+        |       |       bootstrap-reboot.rtl.min.css
+        |       |       bootstrap-reboot.rtl.min.css.map
+        |       |       bootstrap-utilities.css
+        |       |       bootstrap-utilities.css.map
+        |       |       bootstrap-utilities.min.css
+        |       |       bootstrap-utilities.min.css.map
+        |       |       bootstrap-utilities.rtl.css
+        |       |       bootstrap-utilities.rtl.css.map
+        |       |       bootstrap-utilities.rtl.min.css
+        |       |       bootstrap-utilities.rtl.min.css.map
+        |       |       bootstrap.css
+        |       |       bootstrap.css.map
+        |       |       bootstrap.min.css
+        |       |       bootstrap.min.css.map
+        |       |       bootstrap.rtl.css
+        |       |       bootstrap.rtl.css.map
+        |       |       bootstrap.rtl.min.css
+        |       |       bootstrap.rtl.min.css.map
+        |       |       
+        |       \---js
+        |               bootstrap.bundle.js
+        |               bootstrap.bundle.js.map
+        |               bootstrap.bundle.min.js
+        |               bootstrap.bundle.min.js.map
+        |               bootstrap.esm.js
+        |               bootstrap.esm.js.map
+        |               bootstrap.esm.min.js
+        |               bootstrap.esm.min.js.map
+        |               bootstrap.js
+        |               bootstrap.js.map
+        |               bootstrap.min.js
+        |               bootstrap.min.js.map
+        |               
+        +---jquery
+        |   |   LICENSE.txt
+        |   |   
+        |   \---dist
+        |           jquery.js
+        |           jquery.min.js
+        |           jquery.min.map
+        |           jquery.slim.js
+        |           jquery.slim.min.js
+        |           jquery.slim.min.map
+        |           
+        +---jquery-validation
+        |   |   LICENSE.md
+        |   |   
+        |   \---dist
+        |           additional-methods.js
+        |           additional-methods.min.js
+        |           jquery.validate.js
+        |           jquery.validate.min.js
+        |           
+        \---jquery-validation-unobtrusive
+            |   LICENSE.txt
+            |   
+            \---dist
+                    jquery.validate.unobtrusive.js
+                    jquery.validate.unobtrusive.min.js
+                    

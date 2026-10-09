@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace MediGuard.Controllers
 {
-    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
@@ -30,6 +29,7 @@ namespace MediGuard.Controllers
 
         // GET: /Account/Register
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View(new RegisterViewModel());
@@ -37,6 +37,7 @@ namespace MediGuard.Controllers
 
         // POST: /Account/Register
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -83,6 +84,7 @@ namespace MediGuard.Controllers
 
         // GET: /Account/RegisterPharmacy
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult RegisterPharmacy()
         {
             return View(new RegisterPharmacyViewModel());
@@ -90,6 +92,7 @@ namespace MediGuard.Controllers
 
         // POST: /Account/RegisterPharmacy
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterPharmacy(RegisterPharmacyViewModel model)
         {
@@ -118,6 +121,7 @@ namespace MediGuard.Controllers
 
         // GET: /Account/Login
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -126,6 +130,7 @@ namespace MediGuard.Controllers
 
         // POST: /Account/Login
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
@@ -162,7 +167,7 @@ namespace MediGuard.Controllers
                 };
 
                 await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    IdentityConstants.ApplicationScheme,
                     principal,
                     authProperties);
 
@@ -205,6 +210,7 @@ namespace MediGuard.Controllers
 
         // GET: /Account/AccessDenied
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();
@@ -216,7 +222,6 @@ namespace MediGuard.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
