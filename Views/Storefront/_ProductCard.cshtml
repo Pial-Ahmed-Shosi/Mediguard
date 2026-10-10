@@ -1,0 +1,83 @@
+﻿@model MediGuard.Models.StorefrontProduct
+
+<article class="mg-product-card h-100">
+    <div class="mg-product-image">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl"
+                 alt="@Model.BrandName"
+                 loading="lazy" />
+        }
+        else
+        {
+            <div class="mg-image-placeholder"
+                 aria-label="No product image available">
+                <i class="bi bi-capsule" aria-hidden="true"></i>
+            </div>
+        }
+
+        @if (Model.StockQuantity > 0)
+        {
+            <span class="mg-stock-badge mg-in-stock">
+                In Stock
+            </span>
+        }
+        else
+        {
+            <span class="mg-stock-badge mg-out-stock">
+                Out of Stock
+            </span>
+        }
+    </div>
+
+    <div class="mg-product-body">
+        @if (!string.IsNullOrWhiteSpace(Model.Category?.Name))
+        {
+            <span class="mg-category-tag">
+                @Model.Category.Name
+            </span>
+        }
+
+        @if (Model.RequiresPrescription)
+        {
+            <span class="mg-rx-badge">
+                <i class="bi bi-prescription2" aria-hidden="true"></i>
+                Prescription Required
+            </span>
+        }
+
+        <h2 class="mg-product-name">@Model.BrandName</h2>
+
+        <p class="mg-generic-name">@Model.GenericName</p>
+
+        <div class="mg-product-price">
+            ৳ @Model.UnitPrice.ToString("N2")
+            <small>/ unit</small>
+        </div>
+
+        <div class="mg-product-stock">
+            @if (Model.StockQuantity > 0)
+            {
+                <span>@Model.StockQuantity units available</span>
+            }
+            else
+            {
+                <span>Currently unavailable</span>
+            }
+        </div>
+
+        <button type="button"
+                class="btn mg-add-to-cart"
+                data-product-id="@Model.Id"
+                data-brand-name="@Model.BrandName"
+                data-unit-price="@Model.UnitPrice.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture)"
+                data-stock="@Model.StockQuantity"
+                data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
+                disabled="@(Model.StockQuantity <= 0)"
+                aria-label="Add @Model.BrandName to cart">
+            <i class="bi bi-cart-plus" aria-hidden="true"></i>
+            @(Model.StockQuantity > 0 ? "Add to Cart" : "Out of Stock")
+        </button>
+    </div>
+</article>
