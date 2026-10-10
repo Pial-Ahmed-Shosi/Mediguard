@@ -1,0 +1,90 @@
+﻿
+@model IEnumerable<MediGuard.Models.ViewModels.AuditLogEntryViewModel>
+
+<table class="table audit-table align-middle mb-0">
+    <thead>
+        <tr>
+            <th scope="col">Timestamp</th>
+            <th scope="col">User / Role</th>
+            <th scope="col">Action</th>
+            <th scope="col">Entity / Module</th>
+            <th scope="col">IP Address</th>
+            <th scope="col" class="text-end">Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <div class="audit-empty-state">
+                        <div class="audit-empty-icon">⌕</div>
+                        <h3 class="h6 fw-semibold">No audit entries found</h3>
+                        <p class="text-muted small mb-0">
+                            No records are available for these filters.
+                            Try changing the date range or filters.
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var entry in Model)
+            {
+                var action = (entry.ActionType ?? "").ToUpperInvariant();
+
+                <tr>
+                    <td class="text-nowrap">
+                        <div class="fw-semibold">
+                            @entry.Timestamp.ToString("dd MMM yyyy")
+                        </div>
+                        <div class="small text-muted">
+                            @entry.Timestamp.ToString("HH:mm:ss")
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="fw-semibold">@entry.UserName</div>
+                        <div class="small text-muted">@entry.UserRole</div>
+                    </td>
+
+                    <td>
+                        <span class="audit-action-badge
+                            @(action == "INSERT" ? "audit-insert" :
+                              action == "UPDATE" ? "audit-update" :
+                              action == "DELETE" ? "audit-delete" :
+                              "audit-other")">
+                            @action
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="fw-medium">@entry.EntityName</span>
+                    </td>
+
+                    <td>
+                        <code class="audit-ip">@entry.IpAddress</code>
+                    </td>
+
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary js-view-audit-changes"
+                                data-bs-toggle="modal"
+                                data-bs-target="#auditChangesModal"
+                                data-audit-id="@entry.Id"
+                                data-user="@entry.UserName"
+                                data-action="@action"
+                                data-entity="@entry.EntityName"
+                                data-timestamp="@entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")"
+                                data-old="@entry.OldValuesJson"
+                                data-new="@entry.NewValuesJson">
+                            View Changes
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
