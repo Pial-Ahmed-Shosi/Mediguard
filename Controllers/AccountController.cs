@@ -155,7 +155,7 @@ namespace MediGuard.Controllers
             }
 
             // 1. Try AuthService custom authentication (for custom cookie scheme)
-            var (isSuccess, errorMessage, principal) = await _authService.AuthenticateUserAsync(model.Email, model.Password);
+            var (isSuccess, errorMessage, principal) = await _authService.AuthenticateUserAsync(model.Email!, model.Password);
 
             if (isSuccess && principal != null)
             {
@@ -181,7 +181,7 @@ namespace MediGuard.Controllers
 
             // 2. Fallback to ASP.NET Core Identity SignInManager
             var signInResult = await _signInManager.PasswordSignInAsync(
-                model.Email,
+                model.Email!,
                 model.Password,
                 model.RememberMe,
                 lockoutOnFailure: false);

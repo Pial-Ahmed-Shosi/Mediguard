@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MediGuard.Models.ViewModels
@@ -17,15 +17,15 @@ namespace MediGuard.Models.ViewModels
 
     public class ExpiredBatchItemViewModel
     {
-        public string BatchId { get; set; }
-        public string MedicineName { get; set; }
-        public string BatchNumber { get; set; }
+        public string BatchId { get; set; } = string.Empty;
+        public string MedicineName { get; set; } = string.Empty;
+        public string BatchNumber { get; set; } = string.Empty;
         public int AvailableQty { get; set; }
         public DateTime ExpiryDate { get; set; }
         public int DaysRemaining { get; set; }
 
         // EXPIRED, CRITICAL_30_DAYS, WARNING_60_DAYS
-        public string ExpiryStatus { get; set; }
+        public string ExpiryStatus { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }
     }
 }
