@@ -68,6 +68,12 @@ builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 // Medi+ B2B Order Processing Service (Ticket 41)
 builder.Services.AddScoped<IMediPlusB2BService, MediPlusB2BService>();
 
+// Payment Ledger & Intent Service (Ticket 45)
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// Payment Gateway Webhook Listener Service (Ticket 46)
+builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
+
 // --- Authentication & Security Configuration ---
 
 // Configure Cookie Authentication
@@ -94,6 +100,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 // Enable Authentication & Authorization
