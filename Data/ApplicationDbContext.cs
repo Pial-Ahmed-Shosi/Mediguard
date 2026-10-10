@@ -27,6 +27,7 @@ namespace MediGuard.Data
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<Delivery> Deliveries { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
+        public DbSet<Payment> Payments { get; set; } = null!;
 
         // --- Inventory Classification Tables (Ticket 19) ---
         public DbSet<Category> Categories { get; set; } = null!;
@@ -275,10 +276,11 @@ namespace MediGuard.Data
                       .HasDefaultValue("PENDING");
 
                 entity.Property(o => o.TotalAmount)
-                      .HasColumnType("decimal(10, 2)")
+                      .HasColumnType("numeric(10,2)")
                       .HasDefaultValue(0m);
 
                 entity.Property(o => o.CreatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
                       .HasDefaultValueSql("NOW()");
 
                 entity.HasIndex(o => new { o.PharmacyId, o.CreatedAt })
@@ -326,13 +328,14 @@ namespace MediGuard.Data
                       .IsRequired();
 
                 entity.Property(oi => oi.UnitPrice)
-                      .HasColumnType("decimal(10, 2)")
+                      .HasColumnType("numeric(10,2)")
                       .IsRequired();
 
                 entity.Property(oi => oi.LineTotal)
-                      .HasColumnType("decimal(10, 2)");
+                      .HasColumnType("numeric(10,2)");
 
                 entity.Property(oi => oi.CreatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
                       .HasDefaultValueSql("NOW()");
 
                 entity.HasIndex(oi => new { oi.OrderId, oi.MedicineId })
@@ -368,6 +371,7 @@ namespace MediGuard.Data
                       .HasDefaultValue("STANDARD");
 
                 entity.Property(d => d.CreatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
                       .HasDefaultValueSql("NOW()");
 
                 entity.HasIndex(d => new { d.OrderId, d.Status })
@@ -383,6 +387,46 @@ namespace MediGuard.Data
                       .WithMany()
                       .HasForeignKey(d => d.DeliverymanId)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // -------------------------------------------------------------
+            // Payment Ledger Configuration (Ticket 45)
+            // -------------------------------------------------------------
+            builder.Entity<Payment>(entity =>
+            {
+                entity.ToTable("payments");
+
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Id)
+                      .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(p => p.TransactionId)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(p => p.Amount)
+                      .HasColumnType("numeric(10,2)");
+
+                entity.Property(p => p.Status)
+                      .HasMaxLength(30)
+                      .HasDefaultValue("PENDING");
+
+                entity.Property(p => p.CreatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasOne(p => p.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(p => p.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Order)
+                      .WithMany()
+                      .HasForeignKey(p => p.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(p => new { p.PharmacyId, p.TransactionId }, "idx_payments_pharmacy_tx");
             });
 
             // -------------------------------------------------------------
