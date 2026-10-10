@@ -2,27 +2,105 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediGuard.Data;
 using MediGuard.Filters;
+using MediGuard.Models.ViewModels;
 using MediGuard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediGuard.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
     [Authorize]
-    [HasPermission("prescription.verify")]
-    public class PrescriptionController : ControllerBase
+    public class PrescriptionController : Controller
     {
         private readonly IPrescriptionService _prescriptionService;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly ApplicationDbContext _context;
 
-        public PrescriptionController(IPrescriptionService prescriptionService)
+        public PrescriptionController(
+            IPrescriptionService prescriptionService,
+            IFileStorageService fileStorageService,
+            ApplicationDbContext context)
         {
             _prescriptionService = prescriptionService;
+            _fileStorageService = fileStorageService;
+            _context = context;
         }
 
-        [HttpPost("Approve")]
+        private Guid GetCurrentPharmacyId()
+        {
+            var claim = User.FindFirst("PharmacyId") ?? User.FindFirst(ClaimTypes.GroupSid);
+            if (claim != null && Guid.TryParse(claim.Value, out var pharmacyId))
+            {
+                return pharmacyId;
+            }
+            return Guid.Empty;
+        }
+
+        // ==========================================
+        // Customer Prescription Upload Views (Ticket 33)
+        // ==========================================
+
+        [HttpGet]
+        public async Task<IActionResult> Upload(Guid orderId)
+        {
+            var pharmacyId = GetCurrentPharmacyId();
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId && o.PharmacyId == pharmacyId);
+
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            var viewModel = new PrescriptionUploadViewModel
+            {
+                OrderId = orderId,
+                OrderNumber = order.Id.ToString().Substring(0, 8).ToUpper()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Upload(PrescriptionUploadViewModel model)
+        {
+            var pharmacyId = GetCurrentPharmacyId();
+
+            if (!ModelState.IsValid || model.PrescriptionFile == null)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // UploadPrescriptionAsync returns the relative file path string (Ticket 38)
+                string filePath = await _fileStorageService.UploadPrescriptionAsync(model.PrescriptionFile, pharmacyId, model.OrderId);
+
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    ModelState.AddModelError("PrescriptionFile", "Failed to upload prescription. Please try again.");
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] = "Prescription uploaded successfully. A pharmacist will review your order.";
+                return RedirectToAction("Details", "Order", new { id = model.OrderId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("PrescriptionFile", ex.Message ?? "An error occurred while uploading your prescription.");
+                return View(model);
+            }
+        }
+
+        // ==========================================
+        // Pharmacist Verification API Endpoints (Ticket 39)
+        // ==========================================
+
+        [HttpPost("Prescription/Approve")]
+        [HasPermission("prescription.verify")]
         public async Task<IActionResult> Approve([FromBody] ApprovePrescriptionRequest request)
         {
             if (request == null || request.PrescriptionId == Guid.Empty)
@@ -47,7 +125,8 @@ namespace MediGuard.Controllers
             }
         }
 
-        [HttpPost("Reject")]
+        [HttpPost("Prescription/Reject")]
+        [HasPermission("prescription.verify")]
         public async Task<IActionResult> Reject([FromBody] RejectPrescriptionRequest request)
         {
             if (request == null || request.PrescriptionId == Guid.Empty)

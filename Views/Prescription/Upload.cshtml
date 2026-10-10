@@ -1,0 +1,381 @@
+@model MediGuard.Models.ViewModels.PrescriptionUploadViewModel
+
+@{
+    ViewData["Title"] = "Upload Prescription";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    .rx-page {
+        --g-900: #063a2c;
+        --g-800: #0a5340;
+        --g-700: #0b6b55;
+        --g-600: #12805d;
+        --g-500: #1a9a72;
+        --g-300: #8fd3b6;
+        --g-100: #e1f3ea;
+        --g-50:  #f1f9f5;
+        --ink:   #14291f;
+        --muted: #62776b;
+        --line:  #dcebe3;
+
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: var(--ink);
+        background:
+            radial-gradient(900px 340px at 50% -80px, rgba(26, 154, 114, .16), transparent 70%),
+            linear-gradient(180deg, #f3faf6 0%, #ffffff 420px);
+        padding: 2rem 0 3rem;
+    }
+
+    /* ---------- Card shell ---------- */
+    .rx-card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -34px rgba(6, 58, 44, .5), 0 4px 14px -8px rgba(6, 58, 44, .15);
+    }
+
+    /* ---------- Header ---------- */
+    .rx-header {
+        position: relative;
+        overflow: hidden;
+        padding: 1.6rem 1.75rem 1.5rem;
+        color: #fff;
+        background: linear-gradient(135deg, #062f23 0%, #0a5340 52%, #12805d 100%);
+    }
+    .rx-header::before,
+    .rx-header::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .rx-header::before { width: 210px; height: 210px; right: -60px; top: -90px; background: rgba(255, 255, 255, .07); }
+    .rx-header::after  { width: 140px; height: 140px; right: 70px; bottom: -80px; background: rgba(126, 224, 181, .14); }
+    .rx-header > * { position: relative; z-index: 1; }
+
+    .rx-head-row { display: flex; align-items: center; gap: .95rem; }
+    .rx-head-icon {
+        width: 52px; height: 52px; flex-shrink: 0;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, .14);
+        border: 1px solid rgba(255, 255, 255, .2);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.55rem;
+    }
+    .rx-head-title { font-size: 1.2rem; font-weight: 700; margin: 0 0 .15rem; letter-spacing: -.01em; }
+    .rx-head-sub { font-size: .8rem; margin: 0; color: rgba(255, 255, 255, .78); }
+
+    .rx-order {
+        display: inline-flex; align-items: center; gap: .5rem;
+        margin-top: 1.1rem;
+        background: rgba(255, 255, 255, .12);
+        border: 1px solid rgba(255, 255, 255, .2);
+        border-radius: 999px;
+        padding: .38rem .95rem;
+        font-size: .75rem; color: rgba(255, 255, 255, .85);
+    }
+    .rx-order strong { color: #fff; font-weight: 700; letter-spacing: .02em; }
+
+    /* ---------- Steps ---------- */
+    .rx-steps {
+        list-style: none; margin: 0; padding: 1rem 1.75rem;
+        display: flex; align-items: center; gap: .5rem;
+        background: var(--g-50);
+        border-bottom: 1px solid var(--line);
+    }
+    .rx-steps li {
+        display: inline-flex; align-items: center; gap: .5rem;
+        font-size: .72rem; font-weight: 600; color: #7a8f84;
+        white-space: nowrap;
+    }
+    .rx-steps li span {
+        width: 22px; height: 22px; border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: .65rem; font-weight: 700;
+        background: #fff; border: 1.5px solid #cfe0d6; color: #7a8f84;
+    }
+    .rx-steps li.active { color: var(--g-700); }
+    .rx-steps li.active span { background: var(--g-600); border-color: var(--g-600); color: #fff; box-shadow: 0 0 0 4px rgba(18, 128, 93, .15); }
+    .rx-steps .rx-line { flex: 1; height: 2px; background: #d6e6dd; border-radius: 2px; min-width: 14px; }
+
+    /* ---------- Body ---------- */
+    .rx-body { padding: 1.6rem 1.75rem 1.75rem; }
+
+    .rx-formats {
+        display: flex; flex-wrap: wrap; align-items: center; gap: .45rem;
+        background: var(--g-50);
+        border: 1px solid var(--line);
+        border-radius: .85rem;
+        padding: .75rem .9rem;
+        margin-bottom: 1.25rem;
+    }
+    .rx-formats .lead-in { font-size: .75rem; color: var(--muted); margin-right: .25rem; display: inline-flex; align-items: center; gap: .4rem; }
+    .rx-formats .lead-in i { color: var(--g-600); font-size: .95rem; }
+    .rx-chip {
+        display: inline-flex; align-items: center; gap: .3rem;
+        background: #fff; border: 1px solid var(--line); color: var(--g-800);
+        font-size: .68rem; font-weight: 700; letter-spacing: .03em;
+        padding: .25rem .65rem; border-radius: 999px;
+    }
+    .rx-chip i { color: var(--g-600); }
+    .rx-chip.size { background: var(--g-700); border-color: var(--g-700); color: #fff; }
+    .rx-chip.size i { color: #bff0d9; }
+
+    /* ---------- Drop zone ---------- */
+    .rx-drop {
+        position: relative;
+        text-align: center;
+        padding: 2.1rem 1.25rem 1.9rem;
+        margin-bottom: 1rem;
+        border: 2px dashed #9fd6bd;
+        border-radius: 1.1rem;
+        background:
+            radial-gradient(280px 120px at 50% 0, rgba(26, 154, 114, .1), transparent 75%),
+            #f7fcf9;
+        cursor: pointer;
+        transition: border-color .2s, background-color .2s, transform .2s, box-shadow .2s;
+    }
+    .rx-drop:hover {
+        border-color: var(--g-500);
+        background-color: #f0faf5;
+        box-shadow: 0 14px 30px -22px rgba(6, 58, 44, .6);
+        transform: translateY(-1px);
+    }
+    .rx-drop.drop-zone-active {
+        border-color: var(--g-600) !important;
+        background-color: var(--g-100) !important;
+        box-shadow: 0 0 0 .3rem rgba(18, 128, 93, .14) !important;
+    }
+    .rx-drop-icon {
+        position: relative;
+        width: 76px; height: 76px; margin: 0 auto .9rem;
+        border-radius: 50%;
+        background: linear-gradient(145deg, var(--g-100), #fff);
+        border: 1px solid #c6e6d6;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 10px 22px -12px rgba(18, 128, 93, .6);
+    }
+    .rx-drop-icon::after {
+        content: "";
+        position: absolute; inset: -9px;
+        border-radius: 50%;
+        border: 1px solid rgba(26, 154, 114, .28);
+        animation: rxPulse 2.6s ease-out infinite;
+    }
+    .rx-drop-icon i { font-size: 2rem; color: var(--g-600); line-height: 1; }
+    .rx-drop h6 { font-size: .98rem; font-weight: 700; margin: 0 0 .25rem; color: var(--ink); }
+    .rx-drop .rx-sub { font-size: .78rem; color: var(--muted); display: block; margin-bottom: 1rem; }
+    .rx-browse {
+        display: inline-flex; align-items: center; gap: .45rem;
+        background: #fff; color: var(--g-700);
+        border: 1.5px solid var(--g-600); border-radius: 999px;
+        padding: .45rem 1.15rem;
+        font-size: .78rem; font-weight: 600;
+        transition: background .2s, color .2s;
+    }
+    .rx-drop:hover .rx-browse,
+    .rx-drop.drop-zone-active .rx-browse { background: var(--g-600); color: #fff; }
+
+    @@keyframes rxPulse {
+        0%   { transform: scale(.92); opacity: .9; }
+        100% { transform: scale(1.18); opacity: 0; }
+    }
+
+    /* ---------- Preview ---------- */
+    .rx-preview {
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: #fff;
+        margin-bottom: 1rem;
+        box-shadow: 0 12px 28px -22px rgba(6, 58, 44, .55);
+    }
+    .rx-preview .card-body { padding: 1.1rem; }
+    .rx-preview .btn-close {
+        background-color: #fff;
+        border-radius: 50%;
+        padding: .45rem;
+        box-shadow: 0 2px 8px rgba(6, 58, 44, .2);
+        opacity: 1;
+        z-index: 2;
+    }
+    .rx-preview .btn-close:hover { background-color: #fde8e8; }
+    #image-preview { border-color: var(--line) !important; background: var(--g-50); }
+    .rx-pdf {
+        padding: 1.25rem;
+        background: var(--g-50);
+        border: 1px solid var(--line);
+        border-radius: .85rem;
+    }
+    .rx-pdf i { color: #d9534f; }
+    .rx-pdf #pdf-file-name { color: var(--ink); }
+
+    /* ---------- Alerts / validation ---------- */
+    #file-validation-error {
+        border: 1px solid #f3c6c6; background: #fff5f5; color: #a12626;
+        border-radius: .8rem; font-size: .78rem;
+    }
+
+    /* ---------- Notes ---------- */
+    .rx-notes label { font-size: .8rem; font-weight: 600; color: var(--g-800); margin-bottom: .4rem; }
+    .rx-notes textarea {
+        border: 1px solid var(--line);
+        border-radius: .85rem;
+        background: #fbfdfc;
+        font-size: .85rem;
+        padding: .75rem .95rem;
+        resize: vertical;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .rx-notes textarea::placeholder { color: #9bb0a5; }
+    .rx-notes textarea:focus { border-color: var(--g-500); background: #fff; box-shadow: 0 0 0 .22rem rgba(26, 154, 114, .18); }
+
+    /* ---------- Buttons ---------- */
+    .rx-submit {
+        border: 0; border-radius: .9rem;
+        padding: .85rem 1.25rem;
+        font-size: .95rem; font-weight: 700; color: #fff;
+        background: linear-gradient(90deg, var(--g-800), var(--g-500));
+        box-shadow: 0 16px 28px -16px rgba(18, 128, 93, .85);
+        transition: filter .2s, transform .2s, box-shadow .2s;
+    }
+    .rx-submit:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); color: #fff; }
+    .rx-submit:focus-visible { outline: 3px solid rgba(26, 154, 114, .4); outline-offset: 2px; }
+    .rx-submit:disabled {
+        background: #cfe3d8; color: #fff; box-shadow: none; cursor: not-allowed; opacity: 1;
+    }
+    .rx-cancel {
+        border: 1.5px solid var(--line); border-radius: .9rem;
+        background: #fff; color: var(--muted);
+        padding: .7rem 1rem; font-size: .85rem; font-weight: 600;
+        transition: all .2s;
+    }
+    .rx-cancel:hover { border-color: var(--g-600); color: var(--g-700); background: var(--g-50); }
+
+    .rx-assure {
+        display: flex; align-items: center; justify-content: center; gap: .5rem;
+        margin-top: 1.1rem; font-size: .72rem; color: var(--muted); text-align: center;
+    }
+    .rx-assure i { color: var(--g-600); font-size: .95rem; }
+
+    /* ---------- Responsive ---------- */
+    @@media (max-width: 575.98px) {
+        .rx-page { padding: 1rem 0 2rem; }
+        .rx-header { padding: 1.25rem; }
+        .rx-steps { padding: .9rem 1.1rem; overflow-x: auto; }
+        .rx-body { padding: 1.25rem 1.1rem 1.4rem; }
+        .rx-drop { padding: 1.6rem 1rem 1.5rem; }
+    }
+    @@media (prefers-reduced-motion: reduce) {
+        .rx-page * { transition: none !important; animation: none !important; }
+    }
+</style>
+
+<div class="rx-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7 col-xl-6">
+                <div class="rx-card">
+
+                    <!-- ================= HEADER ================= -->
+                    <div class="rx-header">
+                        <div class="rx-head-row">
+                            <span class="rx-head-icon"><i class="bi bi-file-earmark-medical"></i></span>
+                            <div>
+                                <h5 class="rx-head-title">Prescription Verification Required</h5>
+                                <p class="rx-head-sub">Upload your prescription so we can confirm your order.</p>
+                            </div>
+                        </div>
+                        <div class="rx-order">
+                            <i class="bi bi-receipt"></i>
+                            Order Reference <strong>#@(Model.OrderNumber ?? Model.OrderId.ToString().Substring(0, 8))</strong>
+                        </div>
+                    </div>
+
+                    <!-- ================= STEPS ================= -->
+                    <ol class="rx-steps" aria-label="Progress">
+                        <li class="active"><span>1</span> Upload</li>
+                        <li class="rx-line" aria-hidden="true"></li>
+                        <li><span>2</span> Pharmacist review</li>
+                        <li class="rx-line" aria-hidden="true"></li>
+                        <li><span>3</span> Order processed</li>
+                    </ol>
+
+                    <!-- ================= BODY ================= -->
+                    <div class="rx-body">
+
+                        <div class="rx-formats" role="note">
+                            <span class="lead-in"><i class="bi bi-info-circle-fill"></i> Accepted formats</span>
+                            <span class="rx-chip"><i class="bi bi-file-earmark-image"></i> JPG</span>
+                            <span class="rx-chip"><i class="bi bi-file-earmark-image"></i> PNG</span>
+                            <span class="rx-chip"><i class="bi bi-file-earmark-pdf"></i> PDF</span>
+                            <span class="rx-chip size"><i class="bi bi-hdd"></i> Max 5MB</span>
+                        </div>
+
+                        <form asp-controller="Prescription" asp-action="Upload" method="post" enctype="multipart/form-data" id="prescription-upload-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="OrderId" />
+
+                            <!-- Drag and Drop Zone -->
+                            <div id="drop-zone" class="rx-drop">
+                                <div class="rx-drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <h6>Drag and drop your prescription here</h6>
+                                <span class="rx-sub">or click to browse from device</span>
+                                <span class="rx-browse"><i class="bi bi-folder2-open"></i> Browse files</span>
+                                <input type="file" asp-for="PrescriptionFile" class="d-none" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" />
+                            </div>
+
+                            <!-- Live File Preview Container -->
+                            <div id="preview-container" class="card rx-preview d-none">
+                                <div class="card-body text-center position-relative">
+                                    <button type="button" id="remove-file-btn" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Remove file"></button>
+
+                                    <!-- Image Preview -->
+                                    <img id="image-preview" src="#" alt="Prescription Preview" class="img-fluid rounded border d-none" style="max-height: 250px; object-fit: contain;" />
+
+                                    <!-- PDF Preview -->
+                                    <div id="pdf-preview" class="rx-pdf d-none">
+                                        <i class="bi bi-file-earmark-pdf display-3"></i>
+                                        <p id="pdf-file-name" class="fw-bold mb-0 mt-2 text-truncate"></p>
+                                        <span id="pdf-file-size" class="text-muted small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Validation Error Display -->
+                            <div id="file-validation-error" class="alert alert-danger small d-none mb-3"></div>
+                            <span asp-validation-for="PrescriptionFile" class="text-danger small d-block mb-3"></span>
+
+                            <!-- Notes Field for Inspecting Pharmacist -->
+                            <div class="rx-notes mb-4">
+                                <label asp-for="Notes" class="form-label"></label>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Add any optional notes for the reviewing pharmacist..."></textarea>
+                                <span asp-validation-for="Notes" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" id="submit-upload-btn" class="btn rx-submit" disabled>
+                                    <i class="bi bi-upload me-2"></i>Submit Prescription
+                                </button>
+                                <a asp-controller="Home" asp-action="Index" class="btn rx-cancel">Cancel</a>
+                            </div>
+                        </form>
+
+                        <div class="rx-assure">
+                            <i class="bi bi-shield-check"></i>
+                            A pharmacist will review your prescription before your order is processed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/prescription-upload.js"></script>
+}
