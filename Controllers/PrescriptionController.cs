@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MediGuard.Data;
 using MediGuard.Filters;
+using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 using MediGuard.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -93,6 +95,57 @@ namespace MediGuard.Controllers
                 ModelState.AddModelError("PrescriptionFile", ex.Message ?? "An error occurred while uploading your prescription.");
                 return View(model);
             }
+        }
+
+        // ==========================================
+        // Pharmacist Prescription Review View (Ticket 34)
+        // ==========================================
+
+        [HttpGet]
+        [HasPermission("prescription.verify")]
+        public async Task<IActionResult> Review(Guid id)
+        {
+            var pharmacyId = GetCurrentPharmacyId();
+
+            var prescription = await _context.Prescriptions
+                .Include(p => p.Order)
+                    .ThenInclude(o => o!.Customer)
+                .Include(p => p.Order)
+                    .ThenInclude(o => o!.OrderItems)
+                        .ThenInclude(oi => oi.Medicine)
+                .FirstOrDefaultAsync(p => p.Id == id && p.PharmacyId == pharmacyId);
+
+            if (prescription == null || prescription.Order == null)
+            {
+                return NotFound("Prescription or linked order not found.");
+            }
+
+            var order = prescription.Order;
+
+            var model = new PrescriptionReviewViewModel
+            {
+                PrescriptionId = prescription.Id,
+                OrderId = prescription.OrderId ?? order.Id,
+                OrderNumber = order.Id.ToString().Substring(0, 8).ToUpper(),
+                FilePath = prescription.FilePath ?? string.Empty,
+                Status = prescription.Status ?? "PENDING",
+                RejectionReason = prescription.RejectionReason,
+                UploadedAt = prescription.CreatedAt,
+                CustomerName = order.Customer?.FullName ?? "Walk-in / Guest Customer",
+                CustomerEmail = order.Customer?.Email ?? "N/A",
+                CustomerPhone = order.Customer?.PhoneNumber ?? "N/A",
+                TotalAmount = order.TotalAmount,
+                Items = (order.OrderItems ?? Enumerable.Empty<OrderItem>()).Select(oi => new PrescriptionOrderItemViewModel
+                {
+                    BrandName = oi.Medicine?.BrandName ?? "Unknown Medicine",
+                    GenericName = oi.Medicine?.GenericName ?? string.Empty,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice,
+                    RequiresPrescription = oi.Medicine?.RequiresPrescription ?? false
+                }).ToList()
+            };
+
+            return View(model);
         }
 
         // ==========================================
