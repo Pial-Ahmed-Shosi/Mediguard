@@ -28,7 +28,13 @@ namespace MediGuard.Services
 
         public async Task<bool> ProcessWebhookEventAsync(string rawJson, string signatureHeader)
         {
-            var webhookSecret = _configuration["PaymentGateway:WebhookSecret"] ?? "whsec_default_secret_key";
+            var webhookSecret =_configuration["PaymentGateway:WebhookSecret"];
+
+            if (string.IsNullOrWhiteSpace(webhookSecret))
+            {
+                _logger.LogError("Payment webhook secret is not configured.");
+                return false;
+            }
 
             // 1. Verify Gateway Signature
             if (!VerifySignature(rawJson, signatureHeader, webhookSecret))
