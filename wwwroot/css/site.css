@@ -29,3 +29,171 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* MediGuard - Audit Log Viewer */
+
+.audit-page {
+    color: #1f2937;
+}
+
+.audit-stat-card {
+    height: 100%;
+    padding: 1.25rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.85rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+.audit-stat-label {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.audit-stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.audit-panel {
+    border-radius: 0.9rem;
+}
+
+.audit-table {
+    font-size: 0.9rem;
+}
+
+    .audit-table thead th {
+        padding: 0.9rem 0.75rem;
+        color: #64748b;
+        background: #f8fafc;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.035em;
+        white-space: nowrap;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .audit-table tbody td {
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .audit-table tbody tr:hover {
+        background: #fafcff;
+    }
+
+.audit-action-badge {
+    display: inline-block;
+    padding: 0.3rem 0.55rem;
+    border-radius: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+}
+
+.audit-insert {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.audit-update {
+    color: #854d0e;
+    background: #fef3c7;
+}
+
+.audit-delete {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.audit-other {
+    color: #475569;
+    background: #e2e8f0;
+}
+
+.audit-ip {
+    color: #475569;
+    white-space: nowrap;
+}
+
+.audit-empty-state {
+    max-width: 390px;
+    margin: 0 auto;
+}
+
+.audit-empty-icon {
+    margin-bottom: 0.75rem;
+    color: #94a3b8;
+    font-size: 2.5rem;
+}
+
+.json-panel {
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.65rem;
+    background: #0f172a;
+}
+
+.json-panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    color: #f8fafc;
+    background: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.json-code {
+    min-height: 220px;
+    max-height: 55vh;
+    margin: 0;
+    padding: 1rem;
+    overflow: auto;
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    tab-size: 2;
+    white-space: pre;
+}
+
+    .json-code code {
+        color: inherit;
+    }
+
+.json-key {
+    color: #93c5fd;
+}
+
+.json-string {
+    color: #86efac;
+}
+
+.json-number {
+    color: #fcd34d;
+}
+
+.json-literal {
+    color: #c4b5fd;
+}
+
+@media (max-width: 767.98px) {
+    .audit-page {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .audit-table {
+        min-width: 900px;
+    }
+
+    .json-code {
+        max-height: 40vh;
+    }
+}
