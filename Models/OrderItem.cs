@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MediGuard.Models
 {
+    [Table("order_items")]
     public class OrderItem
     {
         [Key]
@@ -16,25 +17,32 @@ namespace MediGuard.Models
         public Guid MedicineId { get; set; }
 
         [Required]
+        public Guid BatchId { get; set; }
+
+        [Required]
         public int Quantity { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         [Required]
+        [Column(TypeName = "numeric(10,2)")]
         public decimal UnitPrice { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
-        public decimal LineTotal { get; set; }
+        [Required]
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal TotalPrice { get; set; }
 
-        [MaxLength(100)]
-        public string? BatchNumber { get; set; }
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal LineTotal { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
         [ForeignKey("OrderId")]
-        public virtual Order Order { get; set; } = null!;
+        public virtual Order? Order { get; set; }
 
         [ForeignKey("MedicineId")]
-        public virtual Medicine Medicine { get; set; } = null!;
+        public virtual Medicine? Medicine { get; set; }
+
+        [ForeignKey("BatchId")]
+        public virtual Batch? Batch { get; set; }
     }
 }
