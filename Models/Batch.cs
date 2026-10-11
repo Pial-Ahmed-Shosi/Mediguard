@@ -14,17 +14,29 @@ namespace MediGuard.Models
         public Guid PharmacyId { get; set; }
 
         [Required]
+        public Guid MedicineId { get; set; }
+
+        [Required]
         [StringLength(100)]
         public string BatchNumber { get; set; } = string.Empty;
 
         public int Quantity { get; set; }
 
+        public int RemainingQuantity { get; set; }
+
+        public decimal PurchasePrice { get; set; }
+
+        public decimal SellingPrice { get; set; }
+
         public int LowStockThreshold { get; set; }
+
+        [Required]
+        public DateTime ManufacturingDate { get; set; }
 
         [Required]
         public DateTime ExpiryDate { get; set; }
 
-        // Ei Status property-ti Expiry Scanner-er CS1061 error fix korbe
+        // Ei Status property-ti Expiry Scanner-er CS1061 error ---- Thik hoye gese! Joy BANGLA!!!
         [Required]
         [StringLength(50)]
         public string Status { get; set; } = "ACTIVE"; // "ACTIVE", "EXPIRED", "FROZEN"
@@ -33,8 +45,11 @@ namespace MediGuard.Models
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Navigation Property
+        // Navigation Properties
         [ForeignKey("PharmacyId")]
         public virtual Pharmacy? Pharmacy { get; set; }
+
+        [ForeignKey("MedicineId")]
+        public virtual Medicine? Medicine { get; set; }
     }
 }

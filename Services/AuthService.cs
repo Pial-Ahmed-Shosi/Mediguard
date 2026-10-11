@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -111,7 +111,7 @@ namespace MediGuard.Services
                 new Claim("IsMediPlusActive", isMediPlusActive.ToString().ToLower())
             };
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
             return (true, null, new ClaimsPrincipal(identity));
         }
 

@@ -131,11 +131,26 @@ namespace MediGuard.Migrations
                     b.Property<int>("LowStockThreshold")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("ManufacturingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MedicineId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("PharmacyId")
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("PurchasePrice")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
+
+                    b.Property<int>("RemainingQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("SellingPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -147,7 +162,10 @@ namespace MediGuard.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PharmacyId");
+                    b.HasIndex("MedicineId");
+
+                    b.HasIndex("PharmacyId", "MedicineId", "Status", "ExpiryDate")
+                        .HasDatabaseName("idx_batches_fefo_lookup");
 
                     b.ToTable("batches");
                 });
@@ -179,6 +197,63 @@ namespace MediGuard.Migrations
                         .HasDatabaseName("idx_categories_pharmacy_id_name");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("MediGuard.Models.InventoryBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("BatchNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMPTZ")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("DATE");
+
+                    b.Property<Guid>("MedicineId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("MfgDate")
+                        .HasColumnType("DATE");
+
+                    b.Property<Guid>("PharmacyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PurchasePrice")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("SellingPrice")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("ACTIVE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicineId");
+
+                    b.HasIndex(new[] { "PharmacyId", "MedicineId", "Status", "ExpiryDate" }, "idx_batches_fefo");
+
+                    b.ToTable("inventory_batches", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_inventory_batches_quantity_non_negative", "\"Quantity\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("MediGuard.Models.Manufacturer", b =>
@@ -216,6 +291,76 @@ namespace MediGuard.Migrations
                         .HasDatabaseName("idx_manufacturers_pharmacy_id_name");
 
                     b.ToTable("Manufacturers");
+                });
+
+            modelBuilder.Entity("MediGuard.Models.Medicine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BrandName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TIMESTAMPTZ")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("GenericName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ManufacturerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PharmacyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("RequiresPrescription")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasDefaultValue("Tablet");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ManufacturerId");
+
+                    b.HasIndex("PharmacyId", "BrandName")
+                        .HasDatabaseName("idx_medicines_pharmacy_id_name");
+
+                    b.HasIndex(new[] { "PharmacyId", "Barcode" }, "idx_medicines_barcode");
+
+                    b.ToTable("medicines", (string)null);
                 });
 
             modelBuilder.Entity("MediGuard.Models.Notification", b =>
@@ -423,12 +568,21 @@ namespace MediGuard.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("PharmacyId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -678,11 +832,19 @@ namespace MediGuard.Migrations
 
             modelBuilder.Entity("MediGuard.Models.Batch", b =>
                 {
+                    b.HasOne("MediGuard.Models.Medicine", "Medicine")
+                        .WithMany("Batches")
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MediGuard.Models.Pharmacy", "Pharmacy")
                         .WithMany()
                         .HasForeignKey("PharmacyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Medicine");
 
                     b.Navigation("Pharmacy");
                 });
@@ -698,6 +860,25 @@ namespace MediGuard.Migrations
                     b.Navigation("Pharmacy");
                 });
 
+            modelBuilder.Entity("MediGuard.Models.InventoryBatch", b =>
+                {
+                    b.HasOne("MediGuard.Models.Medicine", "Medicine")
+                        .WithMany("InventoryBatches")
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MediGuard.Models.Pharmacy", "Pharmacy")
+                        .WithMany()
+                        .HasForeignKey("PharmacyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Medicine");
+
+                    b.Navigation("Pharmacy");
+                });
+
             modelBuilder.Entity("MediGuard.Models.Manufacturer", b =>
                 {
                     b.HasOne("MediGuard.Models.Pharmacy", "Pharmacy")
@@ -705,6 +886,31 @@ namespace MediGuard.Migrations
                         .HasForeignKey("PharmacyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Pharmacy");
+                });
+
+            modelBuilder.Entity("MediGuard.Models.Medicine", b =>
+                {
+                    b.HasOne("MediGuard.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MediGuard.Models.Manufacturer", "Manufacturer")
+                        .WithMany()
+                        .HasForeignKey("ManufacturerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MediGuard.Models.Pharmacy", "Pharmacy")
+                        .WithMany()
+                        .HasForeignKey("PharmacyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Manufacturer");
 
                     b.Navigation("Pharmacy");
                 });
@@ -827,6 +1033,13 @@ namespace MediGuard.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MediGuard.Models.Medicine", b =>
+                {
+                    b.Navigation("Batches");
+
+                    b.Navigation("InventoryBatches");
                 });
 
             modelBuilder.Entity("MediGuard.Models.Permission", b =>

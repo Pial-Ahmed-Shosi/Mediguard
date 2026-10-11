@@ -1,0 +1,708 @@
+﻿@{
+    ViewData["Title"] = "Medi+ B2B Wholesale Marketplace";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --b2b-primary: #7c3aed;
+        --b2b-primary-dark: #6d28d9;
+        --b2b-primary-darker: #4c1d95;
+        --b2b-primary-light: #ede9fe;
+        --b2b-primary-soft: #f5f3ff;
+        --b2b-accent: #c026d3;
+        --b2b-bg: #faf8ff;
+        --b2b-card: #ffffff;
+        --b2b-border: #e9e4f5;
+        --b2b-text: #1e1b2e;
+        --b2b-muted: #6b6784;
+        --b2b-shadow-sm: 0 1px 3px rgba(76, 29, 149, 0.06);
+        --b2b-shadow-md: 0 8px 24px rgba(76, 29, 149, 0.10);
+        --b2b-shadow-lg: 0 16px 40px rgba(124, 58, 237, 0.20);
+    }
+
+    body {
+        background: var(--b2b-bg);
+        background-image: radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.07), transparent 40%), radial-gradient(circle at 100% 20%, rgba(192, 38, 211, 0.05), transparent 35%);
+        background-attachment: fixed;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: var(--b2b-text);
+    }
+
+    /* Keeps any legacy "text-teal" markup (including JS-injected) on theme */
+    .text-teal {
+        color: var(--b2b-primary) !important;
+    }
+
+    .fs-7 {
+        font-size: 0.85rem;
+    }
+
+    .fs-8 {
+        font-size: 0.75rem;
+    }
+
+    /* ---------- Header ---------- */
+    .b2b-header {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 55%, #3b0764 100%);
+        color: #fff;
+        padding: 1.75rem 2.25rem;
+        border-radius: 20px;
+        margin-bottom: 1.75rem;
+        box-shadow: var(--b2b-shadow-lg);
+    }
+
+        .b2b-header::before,
+        .b2b-header::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .b2b-header::before {
+            width: 280px;
+            height: 280px;
+            top: -120px;
+            right: -60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 70%);
+        }
+
+        .b2b-header::after {
+            width: 220px;
+            height: 220px;
+            bottom: -110px;
+            left: 30%;
+            background: radial-gradient(circle, rgba(232, 121, 249, 0.35), transparent 70%);
+        }
+
+        .b2b-header > * {
+            position: relative;
+            z-index: 1;
+        }
+
+    .b2b-header-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(8px);
+        font-size: 1.6rem;
+    }
+
+    .b2b-header h3 {
+        letter-spacing: -0.02em;
+    }
+
+    .b2b-badge-active {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 0.82rem;
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        font-weight: 600;
+    }
+
+        .b2b-badge-active .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a7f3d0;
+            margin-right: 0.5rem;
+            box-shadow: 0 0 0 0 rgba(167, 243, 208, 0.7);
+            animation: b2bPulse 2s infinite;
+        }
+
+    @@keyframes b2bPulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(167, 243, 208, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 8px rgba(167, 243, 208, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(167, 243, 208, 0);
+        }
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.1rem;
+        flex-wrap: wrap;
+    }
+
+    .header-stat {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 12px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.9);
+    }
+
+        .header-stat i {
+            margin-right: 0.4rem;
+            color: #e9d5ff;
+        }
+
+    /* ---------- Filters ---------- */
+    .filter-card {
+        background: var(--b2b-card);
+        border: 1px solid var(--b2b-border);
+        border-radius: 16px;
+        padding: 1.25rem 1.25rem 1.35rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--b2b-shadow-sm);
+    }
+
+        .filter-card .form-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--b2b-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select,
+        .filter-card .input-group-text {
+            border-color: var(--b2b-border);
+            background-color: var(--b2b-primary-soft);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-card .input-group-text {
+            color: var(--b2b-primary);
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .filter-card .input-group .form-control {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .filter-card .form-control:focus,
+        .filter-card .form-select:focus {
+            background-color: #fff;
+            border-color: var(--b2b-primary);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+        }
+
+    /* ---------- Product grid ---------- */
+    .b2b-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .b2b-item-card {
+        background: var(--b2b-card);
+        border: 1px solid var(--b2b-border);
+        border-radius: 18px;
+        padding: 1.35rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: var(--b2b-shadow-sm);
+    }
+
+        .b2b-item-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--b2b-primary), var(--b2b-accent));
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .b2b-item-card:hover {
+            border-color: rgba(124, 58, 237, 0.45);
+            box-shadow: var(--b2b-shadow-md);
+            transform: translateY(-4px);
+        }
+
+            .b2b-item-card:hover::before {
+                opacity: 1;
+            }
+
+        .b2b-item-card h5,
+        .b2b-item-card h6 {
+            font-weight: 700;
+            color: var(--b2b-text);
+            letter-spacing: -0.01em;
+        }
+
+        .b2b-item-card .text-muted {
+            color: var(--b2b-muted) !important;
+        }
+
+        /* Buttons that the JS may inject inside cards, kept on-theme */
+        .b2b-item-card .btn-primary,
+        .b2b-item-card .btn-success,
+        .b2b-item-card .btn-add-b2b {
+            background: linear-gradient(135deg, var(--b2b-primary), var(--b2b-primary-dark));
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28);
+            transition: all 0.2s ease;
+        }
+
+            .b2b-item-card .btn-primary:hover,
+            .b2b-item-card .btn-success:hover,
+            .b2b-item-card .btn-add-b2b:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+                background: linear-gradient(135deg, var(--b2b-primary-dark), var(--b2b-primary-darker));
+            }
+
+        .b2b-item-card .btn-outline-primary,
+        .b2b-item-card .btn-outline-success {
+            color: var(--b2b-primary);
+            border-color: var(--b2b-primary);
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+            .b2b-item-card .btn-outline-primary:hover,
+            .b2b-item-card .btn-outline-success:hover {
+                background: var(--b2b-primary);
+                color: #fff;
+            }
+
+        .b2b-item-card .form-control {
+            border-color: var(--b2b-border);
+            border-radius: 10px;
+        }
+
+            .b2b-item-card .form-control:focus {
+                border-color: var(--b2b-primary);
+                box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+            }
+
+    .supplier-chip {
+        display: inline-flex;
+        align-items: center;
+        background: var(--b2b-primary-light);
+        color: var(--b2b-primary-darker);
+        border: 1px solid #ddd6fe;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.28rem 0.7rem;
+        border-radius: 999px;
+        margin-bottom: 0.75rem;
+    }
+
+    .tier-badge {
+        font-size: 0.74rem;
+        background: linear-gradient(135deg, #fae8ff, #ede9fe);
+        color: #86198f;
+        border: 1px solid #f0abfc;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-weight: 700;
+    }
+
+    .delivery-badge {
+        font-size: 0.74rem;
+        color: var(--b2b-muted);
+        background: #f3f0fa;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-weight: 500;
+    }
+
+    /* ---------- Cart panel ---------- */
+    .b2b-cart-panel {
+        background: var(--b2b-card);
+        border: 1px solid var(--b2b-border);
+        border-radius: 20px;
+        padding: 1.4rem;
+        position: sticky;
+        top: 1rem;
+        box-shadow: var(--b2b-shadow-md);
+        overflow: hidden;
+    }
+
+        .b2b-cart-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--b2b-primary), var(--b2b-accent));
+        }
+
+    .cart-title-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--b2b-primary-light);
+        color: var(--b2b-primary);
+        border-radius: 12px;
+        margin-right: 0.6rem;
+    }
+
+    #btnClearB2BCart {
+        border-radius: 10px;
+        border-color: #fecdd3;
+        color: #e11d48;
+        background: #fff1f2;
+    }
+
+        #btnClearB2BCart:hover {
+            background: #e11d48;
+            color: #fff;
+            border-color: #e11d48;
+        }
+
+    #supplierRequirementBox {
+        background: var(--b2b-primary-soft) !important;
+        border: 1px dashed #c4b5fd;
+        border-radius: 14px !important;
+    }
+
+    .min-order-progress {
+        height: 10px;
+        border-radius: 999px;
+        background-color: #ddd6fe;
+        overflow: hidden;
+    }
+
+    .min-order-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--b2b-primary), var(--b2b-accent));
+        transition: width 0.4s ease;
+    }
+
+    .b2b-cart-panel .table thead th {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--b2b-muted);
+        background: var(--b2b-primary-soft);
+        border-bottom: none;
+        font-weight: 700;
+    }
+
+        .b2b-cart-panel .table thead th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .b2b-cart-panel .table thead th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+    .b2b-cart-panel .table td {
+        vertical-align: middle;
+        border-bottom-color: #f1edf9;
+    }
+
+    #b2bEmptyCartMsg {
+        font-size: 0.88rem;
+    }
+
+        #b2bEmptyCartMsg i {
+            color: #c4b5fd;
+        }
+
+    .b2b-cart-panel .form-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--b2b-muted) !important;
+    }
+
+    .b2b-cart-panel .form-control {
+        border-color: var(--b2b-border);
+        background: var(--b2b-primary-soft);
+        border-radius: 10px;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+    }
+
+        .b2b-cart-panel .form-control:focus {
+            background: #fff;
+            border-color: var(--b2b-primary);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+        }
+
+    .order-total-box {
+        background: linear-gradient(135deg, #f5f3ff, #fae8ff);
+        border: 1px solid #ddd6fe;
+        border-radius: 14px;
+    }
+
+        .order-total-box #lblB2BTotalAmount {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--b2b-primary), var(--b2b-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .btn-b2b-submit {
+        background: linear-gradient(135deg, var(--b2b-primary), var(--b2b-primary-dark));
+        color: #fff;
+        font-weight: 700;
+        width: 100%;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: none;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+        transition: all 0.25s ease;
+    }
+
+        .btn-b2b-submit:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--b2b-primary-dark), var(--b2b-primary-darker));
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(124, 58, 237, 0.45);
+        }
+
+        .btn-b2b-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-b2b-submit:disabled {
+            background: #cfc9e0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+    /* ---------- Misc polish ---------- */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #c4b5fd;
+        border-radius: 8px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--b2b-primary);
+        }
+
+    .b2b-item-card {
+        animation: b2bFadeUp 0.4s ease both;
+    }
+
+    @@keyframes b2bFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .b2b-header {
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+
+        .b2b-cart-panel {
+            position: static;
+            margin-top: 1.25rem;
+        }
+    }
+</style>
+
+<div class="container-fluid pt-3">
+    <!-- Medi+ Header Banner -->
+    <div class="b2b-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="b2b-header-icon"><i class="bi bi-shop"></i></div>
+            <div>
+                <h3 class="fw-bold mb-1">Medi+ B2B Wholesale Marketplace</h3>
+                <p class="mb-0 text-white-50">Direct inter-pharmacy wholesale procurement network</p>
+                <div class="header-stats">
+                    <span class="header-stat"><i class="bi bi-percent"></i>Up to 20% bulk savings</span>
+                    <span class="header-stat"><i class="bi bi-truck"></i>Same-day delivery available</span>
+                    <span class="header-stat"><i class="bi bi-patch-check"></i>Verified suppliers</span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <span class="b2b-badge-active"><span class="pulse-dot"></span><i class="bi bi-shield-check me-1"></i>Medi+ Subscription Active</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT: Filters & Wholesale Product Grid -->
+        <div class="col-lg-8 col-md-7">
+
+            <!-- Filters Card -->
+            <div class="filter-card">
+                <div class="row g-3">
+                    <!-- Search Input -->
+                    <div class="col-md-4">
+                        <label class="form-label">Search Product / Generic</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="filterSearch" class="form-control" placeholder="Type medicine name...">
+                        </div>
+                    </div>
+
+                    <!-- Filter 1: Supplier Pharmacy -->
+                    <div class="col-md-3">
+                        <label class="form-label">Supplier Pharmacy</label>
+                        <select id="filterSupplier" class="form-select">
+                            <option value="">All Suppliers</option>
+                            <option value="Apex Pharma Ltd">Apex Pharma Ltd</option>
+                            <option value="Square Wholesale Hub">Square Wholesale Hub</option>
+                            <option value="Lazz Pharma B2B">Lazz Pharma B2B</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter 2: Bulk Discount Tier -->
+                    <div class="col-md-3">
+                        <label class="form-label">Bulk Tier</label>
+                        <select id="filterTier" class="form-select">
+                            <option value="">All Tiers</option>
+                            <option value="100">100+ units (5% off)</option>
+                            <option value="500">500+ units (12% off)</option>
+                            <option value="1000">1000+ units (20% off)</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter 3: Expected Delivery Time -->
+                    <div class="col-md-2">
+                        <label class="form-label">Delivery</label>
+                        <select id="filterDelivery" class="form-select">
+                            <option value="">Any Time</option>
+                            <option value="Same Day">Same Day</option>
+                            <option value="24 Hours">24 Hours</option>
+                            <option value="48 Hours">48 Hours</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wholesale Items Grid -->
+            <div class="b2b-grid" id="b2bProductGrid">
+                <!-- Injected dynamically by wwwroot/js/mediplus-b2b.js -->
+            </div>
+        </div>
+
+        <!-- RIGHT: B2B Wholesale Cart Panel -->
+        <div class="col-lg-4 col-md-5">
+            <div class="b2b-cart-panel">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <h5 class="fw-bold mb-0 d-flex align-items-center">
+                        <span class="cart-title-icon"><i class="bi bi-cart-check"></i></span>B2B Wholesale Basket
+                    </h5>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="btnClearB2BCart" title="Clear basket"><i class="bi bi-trash"></i></button>
+                </div>
+
+                <!-- Supplier Selection & Minimum Order Requirements -->
+                <div id="supplierRequirementBox" class="p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fs-7 fw-bold text-secondary">Active Supplier:</span>
+                        <span class="fs-7 fw-bold text-dark" id="lblActiveSupplier">None Selected</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 fs-7">
+                        <span class="text-muted">Min Order Req:</span>
+                        <span class="fw-bold text-teal" id="lblMinOrderReq">৳0.00</span>
+                    </div>
+                    <div class="min-order-progress mb-1">
+                        <div class="min-order-bar" id="minOrderProgressBar" style="width: 0%;"></div>
+                    </div>
+                    <small class="text-muted fs-8 d-block text-end" id="lblMinOrderProgressText">0% of min requirement met</small>
+                </div>
+
+                <!-- Basket Items Table -->
+                <div style="max-height: 280px; overflow-y: auto;" class="mb-3">
+                    <table class="table table-sm fs-7">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Unit (৳)</th>
+                                <th class="text-end">Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="b2bCartTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                    <div id="b2bEmptyCartMsg" class="text-center py-4 text-muted">
+                        <i class="bi bi-box-seam fs-2 d-block mb-1"></i>
+                        Select wholesale items from the catalog to build your B2B order.
+                    </div>
+                </div>
+
+                <!-- Order Inputs -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold mb-1">Delivery Address</label>
+                    <input type="text" id="inputShippingAddress" class="form-control form-control-sm" placeholder="Enter pharmacy receiving address..." />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold mb-1">Order Notes (Optional)</label>
+                    <textarea id="inputOrderNotes" class="form-control form-control-sm" rows="2" placeholder="Special delivery instructions..."></textarea>
+                </div>
+
+                <!-- Order Summary Footer -->
+                <div class="order-total-box p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center fw-bold fs-6">
+                        <span>Total Wholesale Amount:</span>
+                        <span id="lblB2BTotalAmount">৳0.00</span>
+                    </div>
+                </div>
+
+                <!-- Submit B2B Order Button -->
+                <button type="button" id="btnSubmitB2BOrder" class="btn-b2b-submit" disabled>
+                    <i class="bi bi-send-check me-2"></i>Submit Wholesale B2B Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/mediplus-b2b.js"></script>
+}

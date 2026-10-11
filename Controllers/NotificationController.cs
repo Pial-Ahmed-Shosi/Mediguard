@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MediGuard.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -84,7 +84,7 @@ namespace MediGuard.Controllers
     // AJAX theke asha JSON data dhore rakhar jonno DTO class
     public class DisposeBatchRequest
     {
-        public List<string> BatchIds { get; set; }
-        public string Reason { get; set; }
+        public List<string> BatchIds { get; set; } = new();
+        public string Reason { get; set; } = string.Empty;
     }
 }

@@ -13,7 +13,7 @@ namespace MediGuard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20260925174147_medi")]
-    partial class medi
+    partial class Medi
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

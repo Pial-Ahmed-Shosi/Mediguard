@@ -18,9 +18,15 @@ namespace MediGuard.Services
             _context = context;
         }
 
+        public async Task<IEnumerable<Manufacturer>> GetManufacturersByPharmacyAsync(Guid pharmacyId)
+        {
+            return await GetAllAsync(pharmacyId);
+        }
+
         public async Task<List<Manufacturer>> GetAllAsync(Guid pharmacyId)
         {
             return await _context.Manufacturers
+                .AsNoTracking()
                 .Where(m => m.PharmacyId == pharmacyId)
                 .OrderBy(m => m.Name)
                 .ToListAsync();

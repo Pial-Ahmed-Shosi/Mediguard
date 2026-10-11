@@ -1,4 +1,4 @@
-﻿@model MediGuard.Models.ViewModels.LoginViewModel
+@model MediGuard.Models.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login - MediGuard";
 }
@@ -53,7 +53,7 @@
         position: relative;
     }
 
-    /* ---------- Left panel (Blue theme) ---------- */
+    /* ---------- Left panel (Blue theme) -------- */
     .auth-label {
         background: linear-gradient(165deg, #0b2545 0%, #1e3a8a 55%, #14306b 100%);
         color: #f2f5f3;
@@ -429,7 +429,7 @@
             <form id="authForm" asp-action="Login" method="post">
                 @Html.AntiForgeryToken()
 
-                <input type="hidden" name="Role" id="Role" value="Pharmacy Manager" />
+
 
                 <div class="form-floating mb-3">
                     <input asp-for="Email" class="form-control" placeholder="name@example.com" required />

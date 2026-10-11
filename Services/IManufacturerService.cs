@@ -8,6 +8,7 @@ namespace MediGuard.Services
 {
     public interface IManufacturerService
     {
+        Task<IEnumerable<Manufacturer>> GetManufacturersByPharmacyAsync(Guid pharmacyId);
         Task<List<Manufacturer>> GetAllAsync(Guid pharmacyId);
         Task<Manufacturer?> GetByIdAsync(Guid pharmacyId, Guid id);
         Task<(bool Success, string Message, Manufacturer? Manufacturer)> CreateAsync(Guid pharmacyId, CreateManufacturerViewModel model);

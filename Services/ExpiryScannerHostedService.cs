@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediGuard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MediGuard.Data;
 
 namespace MediGuard.Services
 {
@@ -14,7 +14,7 @@ namespace MediGuard.Services
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<ExpiryScannerHostedService> _logger;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromHours(24); // Daily background task run hobe
+        private readonly TimeSpan _checkInterval = TimeSpan.FromHours(24);
 
         public ExpiryScannerHostedService(
             IServiceScopeFactory serviceScopeFactory,
@@ -28,7 +28,6 @@ namespace MediGuard.Services
         {
             _logger.LogInformation("Expiry Scanner Hosted Service start hocche...");
 
-            // Application startup-e run hobe ebong daily repeat hobe
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -40,7 +39,6 @@ namespace MediGuard.Services
                     _logger.LogError(ex, "Batch expiry scanner service execution-e error hoyeche.");
                 }
 
-                // 24 hours pause korbe next daily execution porjonto
                 await Task.Delay(_checkInterval, stoppingToken);
             }
         }
@@ -57,8 +55,9 @@ namespace MediGuard.Services
                 var today = DateTime.UtcNow.Date;
                 var sixtyDaysLater = today.AddDays(60);
 
-                // 1. dbContext.Batches bebohar kora hocche (Active ebong Expired batches filter)
-                var expiredBatches = await dbContext.Batches
+                // 1. Process Expired Batches from InventoryBatches (Ticket 20 Schema)
+                var expiredBatches = await dbContext.InventoryBatches
+                    .Include(b => b.Medicine)
                     .Where(b => b.Status == "ACTIVE" && b.ExpiryDate.Date <= today)
                     .ToListAsync(stoppingToken);
 
@@ -67,7 +66,7 @@ namespace MediGuard.Services
                     // Automatic status change to "EXPIRED"
                     batch.Status = "EXPIRED";
 
-                    string medicineName = "Batch Medicine";
+                    string medicineName = batch.Medicine?.BrandName ?? "Batch Medicine";
 
                     // CRITICAL level notification create/update
                     await notificationService.CreateOrUpdateExpiryNotificationAsync(
@@ -81,8 +80,9 @@ namespace MediGuard.Services
                     );
                 }
 
-                // 2. Near Expiry Batches (Next 60 days-er majhe expiry hone wala batches)
-                var nearExpiryBatches = await dbContext.Batches
+                // 2. Process Near-Expiry Batches (Next 60 days)
+                var nearExpiryBatches = await dbContext.InventoryBatches
+                    .Include(b => b.Medicine)
                     .Where(b => b.Status == "ACTIVE"
                         && b.ExpiryDate.Date > today
                         && b.ExpiryDate.Date <= sixtyDaysLater)
@@ -90,7 +90,7 @@ namespace MediGuard.Services
 
                 foreach (var batch in nearExpiryBatches)
                 {
-                    string medicineName = "Batch Medicine";
+                    string medicineName = batch.Medicine?.BrandName ?? "Batch Medicine";
 
                     // WARNING level notification create/update
                     await notificationService.CreateOrUpdateExpiryNotificationAsync(
@@ -104,7 +104,7 @@ namespace MediGuard.Services
                     );
                 }
 
-                // Database update commit
+                // Commit database changes
                 await dbContext.SaveChangesAsync(stoppingToken);
 
                 _logger.LogInformation("Expiry scan complete. Automatically Expired: {ExpiredCount}, Near Expiry Warnings: {WarningCount}",

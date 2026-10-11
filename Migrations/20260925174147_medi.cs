@@ -5,7 +5,7 @@
 namespace MediGuard.Migrations
 {
     /// <inheritdoc />
-    public partial class medi : Migration
+    public partial class Medi : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
