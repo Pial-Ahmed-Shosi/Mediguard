@@ -27,6 +27,8 @@ namespace MediGuard.Data
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<Delivery> Deliveries { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
+        // --- Public Storefront Catalog (Ticket 31) ---
+        public DbSet<StorefrontProduct> StorefrontProducts { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
 
         // --- Inventory Classification Tables (Ticket 19) ---
@@ -460,6 +462,27 @@ namespace MediGuard.Data
                 new Permission { Id = 6, Code = "delivery.update_status", Category = "Delivery" },
                 new Permission { Id = 7, Code = "b2b.mediplus.access", Category = "B2B" }
             );
+            // --- Ticket 31: Storefront Product Configuration ---
+            builder.Entity<StorefrontProduct>(entity =>
+            {
+                entity.ToTable("storefront_products");
+
+                entity.HasIndex(p => new { p.PharmacyId, p.IsActive });
+                entity.HasIndex(p => p.CategoryId);
+
+                entity.HasOne(p => p.Pharmacy)
+                    .WithMany()
+                    .HasForeignKey(p => p.PharmacyId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(p => p.Category)
+                    .WithMany()
+                    .HasForeignKey(p => p.CategoryId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.Property(p => p.UnitPrice)
+                    .HasPrecision(12, 2);
+            });
         }
     }
 }

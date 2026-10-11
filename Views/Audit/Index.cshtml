@@ -1,0 +1,230 @@
+﻿
+@model MediGuard.Models.ViewModels.AuditLogPageViewModel
+
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="audit-page container-fluid py-4">
+    <div class="audit-heading d-flex flex-wrap
+                justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Audit Logs</h1>
+            <p class="text-muted mb-0">
+                Review system activities and data changes
+                within your pharmacy.
+            </p>
+        </div>
+
+        <button type="button"
+                class="btn btn-outline-secondary"
+                id="resetAuditFilters">
+            Reset filters
+        </button>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="audit-stat-card">
+                <div class="audit-stat-label">Matching entries</div>
+                <div class="audit-stat-value" id="auditEntryCount">
+                    @Model.Entries.Count
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="audit-stat-card">
+                <div class="audit-stat-label">Action types</div>
+                <div class="audit-stat-value">3</div>
+                <div class="small text-muted">INSERT · UPDATE · DELETE</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="audit-stat-card">
+                <div class="audit-stat-label">Access scope</div>
+                <div class="audit-stat-value fs-5">
+                    Pharmacy tenant
+                </div>
+                <div class="small text-muted">
+                    Server-side authorization required
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="card border-0 shadow-sm audit-panel">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h5 mb-1">Activity history</h2>
+            <p class="text-muted small mb-0">
+                Filter and inspect recorded system changes.
+            </p>
+        </div>
+
+        <div class="card-body px-4">
+            <form method="get"
+                  asp-controller="Audit"
+                  asp-action="Index"
+                  id="auditFilterForm">
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label for="startDate"
+                               class="form-label fw-semibold">
+                            From date
+                        </label>
+                        <input type="date"
+                               id="startDate"
+                               name="startDate"
+                               class="form-control"
+                               value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label for="endDate"
+                               class="form-label fw-semibold">
+                            To date
+                        </label>
+                        <input type="date"
+                               id="endDate"
+                               name="endDate"
+                               class="form-control"
+                               value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label for="userId"
+                               class="form-label fw-semibold">
+                            User
+                        </label>
+                        <select id="userId"
+                                name="userId"
+                                class="form-select">
+                            <option value="">All users</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.UserId"
+                                        selected="@(Model.SelectedUserId == user.UserId)">
+                                    @user.DisplayName
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label for="actionType"
+                               class="form-label fw-semibold">
+                            Action type
+                        </label>
+                        <select id="actionType"
+                                name="actionType"
+                                class="form-select">
+                            <option value="">All actions</option>
+                            <option value="INSERT"
+                                selected="@(Model.SelectedAction == "INSERT")">
+                                INSERT
+                            </option>
+                            <option value="UPDATE"
+                                selected="@(Model.SelectedAction == "UPDATE")">
+                                UPDATE
+                            </option>
+                            <option value="DELETE"
+                                selected="@(Model.SelectedAction == "DELETE")">
+                                DELETE
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            Apply filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="px-4 pb-4">
+            <div id="auditError"
+                 class="alert alert-danger d-none"
+                 role="alert"></div>
+
+            <div class="table-responsive">
+                @await Html.PartialAsync(
+                    "_AuditLogTable",
+                    Model.Entries)
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade"
+     id="auditChangesModal"
+     tabindex="-1"
+     aria-labelledby="auditChangesModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title fs-5"
+                        id="auditChangesModalLabel">
+                        Change details
+                    </h2>
+                    <p class="text-muted small mb-0"
+                       id="auditChangeSubtitle">
+                        Compare recorded values before and after the action.
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <div class="json-panel">
+                            <div class="json-panel-heading">
+                                <span>Old Values</span>
+                                <span class="badge text-bg-secondary">
+                                    BEFORE
+                                </span>
+                            </div>
+                            <pre class="json-code"><code id="oldJsonContent"></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="json-panel">
+                            <div class="json-panel-heading">
+                                <span>New Values</span>
+                                <span class="badge text-bg-primary">
+                                    AFTER
+                                </span>
+                            </div>
+                            <pre class="json-code"><code id="newJsonContent"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/audit-logs.js"
+            asp-append-version="true"></script>
+}

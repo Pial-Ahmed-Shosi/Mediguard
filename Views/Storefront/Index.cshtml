@@ -1,0 +1,140 @@
+﻿@model MediGuard.Models.ViewModels.StorefrontViewModel
+
+@{
+    ViewData["Title"] = "Find Medicines";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/storefront.css" asp-append-version="true" />
+}
+
+<div class="mg-storefront">
+    <div class="container py-4 py-lg-5">
+
+        <div class="mg-page-heading">
+            <div>
+                <span class="mg-eyebrow">
+                    <i class="bi bi-shield-check"></i>
+                    MediGuard Pharmacy Marketplace
+                </span>
+                <h1>Find medicines &amp; healthcare items</h1>
+                <p>Compare available products and find the medicine you need.</p>
+            </div>
+
+            <div class="mg-result-count">
+                @Model.TotalProducts @(Model.TotalProducts == 1 ? "item" : "items") found
+            </div>
+        </div>
+
+        <form asp-controller="Storefront"
+              asp-action="Index"
+              method="get"
+              class="mg-search-panel">
+
+            <div class="mg-search-field">
+                <label for="search">Medicine / item name</label>
+                <input id="search"
+                       name="search"
+                       value="@Model.SearchTerm"
+                       class="form-control"
+                       placeholder="e.g. Clindamycin, NAPA..."
+                       maxlength="200" />
+            </div>
+
+            <div class="mg-search-field">
+                <label for="category">Category</label>
+                <select id="category"
+                        name="category"
+                        class="form-select">
+                    <option value="">All categories</option>
+                    @foreach (var item in Model.Categories)
+                    {
+                        <option value="@item"
+                                selected="@(Model.SelectedCategory == item)">
+                            @item
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn mg-search-button">
+                <i class="bi bi-search"></i>
+                Find Items
+            </button>
+
+            <a asp-controller="Storefront"
+               asp-action="Index"
+               class="mg-reset-link">
+                Reset
+            </a>
+        </form>
+
+        <div class="mg-catalog-layout">
+
+            <aside class="mg-category-sidebar">
+                <h2>Categories</h2>
+
+                <a asp-controller="Storefront"
+                   asp-action="Index"
+                   asp-route-search="@Model.SearchTerm"
+                   class="mg-category-link @(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")">
+                    <i class="bi bi-grid"></i>
+                    All items
+                </a>
+
+                @foreach (var item in Model.Categories)
+                {
+                    <a asp-controller="Storefront"
+                       asp-action="Index"
+                       asp-route-search="@Model.SearchTerm"
+                       asp-route-category="@item"
+                       class="mg-category-link @(Model.SelectedCategory == item ? "active" : "")">
+                        <i class="bi bi-capsule"></i>
+                        @item
+                    </a>
+                }
+            </aside>
+
+            <section class="mg-product-section"
+                     aria-label="Medicine products">
+
+                @if (!Model.Products.Any())
+                {
+                    <div class="mg-empty-state">
+                        <i class="bi bi-search"></i>
+                        <h2>No products found</h2>
+                        <p>
+                            No active products match your search.
+                            Try a different name or category.
+                        </p>
+                        <a asp-controller="Storefront"
+                           asp-action="Index"
+                           class="btn mg-search-button">
+                            Show all products
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="mg-product-grid">
+                        @foreach (var product in Model.Products)
+                        {
+                            <partial name="_ProductCard" model="product" />
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</div>
+
+<div id="mg-cart-notice"
+     class="mg-cart-notice"
+     role="status"
+     aria-live="polite"
+     hidden>
+</div>
+
+@section Scripts {
+    <script src="~/js/storefront.js" asp-append-version="true"></script>
+}
