@@ -129,9 +129,9 @@
                 confirmParams: {
                     // Implement this server route before enabling live payments.
                     return_url:
-                        window.location.origin +
-                        "/Payment/Result?orderId=" +
-                        encodeURIComponent(orderId)
+                         window.location.origin +
+                         "/Checkout/Confirmation?orderId=" +
+                          encodeURIComponent(orderId)
                 },
                 redirect: "if_required"
             });
@@ -146,7 +146,13 @@
                 setLoading(false, "Try payment again");
                 return;
             }
-
+            // Payment result is displayed only after the server-side
+// confirmation page checks the saved payment status.
+            window.location.assign(
+                "/Checkout/Confirmation?orderId=" +
+                 encodeURIComponent(orderId)
+             );
+                return;
             // Do not mark the order as paid from browser-side information.
             // The backend must verify the payment, preferably via webhook.
             showMessage(
