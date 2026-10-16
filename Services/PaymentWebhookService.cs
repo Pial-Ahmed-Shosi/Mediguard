@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -55,7 +55,7 @@ namespace MediGuard.Services
 
                 // 3. Locate Payment Ledger Record
                 var payment = await _context.Payments
-                    .FirstOrDefaultAsync(p => p.TransactionId == transactionId);
+                    .FirstOrDefaultAsync(p => p.GatewayTransactionId == transactionId);
 
                 if (payment == null)
                 {
@@ -66,10 +66,11 @@ namespace MediGuard.Services
                 var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == payment.OrderId);
 
                 // 4. Update Ledger and Order Status
+                payment.GatewayResponseJson = rawJson;
+
                 if (eventType == "payment_intent.succeeded")
                 {
                     payment.Status = "SUCCESS";
-                    payment.UpdatedAt = DateTime.UtcNow;
 
                     if (order != null)
                     {
@@ -82,7 +83,6 @@ namespace MediGuard.Services
                 else if (eventType == "payment_intent.payment_failed")
                 {
                     payment.Status = "FAILED";
-                    payment.UpdatedAt = DateTime.UtcNow;
 
                     if (order != null)
                     {

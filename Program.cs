@@ -1,4 +1,5 @@
 using MediGuard.Data;
+using MediGuard.Filters;
 using MediGuard.Middlewares;
 using MediGuard.Models;
 using MediGuard.Services;
@@ -9,8 +10,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MVC View Engine Services
-builder.Services.AddControllersWithViews();
+// Add MVC View Engine Services with Global Audit Logging Filter (Ticket 48)
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<AuditLoggingFilter>();
+});
 
 // Add Memory Cache Service (Required for UserDashboard ViewComponent)
 builder.Services.AddMemoryCache();
@@ -73,6 +77,10 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Payment Gateway Webhook Listener Service (Ticket 46)
 builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
+
+// Audit Logging Service & Filter (Ticket 48)
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<AuditLoggingFilter>();
 
 // --- Authentication & Security Configuration ---
 
