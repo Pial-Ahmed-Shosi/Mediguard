@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,12 +19,8 @@ namespace MediGuard.Models
         [StringLength(150)]
         public string? GatewayTransactionId { get; set; }
 
-        // Retained for backward/cross-module compatibility
-        [StringLength(150)]
-        public string? TransactionId { get; set; }
-
         [Required]
-        [Column(TypeName = "numeric(10,2)")]
+        [Column(TypeName = "decimal(10,2)")]
         public decimal Amount { get; set; }
 
         [Required]
@@ -33,18 +29,16 @@ namespace MediGuard.Models
 
         [Required]
         [StringLength(50)]
-        public string PaymentMethod { get; set; } = "CARD"; // CARD, WALLET, BANK
+        public string PaymentMethod { get; set; } = "CARD"; // Allowed values: 'CARD', 'WALLET', 'BANK'
 
         [Required]
         [StringLength(30)]
-        public string Status { get; set; } = "PENDING"; // PENDING, SUCCESS, FAILED
+        public string Status { get; set; } = "PENDING"; // Allowed values: 'PENDING', 'SUCCESS', 'FAILED'
 
         [Column(TypeName = "jsonb")]
         public string? GatewayResponseJson { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        public DateTime? UpdatedAt { get; set; }
 
         // Navigation Properties
         [ForeignKey(nameof(OrderId))]

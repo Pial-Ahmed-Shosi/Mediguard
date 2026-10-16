@@ -1,4 +1,4 @@
-﻿```csharp
+```csharp
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -79,9 +79,9 @@ namespace MediGuard.Controllers
                 IsPaymentFailed = isFailed,
 
                 TransactionReferenceId =
-                    string.IsNullOrWhiteSpace(payment?.TransactionId)
+                    string.IsNullOrWhiteSpace(payment?.GatewayTransactionId)
                         ? "Not available"
-                        : payment.TransactionId,
+                        : payment.GatewayTransactionId,
 
                 TotalPaidAmount =
                     isSuccessful && payment != null

@@ -1,4 +1,4 @@
-﻿using MediGuard.Models;
+using MediGuard.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -510,7 +510,11 @@ namespace MediGuard.Data
             // -------------------------------------------------------------
             builder.Entity<Payment>(entity =>
             {
-                entity.ToTable("payments");
+                entity.ToTable("payments", t =>
+                {
+                    t.HasCheckConstraint("CK_payments_payment_method", "\"PaymentMethod\" IN ('CARD', 'WALLET', 'BANK')");
+                    t.HasCheckConstraint("CK_payments_status", "\"Status\" IN ('PENDING', 'SUCCESS', 'FAILED')");
+                });
 
                 entity.HasKey(p => p.Id);
 
@@ -525,7 +529,7 @@ namespace MediGuard.Data
                       .HasDatabaseName("idx_payments_gateway_tx_unique");
 
                 entity.Property(p => p.Amount)
-                      .HasColumnType("numeric(10,2)")
+                      .HasColumnType("decimal(10,2)")
                       .IsRequired();
 
                 entity.Property(p => p.Currency)

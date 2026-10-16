@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -57,7 +57,7 @@ namespace MediGuard.Services
                     Id = Guid.NewGuid(),
                     PharmacyId = pharmacyId,
                     OrderId = order.Id,
-                    TransactionId = transactionId,
+                    GatewayTransactionId = transactionId,
                     Amount = order.TotalAmount,
                     Status = "PENDING",
                     CreatedAt = DateTime.UtcNow
