@@ -1,4 +1,3 @@
-```csharp
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -107,4 +106,3 @@ namespace MediGuard.Controllers
         }
     }
 }
-```
