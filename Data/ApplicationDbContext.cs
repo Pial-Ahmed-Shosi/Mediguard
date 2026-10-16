@@ -28,6 +28,7 @@ namespace MediGuard.Data
         public DbSet<Delivery> Deliveries { get; set; } = null!;
         public DbSet<Prescription> Prescriptions { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
         // --- Public Storefront Catalog (Ticket 31) ---
         public DbSet<StorefrontProduct> StorefrontProducts { get; set; } = null!;
@@ -598,6 +599,53 @@ namespace MediGuard.Data
             {
                 entity.HasIndex(n => new { n.PharmacyId, n.BatchId, n.UrgencyLevel, n.IsRead })
                       .HasDatabaseName("idx_notifications_expiry_lookup");
+            });
+
+            // -------------------------------------------------------------
+            // Audit Log Configuration (Ticket 48)
+            // -------------------------------------------------------------
+            builder.Entity<AuditLog>(entity =>
+            {
+                entity.ToTable("audit_logs");
+
+                entity.HasKey(a => a.Id);
+
+                entity.Property(a => a.Id)
+                      .HasDefaultValueSql("gen_random_uuid()");
+
+                entity.Property(a => a.Action)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(a => a.EntityName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(a => a.OldValuesJson)
+                      .HasColumnType("jsonb");
+
+                entity.Property(a => a.NewValuesJson)
+                      .HasColumnType("jsonb");
+
+                entity.Property(a => a.IpAddress)
+                      .HasMaxLength(45);
+
+                entity.Property(a => a.Timestamp)
+                      .HasColumnType("TIMESTAMPTZ")
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(a => new { a.PharmacyId, a.Timestamp })
+                      .HasDatabaseName("idx_audit_logs_pharmacy_timestamp");
+
+                entity.HasOne(a => a.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(a => a.PharmacyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.User)
+                      .WithMany()
+                      .HasForeignKey(a => a.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             // -------------------------------------------------------------
