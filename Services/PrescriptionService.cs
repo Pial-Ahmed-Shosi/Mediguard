@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediGuard.Data;
@@ -30,9 +30,9 @@ namespace MediGuard.Services
             prescription.VerifiedById = currentUserId;
 
             // 2. Update linked order to advance into delivery workflow
-            if (prescription.OrderId.HasValue)
+            if (prescription.OrderId != Guid.Empty)
             {
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == prescription.OrderId.Value);
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == prescription.OrderId);
                 if (order != null)
                 {
                     order.DeliveryStatus = "PENDING";
@@ -63,9 +63,9 @@ namespace MediGuard.Services
             prescription.RejectionReason = reason.Trim();
 
             // 2. Cancel linked order
-            if (prescription.OrderId.HasValue)
+            if (prescription.OrderId != Guid.Empty)
             {
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == prescription.OrderId.Value);
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == prescription.OrderId);
                 if (order != null)
                 {
                     order.Status = "CANCELLED";
