@@ -9,63 +9,80 @@ namespace MediGuard.Models
     public class Order
     {
         [Key]
+        [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public Guid PharmacyId { get; set; }
-
-        public string? UserId { get; set; }
-
-        [Required]
-        [StringLength(50)]
+        [MaxLength(50)]
+        [Column("order_number")]
         public string OrderNumber { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(30)]
-        public string OrderType { get; set; } = "POS"; // POS, B2C_ONLINE, B2B_MEDI_PLUS
+        [MaxLength(30)]
+        [Column("order_type")]
+        public string OrderType { get; set; } = "POS"; // POS, ONLINE, B2B
+
+        [Column("is_b2b_order")]
+        public bool IsB2BOrder { get; set; } = false;
 
         [Required]
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("pharmacy_id")]
+        public Guid PharmacyId { get; set; }
+
+        [Column("supplier_pharmacy_id")]
+        public Guid? SupplierPharmacyId { get; set; }
+
+        [Column("user_id")]
+        public string? UserId { get; set; }
+
+        [Column("customer_id")]
+        public string? CustomerId { get; set; }
+
+        [Column("deliveryman_id")]
+        public string? DeliverymanId { get; set; }
+
+        [Column("assigned_deliveryman_id")]
+        public string? AssignedDeliverymanId { get; set; }
+
+        [Required]
+        [MaxLength(30)]
+        [Column("delivery_status")]
+        public string DeliveryStatus { get; set; } = "NOT_REQUIRED"; // NOT_REQUIRED, PENDING, IN_TRANSIT, DELIVERED, CANCELLED
+
+        [Column("subtotal")]
         public decimal Subtotal { get; set; }
 
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("tax")]
         public decimal Tax { get; set; } = 0.00m;
 
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("discount")]
         public decimal Discount { get; set; } = 0.00m;
 
-        [Required]
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("total_amount")]
         public decimal TotalAmount { get; set; }
 
         [Required]
-        [StringLength(30)]
-        public string PaymentStatus { get; set; } = "UNPAID"; // PAID, UNPAID, REFUNDED
+        [MaxLength(30)]
+        [Column("payment_status")]
+        public string PaymentStatus { get; set; } = "UNPAID"; // UNPAID, PAID, REFUNDED
 
         [Required]
-        [StringLength(30)]
+        [MaxLength(30)]
+        [Column("payment_method")]
         public string PaymentMethod { get; set; } = "CASH"; // CASH, CARD, ONLINE
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Optional status fields retained for cross-module compatibility
-        [StringLength(50)]
-        public string Status { get; set; } = "PENDING";
-
-        [StringLength(50)]
-        public string? OrderStatus { get; set; } = "PENDING";
-
-        [StringLength(50)]
-        public string? DeliveryStatus { get; set; }
-
-        public string? CustomerId { get; set; }
-        public string? DeliverymanId { get; set; }
-        public Guid? SupplierPharmacyId { get; set; }
-        public DateTime? UpdatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
         [ForeignKey("PharmacyId")]
         public virtual Pharmacy? Pharmacy { get; set; }
+
+        [ForeignKey("SupplierPharmacyId")]
+        public virtual Pharmacy? SupplierPharmacy { get; set; }
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
@@ -76,8 +93,8 @@ namespace MediGuard.Models
         [ForeignKey("DeliverymanId")]
         public virtual ApplicationUser? Deliveryman { get; set; }
 
-        [ForeignKey("SupplierPharmacyId")]
-        public virtual Pharmacy? SupplierPharmacy { get; set; }
+        [ForeignKey("AssignedDeliverymanId")]
+        public virtual ApplicationUser? AssignedDeliveryman { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
