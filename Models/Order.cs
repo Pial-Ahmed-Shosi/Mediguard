@@ -1,49 +1,74 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MediGuard.Models
 {
+    [Table("orders")]
     public class Order
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        [Required]
         public Guid PharmacyId { get; set; }
 
-        public string? CustomerId { get; set; } // ApplicationUser Id (Customer placing order)
-
-        public string? DeliverymanId { get; set; }
+        public string? UserId { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Status { get; set; } = "PENDING"; // PENDING, CANCELLED, COMPLETED
+        public string OrderNumber { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        public string? DeliveryStatus { get; set; } // PENDING, ASSIGNED, IN_TRANSIT, DELIVERED
+        [Required]
+        [StringLength(30)]
+        public string OrderType { get; set; } = "POS"; // POS, B2C_ONLINE, B2B_MEDI_PLUS
 
-        [StringLength(50)]
-        public string OrderStatus { get; set; } = "PENDING"; // PENDING, PROCESSING, READY, COMPLETED, CANCELLED
+        [Required]
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal Subtotal { get; set; }
 
-        public bool IsB2BOrder { get; set; } = false; // TRUE for B2B orders, FALSE for B2C
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal Tax { get; set; } = 0.00m;
 
-        public Guid? SupplierPharmacyId { get; set; } // For B2B orders: Supplier pharmacy ID
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal Discount { get; set; } = 0.00m;
 
-        [MaxLength(500)]
-        public string? ShippingAddress { get; set; }
+        [Required]
+        [Column(TypeName = "numeric(10,2)")]
+        public decimal TotalAmount { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
-        public decimal TotalAmount { get; set; } = 0m;
+        [Required]
+        [StringLength(30)]
+        public string PaymentStatus { get; set; } = "UNPAID"; // PAID, UNPAID, REFUNDED
 
-        [MaxLength(500)]
-        public string? Notes { get; set; }
+        [Required]
+        [StringLength(30)]
+        public string PaymentMethod { get; set; } = "CASH"; // CASH, CARD, ONLINE
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Optional status fields retained for cross-module compatibility
+        [StringLength(50)]
+        public string Status { get; set; } = "PENDING";
+
+        [StringLength(50)]
+        public string? OrderStatus { get; set; } = "PENDING";
+
+        [StringLength(50)]
+        public string? DeliveryStatus { get; set; }
+
+        public string? CustomerId { get; set; }
+        public string? DeliverymanId { get; set; }
+        public Guid? SupplierPharmacyId { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation Properties
+        [ForeignKey("PharmacyId")]
         public virtual Pharmacy? Pharmacy { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual ApplicationUser? User { get; set; }
 
         [ForeignKey("CustomerId")]
         public virtual ApplicationUser? Customer { get; set; }
@@ -54,7 +79,6 @@ namespace MediGuard.Models
         [ForeignKey("SupplierPharmacyId")]
         public virtual Pharmacy? SupplierPharmacy { get; set; }
 
-        // Collection of order items (line items)
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

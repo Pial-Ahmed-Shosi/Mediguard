@@ -1,0 +1,365 @@
+﻿
+@model MediGuard.Models.ViewModels.OrderConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+
+    var statusClass = Model.IsPaymentSuccessful
+        ? "confirmation-success"
+        : Model.IsPaymentFailed
+            ? "confirmation-failure"
+            : "confirmation-pending";
+
+    var statusTitle = Model.IsPaymentSuccessful
+        ? "Payment Successful!"
+        : Model.IsPaymentFailed
+            ? "Payment Failed"
+            : "Payment Pending";
+
+    var statusMessage = !string.IsNullOrWhiteSpace(
+        Model.PaymentStatusMessage)
+        ? Model.PaymentStatusMessage
+        : Model.IsPaymentSuccessful
+            ? "Your payment has been confirmed."
+            : Model.IsPaymentFailed
+                ? "Your payment was not successful."
+                : "Your payment is awaiting confirmation.";
+
+    var displayPaymentStatus = Model.IsPaymentSuccessful
+        ? "Paid"
+        : Model.IsPaymentFailed
+            ? "Failed"
+            : "Pending";
+
+    var displayAmount = Model.IsPaymentSuccessful
+        ? Model.TotalPaidAmount
+        : Model.OrderTotalAmount;
+}
+
+<div class="container py-5">
+    <div class="confirmation-wrapper mx-auto">
+
+        <section class="confirmation-card">
+
+            <!-- Payment Status Banner -->
+            <div class="confirmation-banner @statusClass"
+                 role="status"
+                 aria-live="polite">
+
+                <div class="confirmation-icon"
+                     aria-hidden="true">
+                    @(Model.IsPaymentSuccessful
+                        ? "✓"
+                        : Model.IsPaymentFailed
+                            ? "!"
+                            : "…")
+                </div>
+
+                <h1>@statusTitle</h1>
+
+                <p>@statusMessage</p>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="confirmation-body">
+
+                <h2>Order Summary</h2>
+
+                <div class="confirmation-detail">
+                    <span>Order Number</span>
+                    <strong>@Model.OrderNumber</strong>
+                </div>
+
+                <div class="confirmation-detail">
+                    <span>Transaction Reference</span>
+
+                    <strong class="reference-value">
+                        @(string.IsNullOrWhiteSpace(
+                            Model.TransactionReferenceId)
+                            ? "Not available"
+                            : Model.TransactionReferenceId)
+                    </strong>
+                </div>
+
+                <div class="confirmation-detail">
+                    <span>Payment Status</span>
+
+                    <strong class="@(Model.IsPaymentSuccessful
+                                                ? "status-success"
+                                                : Model.IsPaymentFailed
+                                                    ? "status-failure"
+                                                    : "status-pending")">
+                        @displayPaymentStatus
+                    </strong>
+                </div>
+
+                <div class="confirmation-detail">
+                    <span>Payment Method</span>
+
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(
+                            Model.PaymentMethod)
+                            ? "Not available"
+                            : Model.PaymentMethod)
+                    </strong>
+                </div>
+
+                <div class="confirmation-detail">
+                    <span>
+                        @(Model.IsPaymentSuccessful
+                            ? "Total Paid"
+                            : "Order Total")
+                    </span>
+
+                    <strong>
+                        @displayAmount.ToString("N2")
+                    </strong>
+                </div>
+
+                <!-- Estimated Delivery -->
+                <div class="delivery-badge">
+                    <span aria-hidden="true">&#128666;</span>
+
+                    <span>
+                        Estimated Delivery:
+
+                        <strong>
+                            @Model.EstimatedDeliveryTimeframe
+                        </strong>
+                    </span>
+                </div>
+
+                <!-- Payment Guidance -->
+                @if (Model.IsPaymentFailed)
+                {
+                    <p class="payment-help">
+                        If money was deducted from your account,
+                        please verify the transaction status with
+                        your payment provider before attempting
+                        another payment.
+                    </p>
+                }
+                else if (!Model.IsPaymentSuccessful)
+                {
+                    <p class="payment-pending-help">
+                        Your payment is awaiting confirmation.
+                        Please wait for the final status before
+                        attempting another payment.
+                    </p>
+                }
+
+                <!-- Action Buttons -->
+                <div class="confirmation-actions">
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="window.print()">
+                        Print Order Confirmation
+                    </button>
+
+                    <a asp-controller="Storefront"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Return to Storefront
+                    </a>
+
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<style>
+    .confirmation-wrapper {
+        max-width: 760px;
+    }
+
+    .confirmation-card {
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid #dee2e6;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+    }
+
+    /* Payment Status Banners */
+    .confirmation-banner {
+        padding: 30px 24px;
+        text-align: center;
+    }
+
+    .confirmation-success {
+        background: #e8f7ed;
+        color: #176b36;
+    }
+
+    .confirmation-failure {
+        background: #fdecec;
+        color: #a51d27;
+    }
+
+    .confirmation-pending {
+        background: #fff4d6;
+        color: #805600;
+    }
+
+    .confirmation-banner h1 {
+        font-size: 27px;
+        margin-bottom: 8px;
+    }
+
+    .confirmation-banner p {
+        margin: 0;
+    }
+
+    /* Status Icon */
+    .confirmation-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    /* Order Summary */
+    .confirmation-body {
+        padding: 28px;
+    }
+
+        .confirmation-body h2 {
+            font-size: 21px;
+            margin-bottom: 22px;
+        }
+
+    .confirmation-detail {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .confirmation-detail > span {
+            color: #626b75;
+        }
+
+        .confirmation-detail > strong {
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+    .reference-value {
+        max-width: 60%;
+    }
+
+    /* Payment Status Text */
+    .status-success {
+        color: #16803d;
+    }
+
+    .status-failure {
+        color: #b42318;
+    }
+
+    .status-pending {
+        color: #805600;
+    }
+
+    /* Estimated Delivery */
+    .delivery-badge {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 22px;
+        padding: 14px;
+        background: #edf4ff;
+        color: #244d86;
+        border-radius: 10px;
+    }
+
+    /* Payment Guidance */
+    .payment-help {
+        margin-top: 18px;
+        color: #8a3030;
+        font-size: 14px;
+    }
+
+    .payment-pending-help {
+        margin-top: 18px;
+        color: #805600;
+        font-size: 14px;
+    }
+
+    /* Action Buttons */
+    .confirmation-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    /* Responsive Design */
+
+    @@media (max-width: 576px) {
+        .confirmation-body {
+            padding: 20px;
+        }
+
+        .confirmation-banner h1 {
+            font-size: 23px;
+        }
+
+        .confirmation-detail {
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .confirmation-detail > strong {
+                text-align: left;
+            }
+
+        .reference-value {
+            max-width: 100%;
+        }
+
+        .confirmation-actions .btn {
+            width: 100%;
+        }
+    }
+
+    /* Print Design */
+    @@media print {
+        body {
+            background: #fff !important;
+        }
+
+        .confirmation-wrapper {
+            max-width: 100%;
+        }
+
+        .confirmation-card {
+            border: 0;
+            box-shadow: none;
+        }
+
+        .confirmation-actions,
+        .payment-help,
+        .payment-pending-help {
+            display: none !important;
+        }
+
+        .confirmation-banner {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+</style>
