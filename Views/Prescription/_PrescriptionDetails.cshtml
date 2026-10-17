@@ -1,0 +1,308 @@
+@model MediGuard.Models.ViewModels.PrescriptionReviewViewModel
+
+@{
+    var initial = string.IsNullOrWhiteSpace(Model.CustomerName) ? "?" : Model.CustomerName.Trim().Substring(0, 1).ToUpper();
+    var orderTotal = Model.OrderItems.Sum(i => i.TotalPrice);
+    var isPending = Model.Status == "PENDING";
+    var statusClass = Model.OrderStatus == "PROCESSING" ? "rx-status-success"
+                    : Model.OrderStatus == "CANCELLED" ? "rx-status-danger"
+                    : "rx-status-pending";
+}
+
+<style>
+    .rx-card {
+        --rx-green-900: #0b3d2e;
+        --rx-green-700: #146c43;
+        --rx-green-600: #198754;
+        --rx-green-100: #d9f2e4;
+        --rx-green-50: #f1faf5;
+        --rx-border: #dcebe3;
+        --rx-text: #1c2b24;
+        --rx-muted: #66786f;
+
+        border: 1px solid var(--rx-border);
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 8px 28px rgba(11, 61, 46, 0.08);
+        overflow: hidden;
+        color: var(--rx-text);
+    }
+
+    /* Header */
+    .rx-header {
+        background: linear-gradient(135deg, var(--rx-green-900), var(--rx-green-700));
+        color: #fff;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .rx-header-icon {
+        width: 46px; height: 46px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+    }
+    .rx-header h5 { margin: 0; font-weight: 700; letter-spacing: .2px; }
+    .rx-header small { color: rgba(255, 255, 255, 0.75); }
+
+    .rx-status {
+        padding: .45rem 1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: .85rem;
+        letter-spacing: .3px;
+        border: 1px solid transparent;
+    }
+    .rx-status-success { background: var(--rx-green-100); color: var(--rx-green-900); }
+    .rx-status-danger  { background: #fde2e1; color: #842029; }
+    .rx-status-pending { background: #fff3cd; color: #664d03; }
+
+    /* Body */
+    .rx-body { padding: 1.5rem; }
+
+    .rx-section-title {
+        display: flex; align-items: center; gap: .5rem;
+        font-size: .95rem; font-weight: 700;
+        color: var(--rx-green-900);
+        margin-bottom: .75rem;
+    }
+    .rx-section-title i { color: var(--rx-green-600); }
+
+    /* Customer */
+    .rx-customer {
+        background: var(--rx-green-50);
+        border: 1px solid var(--rx-border);
+        border-left: 4px solid var(--rx-green-600);
+        border-radius: .85rem;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .rx-avatar {
+        width: 52px; height: 52px; flex-shrink: 0;
+        border-radius: 50%;
+        background: var(--rx-green-600);
+        color: #fff;
+        font-weight: 700; font-size: 1.25rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 0 4px var(--rx-green-100);
+    }
+    .rx-label { display: block; font-size: .78rem; color: var(--rx-muted); margin-bottom: .1rem; }
+    .rx-value { font-weight: 600; color: var(--rx-text); word-break: break-word; }
+
+    /* Notes */
+    .rx-notes {
+        background: #fffbea;
+        border: 1px solid #f3e3a1;
+        border-radius: .85rem;
+        padding: .85rem 1.1rem;
+        margin-bottom: 1.5rem;
+        display: flex; gap: .75rem;
+    }
+    .rx-notes i { color: #a67c00; font-size: 1.1rem; margin-top: .1rem; }
+    .rx-notes strong { display: block; font-size: .85rem; color: #664d03; }
+    .rx-notes span { font-size: .9rem; color: #4d3b05; }
+
+    /* Table */
+    .rx-table-wrap {
+        border: 1px solid var(--rx-border);
+        border-radius: .85rem;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .rx-table { margin: 0; }
+    .rx-table thead th {
+        background: var(--rx-green-50);
+        color: var(--rx-green-900);
+        font-size: .8rem; font-weight: 700;
+        border-bottom: 1px solid var(--rx-border);
+        padding: .8rem 1rem;
+        white-space: nowrap;
+    }
+    .rx-table tbody td { padding: .9rem 1rem; border-color: #eef5f1; }
+    .rx-table tbody tr:hover { background: var(--rx-green-50); }
+    .rx-table tfoot td {
+        background: var(--rx-green-900);
+        color: #fff;
+        padding: .9rem 1rem;
+        border: 0;
+    }
+    .rx-med-name { display: block; font-weight: 700; color: var(--rx-text); }
+    .rx-med-generic { font-size: .8rem; color: var(--rx-muted); }
+    .rx-dosage {
+        display: inline-block;
+        background: var(--rx-green-100);
+        color: var(--rx-green-900);
+        border-radius: 6px;
+        padding: .15rem .55rem;
+        font-size: .8rem; font-weight: 600;
+    }
+    .rx-rx-tag {
+        display: inline-flex; align-items: center; gap: .2rem;
+        background: #fde2e1; color: #842029;
+        border-radius: 6px;
+        padding: .1rem .45rem;
+        font-size: .68rem; font-weight: 700;
+        margin-left: .4rem;
+        vertical-align: middle;
+    }
+
+    /* Decision panel */
+    .rx-panel {
+        background: var(--rx-green-50);
+        border: 1px solid var(--rx-border);
+        border-radius: .85rem;
+        padding: 1.25rem;
+    }
+    .rx-btn {
+        padding: .8rem 1rem;
+        font-weight: 700;
+        border-radius: .7rem;
+        border: 0;
+        transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+    .rx-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .rx-btn:focus-visible { outline: 3px solid rgba(25, 135, 84, .4); outline-offset: 2px; }
+    .rx-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .rx-btn-approve { background: var(--rx-green-600); color: #fff; box-shadow: 0 4px 12px rgba(25, 135, 84, .3); }
+    .rx-btn-approve:hover:not(:disabled) { background: var(--rx-green-700); color: #fff; }
+    .rx-btn-reject { background: #fff; color: #b02a37; border: 1.5px solid #e6a5ab; }
+    .rx-btn-reject:hover:not(:disabled) { background: #fde2e1; color: #842029; }
+
+    .rx-hint { color: var(--rx-muted); font-size: .82rem; text-align: center; margin-top: .85rem; }
+    .rx-hint .rx-pill {
+        background: var(--rx-green-100); color: var(--rx-green-900);
+        padding: .1rem .55rem; border-radius: 999px; font-weight: 700; font-size: .75rem;
+    }
+</style>
+
+<div class="rx-card mb-4">
+    <!-- Header -->
+    <div class="rx-header">
+        <div class="d-flex align-items-center gap-3">
+            <span class="rx-header-icon"><i class="bi bi-receipt"></i></span>
+            <div>
+                <h5>Order #@Model.OrderNumber</h5>
+                <small>Prescription review</small>
+            </div>
+        </div>
+        <span id="order-status-badge" class="rx-status @statusClass">
+            @Model.OrderStatus
+        </span>
+    </div>
+
+    <div class="rx-body">
+        <!-- Customer Profile Summary -->
+        <div class="rx-customer">
+            <div class="rx-section-title"><i class="bi bi-person-vcard"></i>Customer profile</div>
+            <div class="d-flex align-items-start gap-3">
+                <span class="rx-avatar">@initial</span>
+                <div class="row g-3 flex-grow-1">
+                    <div class="col-sm-6">
+                        <span class="rx-label">Full name</span>
+                        <span class="rx-value">@Model.CustomerName</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="rx-label">Phone number</span>
+                        <span class="rx-value"><i class="bi bi-telephone me-1 text-success"></i>@(string.IsNullOrEmpty(Model.CustomerPhone) ? "N/A" : Model.CustomerPhone)</span>
+                    </div>
+                    <div class="col-12">
+                        <span class="rx-label">Email address</span>
+                        <span class="rx-value"><i class="bi bi-envelope me-1 text-success"></i>@Model.CustomerEmail</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Submitted Notes -->
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerNotes))
+        {
+            <div class="rx-notes">
+                <i class="bi bi-chat-left-text"></i>
+                <div>
+                    <strong>Customer notes</strong>
+                    <span>@Model.CustomerNotes</span>
+                </div>
+            </div>
+        }
+
+        <!-- Order Line Items Table -->
+        <div class="rx-section-title"><i class="bi bi-capsule"></i>Prescription line items</div>
+        <div class="rx-table-wrap table-responsive">
+            <table class="table rx-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Dosage</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <span class="rx-med-name">
+                                    @item.MedicineName
+                                    @if (item.IsRxRequired)
+                                    {
+                                        <span class="rx-rx-tag"><i class="bi bi-prescription2"></i>Rx required</span>
+                                    }
+                                </span>
+                                <span class="rx-med-generic">@item.GenericName</span>
+                            </td>
+                            <td><span class="rx-dosage">@item.DosageForm</span></td>
+                            <td class="text-center fw-bold">@item.Quantity</td>
+                            <td class="text-end small text-secondary">$@item.UnitPrice.ToString("F2")</td>
+                            <td class="text-end fw-bold">$@item.TotalPrice.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end fw-semibold">Order total</td>
+                        <td class="text-end fw-bold fs-6">$@orderTotal.ToString("F2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Verification Action Control Panel -->
+        <div class="rx-panel" id="action-panel">
+            <div class="rx-section-title"><i class="bi bi-shield-check"></i>Pharmacist decision</div>
+
+            <div id="status-message-alert" class="alert d-none mb-3"></div>
+
+            <div class="d-flex gap-2 flex-wrap" id="verification-buttons">
+                <!-- Green Approval Button -->
+                <button type="button"
+                        id="btn-approve-prescription"
+                        class="btn rx-btn rx-btn-approve flex-fill"
+                        data-prescription-id="@Model.PrescriptionId"
+                        @(!isPending ? "disabled" : "")>
+                    <i class="bi bi-check-circle-fill me-2"></i>Approve prescription
+                </button>
+
+                <!-- Rejection Button -->
+                <button type="button"
+                        id="btn-reject-prescription"
+                        class="btn rx-btn rx-btn-reject flex-fill"
+                        data-prescription-id="@Model.PrescriptionId"
+                        data-bs-toggle="modal"
+                        data-bs-target="#rejectionModal"
+                        @(!isPending ? "disabled" : "")>
+                    <i class="bi bi-x-circle me-2"></i>Reject prescription
+                </button>
+            </div>
+
+            <div class="rx-hint">
+                <i class="bi bi-lock me-1"></i>Approving moves the order to <span class="rx-pill">PROCESSING</span>
+            </div>
+        </div>
+    </div>
+</div>
