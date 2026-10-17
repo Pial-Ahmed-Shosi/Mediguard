@@ -2,363 +2,306 @@
 
 @{
     var initial = string.IsNullOrWhiteSpace(Model.CustomerName) ? "?" : Model.CustomerName.Trim().Substring(0, 1).ToUpper();
-    var rxCount = Model.Items.Count(i => i.RequiresPrescription);
+    var orderTotal = Model.OrderItems.Sum(i => i.TotalPrice);
+    var isPending = Model.Status == "PENDING";
+    var statusClass = Model.OrderStatus == "PROCESSING" ? "rx-status-success"
+                    : Model.OrderStatus == "CANCELLED" ? "rx-status-danger"
+                    : "rx-status-pending";
 }
 
 <style>
-    .mg-review {
-        --mg-900: #064e3b;
-        --mg-800: #065f46;
-        --mg-700: #047857;
-        --mg-600: #059669;
-        --mg-500: #10b981;
-        --mg-100: #d1fae5;
-        --mg-50:  #ecfdf5;
-        --mg-ink: #1f2937;
-        --mg-muted: #6b7280;
-        --mg-line: #e3efe9;
-        color: var(--mg-ink);
-    }
+    .rx-card {
+        --rx-green-900: #0b3d2e;
+        --rx-green-700: #146c43;
+        --rx-green-600: #198754;
+        --rx-green-100: #d9f2e4;
+        --rx-green-50: #f1faf5;
+        --rx-border: #dcebe3;
+        --rx-text: #1c2b24;
+        --rx-muted: #66786f;
 
-    /* Cards */
-    .mg-review .mg-card {
+        border: 1px solid var(--rx-border);
+        border-radius: 1rem;
         background: #fff;
-        border: 1px solid var(--mg-line);
-        border-radius: 14px;
-        box-shadow: 0 1px 2px rgba(6, 78, 59, .05), 0 8px 24px rgba(6, 78, 59, .06);
+        box-shadow: 0 8px 28px rgba(11, 61, 46, 0.08);
         overflow: hidden;
-        margin-bottom: 1.25rem;
-    }
-    .mg-review .mg-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: .75rem;
-        padding: 1rem 1.25rem;
-        background: var(--mg-50);
-        border-bottom: 1px solid var(--mg-line);
-    }
-    .mg-review .mg-card-title {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--mg-900);
-        display: flex;
-        align-items: center;
-        gap: .6rem;
-    }
-    .mg-review .mg-icon-chip {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        background: var(--mg-600);
-        color: #fff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: .95rem;
+        color: var(--rx-text);
     }
 
-    /* Order badge */
-    .mg-review .mg-order-badge {
-        background: var(--mg-900);
+    /* Header */
+    .rx-header {
+        background: linear-gradient(135deg, var(--rx-green-900), var(--rx-green-700));
         color: #fff;
-        font-weight: 600;
-        font-size: .8rem;
-        padding: .4rem .75rem;
-        border-radius: 999px;
-        letter-spacing: .01em;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
+    .rx-header-icon {
+        width: 46px; height: 46px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+    }
+    .rx-header h5 { margin: 0; font-weight: 700; letter-spacing: .2px; }
+    .rx-header small { color: rgba(255, 255, 255, 0.75); }
+
+    .rx-status {
+        padding: .45rem 1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: .85rem;
+        letter-spacing: .3px;
+        border: 1px solid transparent;
+    }
+    .rx-status-success { background: var(--rx-green-100); color: var(--rx-green-900); }
+    .rx-status-danger  { background: #fde2e1; color: #842029; }
+    .rx-status-pending { background: #fff3cd; color: #664d03; }
+
+    /* Body */
+    .rx-body { padding: 1.5rem; }
+
+    .rx-section-title {
+        display: flex; align-items: center; gap: .5rem;
+        font-size: .95rem; font-weight: 700;
+        color: var(--rx-green-900);
+        margin-bottom: .75rem;
+    }
+    .rx-section-title i { color: var(--rx-green-600); }
 
     /* Customer */
-    .mg-review .mg-avatar {
-        width: 56px;
-        height: 56px;
+    .rx-customer {
+        background: var(--rx-green-50);
+        border: 1px solid var(--rx-border);
+        border-left: 4px solid var(--rx-green-600);
+        border-radius: .85rem;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .rx-avatar {
+        width: 52px; height: 52px; flex-shrink: 0;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--mg-500), var(--mg-800));
+        background: var(--rx-green-600);
         color: #fff;
-        font-size: 1.4rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        font-weight: 700; font-size: 1.25rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 0 4px var(--rx-green-100);
     }
-    .mg-review .mg-contact {
-        display: flex;
-        align-items: center;
-        gap: .6rem;
-        font-size: .9rem;
-        color: var(--mg-muted);
-        margin-top: .35rem;
+    .rx-label { display: block; font-size: .78rem; color: var(--rx-muted); margin-bottom: .1rem; }
+    .rx-value { font-weight: 600; color: var(--rx-text); word-break: break-word; }
+
+    /* Notes */
+    .rx-notes {
+        background: #fffbea;
+        border: 1px solid #f3e3a1;
+        border-radius: .85rem;
+        padding: .85rem 1.1rem;
+        margin-bottom: 1.5rem;
+        display: flex; gap: .75rem;
     }
-    .mg-review .mg-contact i { color: var(--mg-600); }
-    .mg-review .mg-contact span { color: var(--mg-ink); word-break: break-word; }
+    .rx-notes i { color: #a67c00; font-size: 1.1rem; margin-top: .1rem; }
+    .rx-notes strong { display: block; font-size: .85rem; color: #664d03; }
+    .rx-notes span { font-size: .9rem; color: #4d3b05; }
 
     /* Table */
-    .mg-review .mg-table { margin: 0; }
-    .mg-review .mg-table thead th {
-        background: #fff;
-        color: var(--mg-muted);
-        font-size: .78rem;
-        font-weight: 600;
-        border-bottom: 2px solid var(--mg-100);
-        padding: .8rem 1.25rem;
+    .rx-table-wrap {
+        border: 1px solid var(--rx-border);
+        border-radius: .85rem;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .rx-table { margin: 0; }
+    .rx-table thead th {
+        background: var(--rx-green-50);
+        color: var(--rx-green-900);
+        font-size: .8rem; font-weight: 700;
+        border-bottom: 1px solid var(--rx-border);
+        padding: .8rem 1rem;
         white-space: nowrap;
     }
-    .mg-review .mg-table tbody td {
-        padding: .95rem 1.25rem;
-        border-color: var(--mg-line);
+    .rx-table tbody td { padding: .9rem 1rem; border-color: #eef5f1; }
+    .rx-table tbody tr:hover { background: var(--rx-green-50); }
+    .rx-table tfoot td {
+        background: var(--rx-green-900);
+        color: #fff;
+        padding: .9rem 1rem;
+        border: 0;
     }
-    .mg-review .mg-table tbody tr:hover { background: var(--mg-50); }
-    .mg-review .mg-item-name { font-weight: 700; color: var(--mg-900); }
-    .mg-review .mg-item-generic { font-size: .8rem; color: var(--mg-muted); }
-    .mg-review .mg-qty {
+    .rx-med-name { display: block; font-weight: 700; color: var(--rx-text); }
+    .rx-med-generic { font-size: .8rem; color: var(--rx-muted); }
+    .rx-dosage {
         display: inline-block;
-        min-width: 2rem;
-        padding: .15rem .55rem;
-        border-radius: 999px;
-        background: var(--mg-100);
-        color: var(--mg-800);
-        font-weight: 700;
-        font-size: .8rem;
-    }
-    .mg-review .mg-rx-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: .25rem;
-        margin-top: .35rem;
-        padding: .15rem .55rem;
+        background: var(--rx-green-100);
+        color: var(--rx-green-900);
         border-radius: 6px;
-        background: #fef3c7;
-        color: #92400e;
-        font-size: .72rem;
-        font-weight: 600;
+        padding: .15rem .55rem;
+        font-size: .8rem; font-weight: 600;
     }
-    .mg-review .mg-total-row {
-        background: var(--mg-900);
-        color: #fff;
+    .rx-rx-tag {
+        display: inline-flex; align-items: center; gap: .2rem;
+        background: #fde2e1; color: #842029;
+        border-radius: 6px;
+        padding: .1rem .45rem;
+        font-size: .68rem; font-weight: 700;
+        margin-left: .4rem;
+        vertical-align: middle;
     }
-    .mg-review .mg-total-row td {
-        padding: 1rem 1.25rem;
-        border: 0;
-    }
-    .mg-review .mg-total-amount { font-size: 1.25rem; font-weight: 800; color: #6ee7b7; }
 
-    /* Decision box */
-    .mg-review .mg-decision-note {
-        display: flex;
-        gap: .6rem;
-        align-items: flex-start;
-        padding: .75rem 1rem;
-        border-radius: 10px;
-        background: var(--mg-50);
-        border: 1px solid var(--mg-100);
-        color: var(--mg-800);
-        font-size: .85rem;
-        margin-bottom: 1rem;
+    /* Decision panel */
+    .rx-panel {
+        background: var(--rx-green-50);
+        border: 1px solid var(--rx-border);
+        border-radius: .85rem;
+        padding: 1.25rem;
     }
-    .mg-review .btn-mg-approve {
-        background: linear-gradient(135deg, var(--mg-600), var(--mg-700));
-        border: 0;
-        color: #fff;
+    .rx-btn {
+        padding: .8rem 1rem;
         font-weight: 700;
-        padding: .85rem 1.25rem;
-        border-radius: 10px;
-        box-shadow: 0 6px 16px rgba(5, 150, 105, .3);
-        transition: transform .15s ease, box-shadow .15s ease;
-    }
-    .mg-review .btn-mg-approve:hover,
-    .mg-review .btn-mg-approve:focus-visible {
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 10px 22px rgba(5, 150, 105, .38);
-    }
-    .mg-review .btn-mg-reject {
-        background: #fff;
-        border: 2px solid #dc2626;
-        color: #b91c1c;
-        font-weight: 700;
-        padding: .85rem 1.25rem;
-        border-radius: 10px;
-        transition: background .15s ease, color .15s ease;
-    }
-    .mg-review .btn-mg-reject:hover,
-    .mg-review .btn-mg-reject:focus-visible {
-        background: #dc2626;
-        color: #fff;
-    }
-
-    /* Modal (lives outside .mg-review, so scoped by id) */
-    #rejectionModal .modal-content {
+        border-radius: .7rem;
         border: 0;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 24px 60px rgba(6, 78, 59, .25);
+        transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
     }
-    #rejectionModal .modal-header {
-        background: linear-gradient(135deg, #991b1b, #dc2626);
-        color: #fff;
-        padding: 1rem 1.25rem;
-    }
-    #rejectionModal .preset-reason-btn {
-        border-radius: 999px;
-        border: 1px solid #a7f3d0;
-        background: #ecfdf5;
-        color: #065f46;
-        font-weight: 600;
-        padding: .3rem .8rem;
-    }
-    #rejectionModal .preset-reason-btn:hover,
-    #rejectionModal .preset-reason-btn.active {
-        background: #059669;
-        border-color: #059669;
-        color: #fff;
-    }
-    #rejectionModal .form-control:focus {
-        border-color: #10b981;
-        box-shadow: 0 0 0 .2rem rgba(16, 185, 129, .2);
-    }
-    #rejectionModal .modal-footer { background: #f8fdfb; border-top: 1px solid #e3efe9; }
+    .rx-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .rx-btn:focus-visible { outline: 3px solid rgba(25, 135, 84, .4); outline-offset: 2px; }
+    .rx-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .rx-btn-approve { background: var(--rx-green-600); color: #fff; box-shadow: 0 4px 12px rgba(25, 135, 84, .3); }
+    .rx-btn-approve:hover:not(:disabled) { background: var(--rx-green-700); color: #fff; }
+    .rx-btn-reject { background: #fff; color: #b02a37; border: 1.5px solid #e6a5ab; }
+    .rx-btn-reject:hover:not(:disabled) { background: #fde2e1; color: #842029; }
 
-    @@media (max-width: 575.98px) {
-        .mg-review .mg-table thead th,
-        .mg-review .mg-table tbody td,
-        .mg-review .mg-total-row td { padding-left: .85rem; padding-right: .85rem; }
+    .rx-hint { color: var(--rx-muted); font-size: .82rem; text-align: center; margin-top: .85rem; }
+    .rx-hint .rx-pill {
+        background: var(--rx-green-100); color: var(--rx-green-900);
+        padding: .1rem .55rem; border-radius: 999px; font-weight: 700; font-size: .75rem;
     }
 </style>
 
-<div class="mg-review">
-
-    <!-- Customer Profile -->
-    <div class="mg-card">
-        <div class="mg-card-header">
-            <h6 class="mg-card-title">
-                <span class="mg-icon-chip"><i class="bi bi-person-lines-fill"></i></span>
-                Customer Profile
-            </h6>
-            <span class="mg-order-badge">Order #@Model.OrderNumber</span>
+<div class="rx-card mb-4">
+    <!-- Header -->
+    <div class="rx-header">
+        <div class="d-flex align-items-center gap-3">
+            <span class="rx-header-icon"><i class="bi bi-receipt"></i></span>
+            <div>
+                <h5>Order #@Model.OrderNumber</h5>
+                <small>Prescription review</small>
+            </div>
         </div>
-        <div class="p-3 p-md-4">
-            <div class="d-flex align-items-center gap-3">
-                <div class="mg-avatar" aria-hidden="true">@initial</div>
-                <div class="flex-grow-1">
-                    <div class="fw-bold fs-5" style="color: var(--mg-900);">@Model.CustomerName</div>
-                    <div class="mg-contact"><i class="bi bi-envelope-fill"></i><span>@Model.CustomerEmail</span></div>
-                    <div class="mg-contact"><i class="bi bi-telephone-fill"></i><span>@(string.IsNullOrEmpty(Model.CustomerPhone) ? "N/A" : Model.CustomerPhone)</span></div>
+        <span id="order-status-badge" class="rx-status @statusClass">
+            @Model.OrderStatus
+        </span>
+    </div>
+
+    <div class="rx-body">
+        <!-- Customer Profile Summary -->
+        <div class="rx-customer">
+            <div class="rx-section-title"><i class="bi bi-person-vcard"></i>Customer profile</div>
+            <div class="d-flex align-items-start gap-3">
+                <span class="rx-avatar">@initial</span>
+                <div class="row g-3 flex-grow-1">
+                    <div class="col-sm-6">
+                        <span class="rx-label">Full name</span>
+                        <span class="rx-value">@Model.CustomerName</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="rx-label">Phone number</span>
+                        <span class="rx-value"><i class="bi bi-telephone me-1 text-success"></i>@(string.IsNullOrEmpty(Model.CustomerPhone) ? "N/A" : Model.CustomerPhone)</span>
+                    </div>
+                    <div class="col-12">
+                        <span class="rx-label">Email address</span>
+                        <span class="rx-value"><i class="bi bi-envelope me-1 text-success"></i>@Model.CustomerEmail</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Order Line Items -->
-    <div class="mg-card">
-        <div class="mg-card-header">
-            <h6 class="mg-card-title">
-                <span class="mg-icon-chip"><i class="bi bi-cart-check"></i></span>
-                Order Line Items
-            </h6>
-            @if (rxCount > 0)
-            {
-                <span class="mg-rx-tag mt-0"><i class="bi bi-capsule"></i>@rxCount prescription @(rxCount == 1 ? "item" : "items")</span>
-            }
-        </div>
-        <div class="table-responsive">
-            <table class="table mg-table align-middle">
+        <!-- Customer Submitted Notes -->
+        @if (!string.IsNullOrWhiteSpace(Model.CustomerNotes))
+        {
+            <div class="rx-notes">
+                <i class="bi bi-chat-left-text"></i>
+                <div>
+                    <strong>Customer notes</strong>
+                    <span>@Model.CustomerNotes</span>
+                </div>
+            </div>
+        }
+
+        <!-- Order Line Items Table -->
+        <div class="rx-section-title"><i class="bi bi-capsule"></i>Prescription line items</div>
+        <div class="rx-table-wrap table-responsive">
+            <table class="table rx-table align-middle">
                 <thead>
                     <tr>
                         <th>Item</th>
+                        <th>Dosage</th>
                         <th class="text-center">Qty</th>
                         <th class="text-end">Price</th>
                         <th class="text-end">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Items)
+                    @foreach (var item in Model.OrderItems)
                     {
                         <tr>
                             <td>
-                                <div class="mg-item-name">@item.BrandName</div>
-                                <div class="mg-item-generic">@item.GenericName</div>
-                                @if (item.RequiresPrescription)
-                                {
-                                    <span class="mg-rx-tag"><i class="bi bi-prescription2"></i>Rx required</span>
-                                }
+                                <span class="rx-med-name">
+                                    @item.MedicineName
+                                    @if (item.IsRxRequired)
+                                    {
+                                        <span class="rx-rx-tag"><i class="bi bi-prescription2"></i>Rx required</span>
+                                    }
+                                </span>
+                                <span class="rx-med-generic">@item.GenericName</span>
                             </td>
-                            <td class="text-center"><span class="mg-qty">@item.Quantity</span></td>
-                            <td class="text-end text-nowrap">$@item.UnitPrice.ToString("F2")</td>
-                            <td class="text-end text-nowrap fw-bold" style="color: var(--mg-800);">$@item.LineTotal.ToString("F2")</td>
+                            <td><span class="rx-dosage">@item.DosageForm</span></td>
+                            <td class="text-center fw-bold">@item.Quantity</td>
+                            <td class="text-end small text-secondary">$@item.UnitPrice.ToString("F2")</td>
+                            <td class="text-end fw-bold">$@item.TotalPrice.ToString("F2")</td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
-                    <tr class="mg-total-row">
-                        <td colspan="3" class="text-end">Grand total</td>
-                        <td class="text-end text-nowrap mg-total-amount">$@Model.TotalAmount.ToString("F2")</td>
+                    <tr>
+                        <td colspan="4" class="text-end fw-semibold">Order total</td>
+                        <td class="text-end fw-bold fs-6">$@orderTotal.ToString("F2")</td>
                     </tr>
                 </tfoot>
             </table>
         </div>
-    </div>
 
-    <!-- Verification Action Box -->
-    <div class="mg-card">
-        <div class="mg-card-header">
-            <h6 class="mg-card-title">
-                <span class="mg-icon-chip"><i class="bi bi-shield-check"></i></span>
-                Pharmacist Verification Decision
-            </h6>
-        </div>
-        <div class="p-3 p-md-4">
-            <div class="mg-decision-note">
-                <i class="bi bi-info-circle-fill mt-1"></i>
-                <div>Check the prescription against the items above. Approving moves the order to fulfilment; rejecting requires a reason that is sent to the customer.</div>
-            </div>
+        <!-- Verification Action Control Panel -->
+        <div class="rx-panel" id="action-panel">
+            <div class="rx-section-title"><i class="bi bi-shield-check"></i>Pharmacist decision</div>
 
-            <div id="verification-status-alert" class="d-none alert mb-3"></div>
+            <div id="status-message-alert" class="alert d-none mb-3"></div>
 
-            <div class="d-grid gap-2 d-md-flex">
-                <button type="button" id="btn-approve-rx" class="btn btn-mg-approve btn-lg flex-fill" data-prescription-id="@Model.PrescriptionId">
+            <div class="d-flex gap-2 flex-wrap" id="verification-buttons">
+                <!-- Green Approval Button -->
+                <button type="button"
+                        id="btn-approve-prescription"
+                        class="btn rx-btn rx-btn-approve flex-fill"
+                        data-prescription-id="@Model.PrescriptionId"
+                        @(!isPending ? "disabled" : "")>
                     <i class="bi bi-check-circle-fill me-2"></i>Approve prescription
                 </button>
 
-                <button type="button" id="btn-reject-rx" class="btn btn-mg-reject btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectionModal">
-                    <i class="bi bi-x-circle-fill me-2"></i>Reject order
+                <!-- Rejection Button -->
+                <button type="button"
+                        id="btn-reject-prescription"
+                        class="btn rx-btn rx-btn-reject flex-fill"
+                        data-prescription-id="@Model.PrescriptionId"
+                        data-bs-toggle="modal"
+                        data-bs-target="#rejectionModal"
+                        @(!isPending ? "disabled" : "")>
+                    <i class="bi bi-x-circle me-2"></i>Reject prescription
                 </button>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Mandatory Rejection Modal -->
-<div class="modal fade" id="rejectionModal" tabindex="-1" aria-labelledby="rejectionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rejectionModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reject prescription</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="small text-muted mb-3">Enter a reason for rejecting this prescription. It is recorded and sent directly to the customer.</p>
-
-                <label class="form-label fw-bold small">Common reasons</label>
-                <div class="mb-3 d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-sm preset-reason-btn">Illegible Document</button>
-                    <button type="button" class="btn btn-sm preset-reason-btn">Expired Prescription Date</button>
-                    <button type="button" class="btn btn-sm preset-reason-btn">Mismatched Doctor Name</button>
-                </div>
-
-                <div class="mb-1">
-                    <label for="rejection-reason-text" class="form-label fw-bold small">Rejection note <span class="text-danger">*</span></label>
-                    <textarea id="rejection-reason-text" class="form-control" rows="3" placeholder="Describe why this prescription can't be approved..."></textarea>
-                    <div id="modal-validation-error" class="text-danger small d-none mt-1">Rejection reason is required.</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="btn-confirm-reject" class="btn btn-danger px-4" data-prescription-id="@Model.PrescriptionId">
-                    Confirm rejection
-                </button>
+            <div class="rx-hint">
+                <i class="bi bi-lock me-1"></i>Approving moves the order to <span class="rx-pill">PROCESSING</span>
             </div>
         </div>
     </div>
