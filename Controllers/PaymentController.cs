@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediGuard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediGuard.Services;
+using Microsoft.Extensions.Logging;
 
 namespace MediGuard.Controllers
 {
@@ -13,10 +14,12 @@ namespace MediGuard.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly ILogger<PaymentController> _logger;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, ILogger<PaymentController> logger)
         {
             _paymentService = paymentService;
+            _logger = logger;
         }
 
         private Guid GetCurrentPharmacyId()
@@ -43,24 +46,33 @@ namespace MediGuard.Controllers
                 return Unauthorized(new { message = "Invalid pharmacy context." });
             }
 
-            var result = await _paymentService.CreatePaymentIntentAsync(request.OrderId, pharmacyId);
-
-            if (!result.Success)
+            try
             {
-                if (result.IsGatewayError)
+                var result = await _paymentService.CreatePaymentIntentAsync(request.OrderId, pharmacyId);
+
+                if (!result.Success)
                 {
-                    return StatusCode(500, new { message = result.ErrorMessage });
+                    if (result.IsGatewayError)
+                    {
+                        _logger.LogError("Payment gateway error encountered for OrderId: {OrderId}", request.OrderId);
+                        return StatusCode(500, new { message = result.ErrorMessage ?? "Payment gateway is currently unavailable. Please try again later." });
+                    }
+
+                    return BadRequest(new { message = result.ErrorMessage ?? "Unable to initialize payment intent." });
                 }
 
-                return BadRequest(new { message = result.ErrorMessage });
+                // Expected JSON Response format: { clientSecret = "...", transactionId = "..." }
+                return Ok(new
+                {
+                    clientSecret = result.ClientSecret,
+                    transactionId = result.TransactionId
+                });
             }
-
-            // Expected JSON Response format: { clientSecret = "...", transactionId = "..." }
-            return Ok(new
+            catch (Exception ex)
             {
-                clientSecret = result.ClientSecret,
-                transactionId = result.TransactionId
-            });
+                _logger.LogError(ex, "Unexpected error initializing payment intent for OrderId: {OrderId}", request.OrderId);
+                return StatusCode(500, new { message = "An error occurred while processing your payment session request." });
+            }
         }
     }
 
