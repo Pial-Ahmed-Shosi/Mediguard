@@ -63,7 +63,7 @@ namespace MediGuard.Services
                 string transactionId = $"tx_{Guid.NewGuid().ToString("N")[..16]}";
                 string clientSecret = $"pi_secret_{Guid.NewGuid().ToString("N")}";
 
-                // 3. Create PENDING ledger record in database
+                // 3. Create PENDING ledger record in database using GatewayTransactionId
                 var paymentLedger = new Payment
                 {
                     Id = Guid.NewGuid(),
