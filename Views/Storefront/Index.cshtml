@@ -11,6 +11,7 @@
 <div class="mg-storefront">
     <div class="container py-4 py-lg-5">
 
+        <!-- Header Context & Live Counter -->
         <div class="mg-page-heading">
             <div>
                 <span class="mg-eyebrow">
@@ -21,14 +22,16 @@
                 <p>Compare available products and find the medicine you need.</p>
             </div>
 
-            <div class="mg-result-count">
+            <div class="mg-result-count" id="productCountBadge">
                 @Model.TotalProducts @(Model.TotalProducts == 1 ? "item" : "items") found
             </div>
         </div>
 
+        <!-- Search & Filter Form (Supports both Server-Side GET and Client-Side JS filtering) -->
         <form asp-controller="Storefront"
               asp-action="Index"
               method="get"
+              id="storefrontSearchForm"
               class="mg-search-panel">
 
             <div class="mg-search-field">
@@ -57,7 +60,7 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn mg-search-button">
+            <button type="submit" id="btnFilter" class="btn mg-search-button">
                 <i class="bi bi-search"></i>
                 Find Items
             </button>
@@ -69,14 +72,17 @@
             </a>
         </form>
 
+        <!-- Main Catalog Section -->
         <div class="mg-catalog-layout">
 
-            <aside class="mg-category-sidebar">
+            <!-- Category Navigation Sidebar -->
+            <aside class="mg-category-sidebar" id="categorySidebar">
                 <h2>Categories</h2>
 
                 <a asp-controller="Storefront"
                    asp-action="Index"
                    asp-route-search="@Model.SearchTerm"
+                   data-category="All"
                    class="mg-category-link @(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")">
                     <i class="bi bi-grid"></i>
                     All items
@@ -88,6 +94,7 @@
                        asp-action="Index"
                        asp-route-search="@Model.SearchTerm"
                        asp-route-category="@item"
+                       data-category="@item"
                        class="mg-category-link @(Model.SelectedCategory == item ? "active" : "")">
                         <i class="bi bi-capsule"></i>
                         @item
@@ -95,12 +102,12 @@
                 }
             </aside>
 
-            <section class="mg-product-section"
-                     aria-label="Medicine products">
+            <!-- Product Collection Section -->
+            <section class="mg-product-section" aria-label="Medicine products">
 
                 @if (!Model.Products.Any())
                 {
-                    <div class="mg-empty-state">
+                    <div class="mg-empty-state" id="emptyState">
                         <i class="bi bi-search"></i>
                         <h2>No products found</h2>
                         <p>
@@ -116,23 +123,47 @@
                 }
                 else
                 {
-                    <div class="mg-product-grid">
+                    <div class="mg-product-grid" id="productGrid">
                         @foreach (var product in Model.Products)
                         {
-                            <partial name="_ProductCard" model="product" />
+                            <div class="product-item-col"
+                                 data-brand="@(product.BrandName?.ToLower() ?? "")"
+                                 data-generic="@(product.GenericName?.ToLower() ?? "")"
+                                 data-category="@(product.CategoryName ?? "")">
+                                <partial name="_ProductCard" model="product" />
+                            </div>
                         }
+                    </div>
+
+                    <!-- Client-Side No Results Fallback Message -->
+                    <div id="noResultsMessage" class="mg-empty-state d-none">
+                        <i class="bi bi-search"></i>
+                        <h2>No matching products found</h2>
+                        <p>Try refining your search terms or selecting a different category.</p>
                     </div>
                 }
             </section>
+
         </div>
     </div>
 </div>
 
+<!-- Prescription Requirement Alert Notification Container -->
 <div id="mg-cart-notice"
-     class="mg-cart-notice"
+     class="mg-cart-notice position-fixed bottom-0 end-0 p-3"
+     style="z-index: 1090;"
      role="status"
      aria-live="polite"
      hidden>
+    <div class="toast align-items-center text-white bg-dark border-0 shadow-lg show" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
+                <span id="mg-cart-notice-text"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" id="mg-cart-notice-close" aria-label="Close"></button>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
