@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <!-- Search & Filter Form (Supports both Server-Side GET and Client-Side JS filtering) -->
+        <!-- Search & Filter Form -->
         <form asp-controller="Storefront"
               asp-action="Index"
               method="get"
@@ -129,7 +129,7 @@
                             <div class="product-item-col"
                                  data-brand="@(product.BrandName?.ToLower() ?? "")"
                                  data-generic="@(product.GenericName?.ToLower() ?? "")"
-                                 data-category="@(product.CategoryName ?? "")">
+                                 data-category="@(product.Category?.Name ?? "")">
                                 <partial name="_ProductCard" model="product" />
                             </div>
                         }
