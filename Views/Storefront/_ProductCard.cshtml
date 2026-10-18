@@ -3,125 +3,197 @@
 @{
     var inStock = Model.StockQuantity > 0;
     var lowStock = inStock && Model.StockQuantity <= 10;
-    var stockPercent = Math.Min(100, Math.Max(inStock ? 8 : 0, Model.StockQuantity));
+    var stockPercent = Math.Min(100, Math.Max(inStock ? 10 : 0, Model.StockQuantity));
     var stockState = !inStock ? "out" : (lowStock ? "low" : "ok");
 }
 
-<article class="mg-product-card h-100 @(inStock ? "" : "is-unavailable")">
+<style>
+    .mg-card-polished {
+        border: 1px solid #e8f0f0;
+        border-radius: 16px;
+        background: #ffffff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+    }
 
-    <!-- Media -->
-    <div class="mg-product-image">
+    .mg-card-polished:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(0, 122, 120, 0.08);
+    }
+
+    .mg-card-img-wrapper {
+        height: 170px;
+        background-color: #f9fbfb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        position: relative;
+    }
+
+    .mg-card-img-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .badge-in-stock-pill {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        font-weight: 600;
+        font-size: 0.72rem;
+        padding: 0.3em 0.65em;
+        border-radius: 6px;
+    }
+
+    .badge-out-stock-pill {
+        background-color: #ffebee;
+        color: #c62828;
+        font-weight: 600;
+        font-size: 0.72rem;
+        padding: 0.3em 0.65em;
+        border-radius: 6px;
+    }
+
+    .badge-rx-required-red {
+        background-color: #dc3545;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.68rem;
+        padding: 0.35em 0.65em;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .mg-add-to-cart-btn-theme {
+        background-color: #e6f2f2;
+        color: #007a78;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .mg-add-to-cart-btn-theme:hover:not(:disabled) {
+        background-color: #007a78;
+        color: #ffffff;
+    }
+
+    .mg-add-to-cart-btn-theme:disabled {
+        background-color: #f2f2f2;
+        color: #a0a0a0;
+        cursor: not-allowed;
+    }
+</style>
+
+<article class="card mg-card-polished h-100 border-0 shadow-sm @(inStock ? "" : "is-unavailable")">
+
+    <!-- Top Badges Row -->
+    <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+        <div>
+            @if (inStock)
+            {
+                <span class="badge badge-in-stock-pill">
+                    <i class="bi bi-check-circle-fill me-1"></i>In Stock
+                </span>
+            }
+            else
+            {
+                <span class="badge badge-out-stock-pill">
+                    <i class="bi bi-x-circle-fill me-1"></i>Out of Stock
+                </span>
+            }
+        </div>
+
+        <div>
+            @if (Model.RequiresPrescription)
+            {
+                <span class="badge badge-rx-required-red" title="A valid prescription is required at checkout">
+                    <i class="bi bi-file-earmark-medical me-1"></i>Prescription Required
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Product Image Media Area -->
+    <div class="mg-card-img-wrapper mt-2">
         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
         {
-            <img src="@Model.ImageUrl"
-                 alt="@Model.BrandName"
-                 loading="lazy" />
+            <img src="@Model.ImageUrl" alt="@Model.BrandName" loading="lazy" />
         }
         else
         {
-            <div class="mg-image-placeholder"
-                 role="img"
-                 aria-label="No product image available">
-                <i class="bi bi-capsule" aria-hidden="true"></i>
+            <div class="text-center text-muted">
+                <i class="bi bi-capsule-fill fs-1 text-teal opacity-25"></i>
             </div>
-        }
-
-        <div class="mg-image-overlay" aria-hidden="true"></div>
-
-        <!-- Top-left: stock badge -->
-        @if (inStock)
-        {
-            <span class="mg-stock-badge mg-in-stock">
-                <span class="mg-dot" aria-hidden="true"></span>
-                In Stock
-            </span>
-        }
-        else
-        {
-            <span class="mg-stock-badge mg-out-stock">
-                <span class="mg-dot" aria-hidden="true"></span>
-                Out of Stock
-            </span>
-        }
-
-        <!-- Top-right: prescription badge -->
-        @if (Model.RequiresPrescription)
-        {
-            <span class="mg-rx-badge" title="A valid prescription is required">
-                <i class="bi bi-prescription2" aria-hidden="true"></i>
-                Rx
-            </span>
         }
     </div>
 
-    <!-- Body -->
-    <div class="mg-product-body">
+    <!-- Card Details Body -->
+    <div class="card-body d-flex flex-column p-3 pt-2">
 
-        <div class="mg-meta-row">
+        <!-- Category Tag -->
+        <div class="mb-2">
             @if (!string.IsNullOrWhiteSpace(Model.Category?.Name))
             {
-                <span class="mg-category-tag">
-                    <i class="bi bi-tag-fill" aria-hidden="true"></i>
-                    @Model.Category.Name
-                </span>
-            }
-
-            @if (Model.RequiresPrescription)
-            {
-                <span class="mg-rx-note">
-                    <i class="bi bi-shield-check" aria-hidden="true"></i>
-                    Prescription Required
+                <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 0.72rem;">
+                    <i class="bi bi-tag-fill me-1 text-teal opacity-75"></i>@Model.Category.Name
                 </span>
             }
         </div>
 
-        <h2 class="mg-product-name">@Model.BrandName</h2>
-        <p class="mg-generic-name">@Model.GenericName</p>
+        <h6 class="fw-bold text-dark mb-1 text-truncate" title="@Model.BrandName">@Model.BrandName</h6>
+        <p class="text-muted small mb-2 text-truncate" title="@Model.GenericName">
+            <i class="bi bi-capsule me-1 opacity-75"></i>@Model.GenericName
+        </p>
 
-        <div class="mg-divider" aria-hidden="true"></div>
-
-        <div class="mg-price-row">
-            <div class="mg-product-price">
-                <span class="mg-currency">৳</span>@Model.UnitPrice.ToString("N2")
-                <small>/ unit</small>
-            </div>
-        </div>
-
-        <!-- Stock indicator -->
-        <div class="mg-product-stock mg-stock-@stockState">
-            <div class="mg-stock-text">
+        <!-- Stock Indicator Bar -->
+        <div class="mt-auto mb-3">
+            <div class="d-flex justify-content-between align-items-center small mb-1" style="font-size: 0.75rem;">
                 @if (!inStock)
                 {
-                    <i class="bi bi-x-circle-fill" aria-hidden="true"></i>
-                    <span>Currently unavailable</span>
+                    <span class="text-danger fw-semibold">Currently unavailable</span>
                 }
                 else if (lowStock)
                 {
-                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                    <span>Only @Model.StockQuantity left — order soon</span>
+                    <span class="text-warning fw-semibold">Only @Model.StockQuantity left</span>
                 }
                 else
                 {
-                    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                    <span>@Model.StockQuantity units available</span>
+                    <span class="text-secondary">@Model.StockQuantity units available</span>
                 }
             </div>
-            <div class="mg-stock-bar" role="presentation">
-                <span class="mg-stock-fill" style="width:@(stockPercent)%"></span>
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar @(lowStock ? "bg-warning" : (inStock ? "bg-teal" : "bg-danger"))" 
+                     role="progressbar" 
+                     style="width: @(stockPercent)%; background-color: var(--mg-teal, #007a78);" 
+                     aria-valuenow="@stockPercent" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100"></div>
             </div>
         </div>
 
-        <button type="button"
-                class="btn mg-add-to-cart"
-                data-product-id="@Model.Id"
-                data-brand-name="@Model.BrandName"
-                data-unit-price="@Model.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                data-stock="@Model.StockQuantity"
-                data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
-                disabled="@(Model.StockQuantity <= 0 ? "disabled" : null)"
-                aria-label="Add @Model.BrandName to cart">
-            <i class="bi @(inStock ? "bi-cart-plus" : "bi-slash-circle")" aria-hidden="true"></i>
-            <span>@(inStock ? "Add to Cart" : "Out of Stock")</span>
-        </button>
+        <!-- Price Row & Action Button -->
+        <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+            <div>
+                <span class="fs-5 fw-bold text-dark">৳ @Model.UnitPrice.ToString("N2")</span>
+                <small class="text-muted">/ unit</small>
+            </div>
+
+            <button type="button"
+                    class="btn mg-add-to-cart-btn-theme mg-add-to-cart"
+                    data-product-id="@Model.Id"
+                    data-brand-name="@Model.BrandName"
+                    data-unit-price="@Model.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                    data-stock="@Model.StockQuantity"
+                    data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
+                    disabled="@(Model.StockQuantity <= 0 ? "disabled" : null)"
+                    aria-label="Add @Model.BrandName to cart">
+                <i class="bi @(inStock ? "bi-cart-plus" : "bi-slash-circle") me-1"></i>
+                <span>@(inStock ? "Add to Cart" : "Out of Stock")</span>
+            </button>
+        </div>
     </div>
 </article>

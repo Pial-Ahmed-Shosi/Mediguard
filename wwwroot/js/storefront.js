@@ -9,9 +9,14 @@
     const noticeContainer = document.getElementById("mg-cart-notice");
     const noticeText = document.getElementById("mg-cart-notice-text");
     const noticeClose = document.getElementById("mg-cart-notice-close");
-    const searchInput = document.getElementById("search");
+
+    // 3 Search Inputs
+    const searchInput = document.getElementById("search");         // 1. Medicine / Item Name
+    const locationInput = document.getElementById("location");     // 2. Location / Area
+    const pharmacyInput = document.getElementById("pharmacy");     // 3. Pharmacy / Hospital
+
     const categorySelect = document.getElementById("category");
-    const categorySidebar = document.getElementById("categorySidebar");
+    const categoryPillContainer = document.getElementById("categoryPillContainer");
     const productGrid = document.getElementById("productGrid");
     const productCountBadge = document.getElementById("productCountBadge");
     const noResultsMessage = document.getElementById("noResultsMessage");
@@ -57,12 +62,12 @@
     }
 
     /**
-     * Updates header cart badge indicators.
+     * Updates header cart badge indicators across page loads.
      */
     function updateCartBadge(cart) {
         const currentCart = cart || readCart();
         const totalCount = currentCart.reduce((sum, item) => sum + item.quantity, 0);
-        
+
         const badges = document.querySelectorAll("#cartBadge, .cart-count-badge, [data-cart-count]");
         badges.forEach(badge => {
             badge.textContent = totalCount;
@@ -75,7 +80,7 @@
     }
 
     /**
-     * Safely displays notification without destroying HTML structure inside notice toast.
+     * Displays prescription notification alert notice toast safely.
      */
     function showNotice(message) {
         if (!noticeContainer) {
@@ -152,7 +157,7 @@
             return;
         }
 
-        // Ticket 31 Requirement: Trigger required notification for prescription products
+        // Ticket 31 Requirement: Exact Prescription Warning Notification
         if (requiresPrescription) {
             showNotice(PRESCRIPTION_MESSAGE);
         } else {
@@ -161,13 +166,20 @@
     }
 
     /**
-     * Real-time client-side catalog filtering for search and category selection.
+     * Filters catalog based on all 3 search options (Name, Location, Pharmacy) and Category selection.
      */
     function filterCatalog() {
         if (!productGrid) return;
 
-        const query = (searchInput ? searchInput.value : "").toLowerCase().trim();
-        const selectedCategory = (categorySelect ? categorySelect.value : "").toLowerCase().trim();
+        const nameQuery = (searchInput ? searchInput.value : "").toLowerCase().trim();
+        const locationQuery = (locationInput ? locationInput.value : "").toLowerCase().trim();
+        const pharmacyQuery = (pharmacyInput ? pharmacyInput.value : "").toLowerCase().trim();
+
+        // Get category from pills or select dropdown
+        const activePill = categoryPillContainer ? categoryPillContainer.querySelector(".mg-pill-btn.active") : null;
+        const pillCategory = activePill ? activePill.getAttribute("data-category") : "";
+        const dropdownCategory = categorySelect ? categorySelect.value : "";
+        const selectedCategory = (pillCategory || dropdownCategory).toLowerCase().trim();
 
         const items = productGrid.querySelectorAll(".product-item-col");
         let visibleCount = 0;
@@ -176,11 +188,15 @@
             const brand = (item.getAttribute("data-brand") || "").toLowerCase();
             const generic = (item.getAttribute("data-generic") || "").toLowerCase();
             const category = (item.getAttribute("data-category") || "").toLowerCase();
+            const location = (item.getAttribute("data-location") || "").toLowerCase();
+            const pharmacy = (item.getAttribute("data-pharmacy") || "").toLowerCase();
 
-            const matchesQuery = !query || brand.includes(query) || generic.includes(query);
+            const matchesName = !nameQuery || brand.includes(nameQuery) || generic.includes(nameQuery);
+            const matchesLocation = !locationQuery || location.includes(locationQuery) || brand.includes(locationQuery);
+            const matchesPharmacy = !pharmacyQuery || pharmacy.includes(pharmacyQuery) || brand.includes(pharmacyQuery);
             const matchesCategory = !selectedCategory || selectedCategory === "all" || category === selectedCategory;
 
-            if (matchesQuery && matchesCategory) {
+            if (matchesName && matchesLocation && matchesPharmacy && matchesCategory) {
                 item.classList.remove("d-none");
                 visibleCount++;
             } else {
@@ -209,24 +225,22 @@
             noticeClose.addEventListener("click", hideNotice);
         }
 
-        if (searchInput) {
-            searchInput.addEventListener("input", filterCatalog);
-        }
+        // Live filtration listeners for all 3 search options
+        if (searchInput) searchInput.addEventListener("input", filterCatalog);
+        if (locationInput) locationInput.addEventListener("input", filterCatalog);
+        if (pharmacyInput) pharmacyInput.addEventListener("input", filterCatalog);
+        if (categorySelect) categorySelect.addEventListener("change", filterCatalog);
 
-        if (categorySelect) {
-            categorySelect.addEventListener("change", filterCatalog);
-        }
+        if (categoryPillContainer) {
+            categoryPillContainer.addEventListener("click", event => {
+                const pill = event.target.closest("[data-category]");
+                if (!pill) return;
 
-        if (categorySidebar) {
-            categorySidebar.addEventListener("click", event => {
-                const link = event.target.closest("[data-category]");
-                if (!link) return;
+                const pills = categoryPillContainer.querySelectorAll(".mg-pill-btn");
+                pills.forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
 
-                const categoryValue = link.getAttribute("data-category");
-                if (categorySelect) {
-                    categorySelect.value = categoryValue === "All" ? "" : categoryValue;
-                    filterCatalog();
-                }
+                filterCatalog();
             });
         }
     });
