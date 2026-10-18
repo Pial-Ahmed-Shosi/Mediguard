@@ -9,7 +9,7 @@ namespace MediGuard.Models.ViewModels
         public Guid OrderId { get; set; }
         public string OrderNumber { get; set; } = string.Empty;
 
-        // File Path Reference
+        // File Path Reference (raw stored path)
         public string PrescriptionFilePath { get; set; } = string.Empty;
         public string FilePath
         {
@@ -17,8 +17,17 @@ namespace MediGuard.Models.ViewModels
             set => PrescriptionFilePath = value;
         }
 
+        // Browsable URL the viewer uses (resolved by the controller)
+        public string? FileUrl { get; set; }
+
         public string FileType { get; set; } = "image"; // "image" or "pdf"
+        public bool IsPdf => string.Equals(FileType, "pdf", StringComparison.OrdinalIgnoreCase);
+
         public string Status { get; set; } = "PENDING"; // PENDING, APPROVED, REJECTED
+        public bool IsDecided =>
+            string.Equals(Status, "APPROVED", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Status, "REJECTED", StringComparison.OrdinalIgnoreCase);
+
         public string OrderStatus { get; set; } = "PENDING";
         public string? CustomerNotes { get; set; }
         public string? RejectionReason { get; set; }

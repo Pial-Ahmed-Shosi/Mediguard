@@ -16,6 +16,12 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add<AuditLoggingFilter>();
 });
 
+// Antiforgery: AJAX calls (prescription approve / reject) send the token in this header
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+});
+
 // Add Memory Cache Service (Required for UserDashboard ViewComponent)
 builder.Services.AddMemoryCache();
 
