@@ -1,17 +1,14 @@
-﻿
-(() => {
+﻿(() => {
     "use strict";
 
     const checkout = document.getElementById("paymentCheckout");
     const form = document.getElementById("payment-form");
 
-    // This script is used only on the checkout page.
     if (!checkout || !form) return;
 
     const orderId = checkout.dataset.orderId;
     const publishableKey = checkout.dataset.publishableKey;
 
-    const paymentElementContainer = document.getElementById("payment-element");
     const paymentMessage = document.getElementById("payment-message");
     const payButton = document.getElementById("pay-button");
     const payButtonText = document.getElementById("pay-button-text");
@@ -56,8 +53,7 @@
 
             setLoading(true, "Preparing secure payment...");
 
-            // The server must calculate the amount from the database.
-            // Never send a trusted payment amount from the browser.
+            // Request PaymentIntent creation from server
             const response = await fetch("/Payment/CreateIntent", {
                 method: "POST",
                 headers: {
@@ -74,13 +70,13 @@
                 throw new Error(
                     data.message ||
                     data.error ||
-                    "Unable to initialize payment. Please try again."
+                    "Unable to initialize payment session. Please try again."
                 );
             }
 
             if (!data.clientSecret) {
                 throw new Error(
-                    "The server did not return a payment client secret."
+                    "The server did not return a valid client secret."
                 );
             }
 
@@ -127,44 +123,34 @@
             const result = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    // Implement this server route before enabling live payments.
                     return_url:
-                         window.location.origin +
-                         "/Checkout/Confirmation?orderId=" +
-                          encodeURIComponent(orderId)
+                        window.location.origin +
+                        "/Checkout/Confirmation?orderId=" +
+                        encodeURIComponent(orderId)
                 },
                 redirect: "if_required"
             });
 
             if (result.error) {
-                // For example: a declined card or invalid payment details.
+                // Card decline or validation failure: render alert inline and restore state for re-try
                 showMessage(
                     result.error.message ||
-                    "Payment failed. Please check your details and try again."
+                    "Payment failed. Please check your card details and try again."
                 );
 
                 setLoading(false, "Try payment again");
                 return;
             }
-            // Payment result is displayed only after the server-side
-// confirmation page checks the saved payment status.
+
+            // Payment succeeded without requiring full redirect
             window.location.assign(
-                "/Checkout/Confirmation?orderId=" +
-                 encodeURIComponent(orderId)
-             );
-                return;
-            // Do not mark the order as paid from browser-side information.
-            // The backend must verify the payment, preferably via webhook.
-            showMessage(
-                "Payment submitted. Please wait while the server confirms the payment status."
+                "/Checkout/Confirmation?orderId=" + encodeURIComponent(orderId)
             );
-
-            setLoading(true, "Confirming payment...");
         } catch (error) {
-            console.error("Payment confirmation error:", error);
+            console.error("Payment authorization error:", error);
 
             showMessage(
-                "We couldn't confirm the payment. Check your order status before trying again."
+                "We couldn't confirm the payment authorization. Check your order status before trying again."
             );
 
             setLoading(false, "Try payment again");

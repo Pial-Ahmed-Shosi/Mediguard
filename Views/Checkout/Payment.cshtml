@@ -17,7 +17,7 @@
     </div>
 
     <div class="row g-4">
-        <!-- LEFT: ORDER SUMMARY -->
+        <!-- LEFT REGION: ORDER CONTEXT & FINANCIAL BREAKDOWN -->
         <div class="col-lg-7">
             <section class="checkout-card">
                 <h2 class="section-title">Order summary</h2>
@@ -36,9 +36,7 @@
                                     @item.MedicineName
                                 </div>
                                 <div class="item-detail">
-                                    Quantity: @item.Quantity
-                                    &times;
-                                    @item.UnitPrice.ToString("C2")
+                                    Quantity: @item.Quantity &times; @item.UnitPrice.ToString("C2")
                                 </div>
                             </div>
                             <strong>@item.LineTotal.ToString("C2")</strong>
@@ -74,7 +72,7 @@
             </section>
         </div>
 
-        <!-- RIGHT: ONLINE PAYMENT -->
+        <!-- RIGHT REGION: SECURE PAYMENT CONTAINER -->
         <div class="col-lg-5">
             <section class="payment-card"
                      id="paymentCheckout"
@@ -103,10 +101,10 @@
                         Card or supported payment method
                     </label>
 
-                    <!-- Stripe securely mounts its payment UI here. -->
+                    <!-- Stripe SDK mounts its secure payment UI here -->
                     <div id="payment-element" class="payment-element">
                         <p class="text-muted mb-0">
-                            Payment form will load here.
+                            Loading payment form...
                         </p>
                     </div>
 
@@ -131,8 +129,7 @@
                     </button>
 
                     <p class="secure-note mt-3 mb-0">
-                        &#128274; Secure checkout. Never share your card PIN
-                        or banking password.
+                        &#128274; Secure checkout. Never share your card PIN or banking password.
                     </p>
                 </form>
             </section>
@@ -290,6 +287,6 @@
     }
 </style>
 
-<!-- Load Stripe.js from Stripe's official hosted URL. -->
+<!-- Load Stripe.js from official hosted CDN -->
 <script src="https://js.stripe.com/v3/"></script>
 <script src="~/js/payment-checkout.js" asp-append-version="true"></script>

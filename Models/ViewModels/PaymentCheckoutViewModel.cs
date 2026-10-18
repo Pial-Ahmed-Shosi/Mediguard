@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MediGuard.Models.ViewModels
@@ -17,7 +18,7 @@ namespace MediGuard.Models.ViewModels
         public decimal DeliveryFee { get; set; }
         public decimal TotalAmount { get; set; }
 
-        // Must be supplied by the server's payment configuration.
+        // Supplied by the server's payment configuration for Stripe Elements SDK
         public string StripePublishableKey { get; set; } = string.Empty;
     }
 
