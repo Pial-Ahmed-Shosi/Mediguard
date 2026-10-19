@@ -1,118 +1,224 @@
 ﻿@model MediGuard.Models.StorefrontProduct
 
 @{
-    const int LimitedStockThreshold = 10;
-
     var inStock = Model.StockQuantity > 0;
-    var limited = inStock && Model.StockQuantity <= LimitedStockThreshold;
-
-    var stockClass = !inStock ? "out" : (limited ? "limited" : "in");
-    var stockLabel = !inStock ? "Out of Stock" : (limited ? "Limited Stock" : "In Stock");
-
-    // Form | Strength badge (e.g. "Capsule | 300 mg")
-    var form = string.IsNullOrWhiteSpace(Model.DosageForm)
-        ? (Model.Category?.Name ?? "Medicine")
-        : Model.DosageForm;
-    var formText = string.IsNullOrWhiteSpace(Model.Strength) ? form : $"{form} | {Model.Strength}";
-
-    var formClass = (form ?? "").Trim().ToLowerInvariant() switch
-    {
-        "capsule" or "tablet"                 => "mg-form-indigo",
-        "syrup" or "liquid" or "suspension"   => "mg-form-green",
-        "injection"                           => "mg-form-red",
-        "iv fluid" or "iv"                    => "mg-form-blue",
-        "device"                              => "mg-form-purple",
-        "bandage"                             => "mg-form-orange",
-        _                                     => "mg-form-indigo"
-    };
-
-    var unitLabel = string.IsNullOrWhiteSpace(Model.UnitLabel) ? "unit" : Model.UnitLabel;
-    var rating = Model.Rating;
 }
 
-<article class="mg-card h-100 d-flex flex-column">
+<style>
+    .mg-card-exact {
+        border: 1px solid #f0f0f0;
+        border-radius: 16px;
+        background: #ffffff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-    <!-- Image area with overlay badges -->
-    <div class="mg-card-media">
-        <span class="mg-stock @stockClass">@stockLabel</span>
+    .mg-card-exact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
 
-        @if (rating.HasValue)
-        {
-            <span class="mg-rating">
-                <i class="bi bi-star-fill"></i>@rating.Value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)
-            </span>
-        }
+    .mg-card-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.85rem 1rem 0 1rem;
+    }
 
+    .badge-exact-instock {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        font-weight: 600;
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+        border-radius: 4px;
+    }
+
+    .badge-exact-outstock {
+        background-color: #ffebee;
+        color: #c62828;
+        font-weight: 600;
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+        border-radius: 4px;
+    }
+
+    .badge-exact-rx {
+        background-color: #dc3545;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.68rem;
+        padding: 0.3em 0.6em;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .mg-card-img-container {
+        height: 150px;
+        background-color: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .mg-card-img-container img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .mg-dosage-badge {
+        background-color: #eef2ff;
+        color: #4f46e5;
+        font-weight: 600;
+        font-size: 0.7rem;
+        padding: 0.3em 0.65em;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .mg-card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.35rem;
+    }
+
+    .mg-meta-item {
+        font-size: 0.775rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .mg-meta-item i {
+        font-size: 0.85rem;
+        color: #9ca3af;
+    }
+
+    .mg-price-exact {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #007a78;
+    }
+
+    .mg-cart-btn-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: #e6f2f2;
+        color: #007a78;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .mg-cart-btn-circle:hover:not(:disabled) {
+        background-color: #007a78;
+        color: #ffffff;
+    }
+
+    .mg-cart-btn-circle:disabled {
+        background-color: #f3f4f6;
+        color: #d1d5db;
+        cursor: not-allowed;
+    }
+</style>
+
+<article class="card mg-card-exact h-100 border-0 shadow-sm">
+
+    <!-- Top Status Badges -->
+    <div class="mg-card-top-bar">
+        <div>
+            @if (inStock)
+            {
+                <span class="badge badge-exact-instock">In Stock</span>
+            }
+            else
+            {
+                <span class="badge badge-exact-outstock">Out of Stock</span>
+            }
+        </div>
+
+        <div>
+            @if (Model.RequiresPrescription)
+            {
+                <span class="badge badge-exact-rx" title="Prescription required at checkout">
+                    <i class="bi bi-file-earmark-medical me-1"></i>Prescription Required
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- Centered Product Image -->
+    <div class="mg-card-img-container">
         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
         {
             <img src="@Model.ImageUrl" alt="@Model.BrandName" loading="lazy" />
         }
         else
         {
-            <i class="bi bi-capsule-pill mg-placeholder" aria-hidden="true"></i>
+            <div class="text-center text-muted">
+                <i class="bi bi-capsule-fill fs-1 opacity-25"></i>
+            </div>
         }
     </div>
 
-    <!-- Body -->
-    <div class="mg-card-body">
-
-        <div class="mg-badge-row">
-            <span class="mg-form-badge @formClass">@formText</span>
-
-            @if (Model.RequiresPrescription)
-            {
-                <span class="mg-rx-badge" title="Prescription required at checkout">Prescription Required</span>
-            }
-        </div>
-
-        <h6 class="mg-card-title text-truncate" title="@Model.BrandName">@Model.BrandName</h6>
-
-        <div class="mg-meta" title="@Model.GenericName">
-            <i class="bi bi-building ic-gray"></i>
-            <span class="text-truncate">@(string.IsNullOrWhiteSpace(Model.Manufacturer) ? Model.GenericName : Model.Manufacturer)</span>
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.GenericName) && !string.IsNullOrWhiteSpace(Model.Manufacturer))
-        {
-            <div class="mg-meta" title="Generic: @Model.GenericName">
-                <i class="bi bi-capsule ic-gray"></i>
-                <span class="text-truncate">@Model.GenericName</span>
-            </div>
-        }
-
-        <div class="mg-meta">
-            <i class="bi bi-shield-check ic-green"></i>
-            <span class="text-truncate">@(string.IsNullOrWhiteSpace(Model.PackagingType) ? "Sealed Packaging" : Model.PackagingType)</span>
-        </div>
-
-        <div class="mg-meta">
-            <i class="bi bi-shop ic-blue"></i>
-            <span class="text-truncate">
-                @(string.IsNullOrWhiteSpace(Model.PharmacyName)
-                    ? "Partner Pharmacy"
-                    : (string.IsNullOrWhiteSpace(Model.PharmacyArea)
-                        ? Model.PharmacyName
-                        : $"{Model.PharmacyName}, {Model.PharmacyArea}"))
+    <!-- Card Content Body -->
+    <div class="card-body d-flex flex-column p-3 pt-2">
+        
+        <!-- Form / Category Dosage Badge -->
+        <div class="mb-2">
+            <span class="mg-dosage-badge">
+                @(string.IsNullOrWhiteSpace(Model.Category?.Name) ? "Medicine" : Model.Category.Name)
             </span>
         </div>
 
-        <!-- Price + cart -->
-        <div class="mg-card-footer-row mt-3">
-            <div class="mg-price">
-                ৳ @Model.UnitPrice.ToString("N2")<small>/@unitLabel</small>
+        <!-- Product Name -->
+        <h6 class="mg-card-title text-truncate" title="@Model.BrandName">@Model.BrandName</h6>
+
+        <!-- Generic Name -->
+        <div class="mg-meta-item text-truncate" title="@Model.GenericName">
+            <i class="bi bi-capsule"></i>
+            <span>@Model.GenericName</span>
+        </div>
+
+        <!-- Verified Quality -->
+        <div class="mg-meta-item text-truncate">
+            <i class="bi bi-shield-check"></i>
+            <span>Verified Quality Assurance</span>
+        </div>
+
+        <!-- Partner Pharmacy -->
+        <div class="mg-meta-item text-truncate mb-3">
+            <i class="bi bi-shop"></i>
+            <span>Partner Pharmacy</span>
+        </div>
+
+        <!-- Bottom Row: Price & Circular Cart Action Button -->
+        <div class="mt-auto d-flex align-items-center justify-content-between pt-2 border-top">
+            <div>
+                <span class="mg-price-exact">৳ @Model.UnitPrice.ToString("N2")</span>
+                <small class="text-muted" style="font-size: 0.75rem;">/ unit</small>
             </div>
 
             <button type="button"
-                    class="mg-cart-btn mg-add-to-cart"
+                    class="mg-cart-btn-circle mg-add-to-cart"
                     data-product-id="@Model.Id"
                     data-brand-name="@Model.BrandName"
                     data-unit-price="@Model.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                     data-stock="@Model.StockQuantity"
                     data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
                     disabled="@(Model.StockQuantity <= 0 ? "disabled" : null)"
-                    aria-label="Add @Model.BrandName to cart"
-                    title="Add to Cart">
-                <i class="bi bi-bag-plus"></i>
+                    aria-label="Add @Model.BrandName to cart">
+                <i class="bi bi-bag-plus fs-6"></i>
             </button>
         </div>
 
