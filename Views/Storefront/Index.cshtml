@@ -1,250 +1,450 @@
 ﻿@model MediGuard.Models.ViewModels.StorefrontViewModel
 
 @{
-    ViewData["Title"] = "Find Medicines";
+    ViewData["Title"] = "Storefront Catalog";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/storefront.css" asp-append-version="true" />
     <style>
         :root {
-            --mg-teal: #007a78;
-            --mg-teal-hover: #005f5d;
-            --mg-teal-light: #e6f2f2;
+            --mg-teal: #0d7a6f;
+            --mg-teal-dark: #0a645b;
+            --mg-teal-light: #e3f2f0;
+            --mg-text: #1f2937;
+            --mg-muted: #6b7280;
         }
 
-        .mg-storefront-hero {
-            background: linear-gradient(135deg, #f8fbfb 0%, #edf6f6 100%);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #e0f0f0;
+        .mg-storefront-wrapper {
+            background-color: #f4f5f5;
+            min-height: 100vh;
         }
 
-        .mg-search-card {
+        /* ---------- Sub header ---------- */
+        .mg-subheader {
+            font-size: 0.72rem;
+            color: var(--mg-muted);
+        }
+
+        .mg-subheader .mg-count {
+            font-weight: 500;
+            color: var(--mg-text);
+        }
+
+        /* ---------- Search panel ---------- */
+        .mg-search-container {
             background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 122, 120, 0.06);
-            border: 1px solid #e6f0f0;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: 12px;
+            border: 1px solid #ececec;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.25rem 1.1rem;
         }
 
-        .mg-search-label {
-            font-size: 0.725rem;
-            font-weight: 700;
+        .mg-input-label {
+            font-size: 0.6rem;
+            font-weight: 600;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: #557070;
+            color: #4b5563;
             margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
-        .mg-search-input {
-            border: 1px solid #d5e5e5;
-            border-radius: 8px;
-            padding: 0.6rem 0.9rem;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+        .mg-input-label i {
+            font-size: 0.7rem;
+            color: #4b5563;
         }
 
-            .mg-search-input:focus {
-                border-color: var(--mg-teal);
-                box-shadow: 0 0 0 0.2rem rgba(0, 122, 120, 0.15);
-            }
+        .mg-input-field {
+            border: 1px solid #e3e5e8;
+            border-radius: 7px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.72rem;
+            background-color: #ffffff;
+            color: #212529;
+            height: 38px;
+        }
 
-        .btn-mg-teal {
+        .mg-input-field::placeholder {
+            color: #9ca3af;
+        }
+
+        .mg-input-field:focus {
+            border-color: var(--mg-teal);
+            box-shadow: 0 0 0 0.18rem rgba(13, 122, 111, 0.12);
+        }
+
+        .btn-mg-search {
             background-color: var(--mg-teal);
             color: #ffffff;
             font-weight: 600;
-            border-radius: 8px;
-            padding: 0.65rem 1.2rem;
+            border-radius: 7px;
             border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            height: 38px;
             transition: background-color 0.2s ease;
         }
 
-            .btn-mg-teal:hover {
-                background-color: var(--mg-teal-hover);
-                color: #ffffff;
-            }
+        .btn-mg-search:hover {
+            background-color: var(--mg-teal-dark);
+            color: #ffffff;
+        }
+
+        /* ---------- Category pills ---------- */
+        .mg-pills-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
 
         .mg-pill-btn {
             border-radius: 50rem;
-            padding: 0.45rem 1.1rem;
-            font-size: 0.85rem;
+            padding: 0.22rem 0.7rem;
+            font-size: 0.66rem;
             font-weight: 500;
-            border: 1px solid #d0e2e2;
-            color: #005f5d;
+            border: 1px solid #e3e5e8;
+            color: #374151;
             background-color: #ffffff;
-            transition: all 0.2s ease;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.3rem;
+            white-space: nowrap;
+            line-height: 1.5;
+            transition: all 0.15s ease;
+        }
+
+        .mg-pill-btn i {
+            font-size: 0.68rem;
+            color: #4b5563;
+        }
+
+        .mg-pill-btn.active,
+        .mg-pill-btn:hover,
+        .mg-pill-btn:focus-visible {
+            background-color: var(--mg-teal);
+            border-color: var(--mg-teal);
+            color: #ffffff;
+        }
+
+        .mg-pill-btn.active i,
+        .mg-pill-btn:hover i {
+            color: #ffffff;
+        }
+
+        /* ---------- Product card ---------- */
+        .mg-card {
+            background: #ffffff;
+            border: 1px solid #ececec;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .mg-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .mg-card-media {
+            position: relative;
+            height: 132px;
+            background: #f6f7f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem 0.6rem;
+        }
+
+        .mg-card-media img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .mg-card-media .mg-placeholder {
+            font-size: 2.5rem;
+            color: #cbd5d1;
+        }
+
+        /* stock badge (top-left) */
+        .mg-stock {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            padding: 0.2rem 0.45rem;
+            border-radius: 4px;
+            line-height: 1.2;
+        }
+
+        .mg-stock.in { background: #dff5e5; color: #1f8a43; }
+        .mg-stock.limited { background: #fdf0c8; color: #a8730a; }
+        .mg-stock.out { background: #fde3e3; color: #c0262d; }
+
+        /* rating (top-right) */
+        .mg-rating {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ffffff;
+            border-radius: 4px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: #374151;
+            padding: 0.15rem 0.4rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            line-height: 1.2;
+        }
+
+        .mg-rating i {
+            color: #f59e0b;
+            font-size: 0.55rem;
+            margin-right: 1px;
+        }
+
+        .mg-card-body {
+            padding: 0.8rem 0.9rem 0.85rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .mg-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .mg-form-badge {
+            font-size: 0.58rem;
+            font-weight: 600;
+            padding: 0.18rem 0.45rem;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            line-height: 1.3;
             white-space: nowrap;
         }
 
-            .mg-pill-btn:hover, .mg-pill-btn.active {
-                background-color: var(--mg-teal);
-                color: #ffffff;
-                border-color: var(--mg-teal);
-            }
+        .mg-form-indigo { background: #eceafd; color: #4f46e5; border-color: #dcd8fb; }
+        .mg-form-green  { background: #e3f5ea; color: #1f8a43; border-color: #cdeedb; }
+        .mg-form-red    { background: #fde8e8; color: #d03a3a; border-color: #f9d3d3; }
+        .mg-form-blue   { background: #e3f0fb; color: #1d6fb8; border-color: #cfe3f6; }
+        .mg-form-purple { background: #f1e6fb; color: #8e3bc4; border-color: #e5d2f6; }
+        .mg-form-orange { background: #fdeede; color: #c4600c; border-color: #f9dfc3; }
+
+        .mg-rx-badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.2rem 0.45rem;
+            border-radius: 4px;
+            background: #dc3545;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .mg-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 0.35rem;
+        }
+
+        .mg-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.64rem;
+            color: #6b7280;
+            margin-bottom: 0.18rem;
+            min-width: 0;
+        }
+
+        .mg-meta i { font-size: 0.68rem; flex-shrink: 0; }
+        .mg-meta .ic-gray  { color: #8b949e; }
+        .mg-meta .ic-green { color: #2e9a5b; }
+        .mg-meta .ic-blue  { color: #3b82c4; }
+
+        .mg-card-footer-row {
+            margin-top: auto;
+            padding-top: 0.7rem;
+            border-top: 1px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mg-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .mg-price small {
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: #8b949e;
+            margin-left: 1px;
+        }
+
+        .mg-cart-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background-color: var(--mg-teal-light);
+            color: var(--mg-teal);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.15s ease;
+        }
+
+        .mg-cart-btn:hover:not(:disabled) {
+            background-color: var(--mg-teal);
+            color: #ffffff;
+        }
+
+        .mg-cart-btn:disabled {
+            background-color: #f1f3f4;
+            color: #c4c9cd;
+            cursor: not-allowed;
+        }
     </style>
 }
 
-<div class="mg-storefront">
-    <div class="container py-4">
+<div class="mg-storefront-wrapper py-3">
+    <div class="container-fluid px-3 px-lg-4">
 
-        <!-- Top Hero Context Header -->
-        <div class="mg-storefront-hero d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <span class="mg-eyebrow text-uppercase fw-bold text-success small">
-                    <i class="bi bi-shield-check me-1"></i> Verified MediGuard Pharmacy Marketplace
-                </span>
-                <h1 class="h2 fw-bold mb-1 text-dark">Find Medicines &amp; Healthcare Items</h1>
-                <p class="text-muted mb-0 small">Compare prices and availability across verified pharmacies near you.</p>
-            </div>
-
-            <div class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm fs-6 align-self-start align-self-md-center" id="productCountBadge">
-                <i class="bi bi-box-seam me-1 text-teal"></i>
+        <!-- Context line & item count -->
+        <div class="d-flex justify-content-between align-items-center mb-2 mg-subheader">
+            <span>Compare prices across verified pharmacies near you.</span>
+            <span class="mg-count" id="productCountBadge">
                 @Model.TotalProducts @(Model.TotalProducts == 1 ? "item" : "items") found
-            </div>
+            </span>
         </div>
 
-        <!-- 3 Search Options Form Panel -->
-        <div class="mg-search-card">
-            <form asp-controller="Storefront"
-                  asp-action="Index"
-                  method="get"
-                  id="storefrontSearchForm">
-
+        <!-- Search panel -->
+        <div class="mg-search-container mb-3">
+            <form id="storefrontSearchForm" onsubmit="return false;">
                 <div class="row g-3 align-items-end">
-                    <!-- Search Field 1: Medicine / Item Name -->
+
                     <div class="col-12 col-md-4">
-                        <label for="search" class="mg-search-label form-label d-block">
-                            <i class="bi bi-capsule me-1 text-teal"></i> Medicine / Item Name
+                        <label for="search" class="mg-input-label">
+                            <i class="bi bi-capsule"></i> Medicine / Item Name
                         </label>
-                        <input id="search"
-                               name="search"
-                               value="@Model.SearchTerm"
-                               class="form-control mg-search-input"
-                               placeholder="e.g. Clindamycin, Napa, Syringe..."
-                               maxlength="200" />
+                        <input id="search" name="search" value="@Model.SearchTerm"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Clindacin, Napa, Syringe..."
+                               maxlength="200" autocomplete="off" />
                     </div>
 
-                    <!-- Search Field 2: Location / Area -->
                     <div class="col-12 col-md-3">
-                        <label for="location" class="mg-search-label form-label d-block">
-                            <i class="bi bi-geo-alt me-1 text-teal"></i> Location / Area
+                        <label for="location" class="mg-input-label">
+                            <i class="bi bi-geo-alt"></i> Location / Area
                         </label>
-                        <input id="location"
-                               name="location"
-                               class="form-control mg-search-input"
+                        <input id="location" name="location"
+                               class="form-control mg-input-field"
                                placeholder="e.g. Dhanmondi, Gulshan..."
-                               maxlength="100" />
+                               maxlength="100" autocomplete="off" />
                     </div>
 
-                    <!-- Search Field 3: Pharmacy / Hospital -->
                     <div class="col-12 col-md-3">
-                        <label for="pharmacy" class="mg-search-label form-label d-block">
-                            <i class="bi bi-hospital me-1 text-teal"></i> Pharmacy / Hospital
+                        <label for="pharmacy" class="mg-input-label">
+                            <i class="bi bi-hospital"></i> Pharmacy / Hospital
                         </label>
-                        <input id="pharmacy"
-                               name="pharmacy"
-                               class="form-control mg-search-input"
-                               placeholder="e.g. Lazz Pharma, Square..."
-                               maxlength="100" />
+                        <input id="pharmacy" name="pharmacy"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Lazz Pharma, Square Hospital..."
+                               maxlength="100" autocomplete="off" />
                     </div>
 
-                    <!-- Submit & Reset Action Buttons -->
-                    <div class="col-12 col-md-2 d-flex gap-2">
-                        <button type="submit" id="btnFilter" class="btn btn-mg-teal w-100">
-                            <i class="bi bi-search me-1"></i> Find Items
+                    <div class="col-12 col-md-2">
+                        <button type="button" id="btnFilter" class="btn btn-mg-search w-100">
+                            <i class="bi bi-search"></i> Find Items
                         </button>
-                        <a asp-controller="Storefront"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary d-flex align-items-center justify-content-center px-3"
-                           title="Reset Search">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </a>
                     </div>
+
                 </div>
             </form>
         </div>
 
-        <!-- Quick Filter Category Pills -->
-        <div class="d-flex align-items-center gap-2 overflow-auto pb-3 mb-4" id="categoryPillContainer">
-            <a asp-controller="Storefront"
-               asp-action="Index"
-               asp-route-search="@Model.SearchTerm"
-               data-category="All"
-               class="mg-pill-btn @(string.IsNullOrEmpty(Model.SelectedCategory) || Model.SelectedCategory == "All" ? "active" : "")">
-                <i class="bi bi-grid-fill"></i> All Items
-            </a>
+        <!-- Category pills -->
+        <div class="mg-pills-row mb-3" id="categoryPillContainer">
+            <button type="button" class="btn mg-pill-btn active" data-category="All">
+                <i class="bi bi-grid-fill"></i> All
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="Tablets &amp; Capsules">
+                <i class="bi bi-capsule-pill"></i> Tablets &amp; Capsules
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="Syrups &amp; Liquids">
+                <i class="bi bi-droplet"></i> Syrups &amp; Liquids
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="Injections">
+                <i class="bi bi-eyedropper"></i> Injections
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="Devices">
+                <i class="bi bi-gear"></i> Devices
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="IV Fluids">
+                <i class="bi bi-moisture"></i> IV Fluids
+            </button>
+            <button type="button" class="btn mg-pill-btn" data-category="Bandages">
+                <i class="bi bi-bandaid"></i> Bandages
+            </button>
+        </div>
 
-            @if (Model.Categories != null && Model.Categories.Any())
+        <!-- 4-column responsive product grid -->
+        <div class="row g-3" id="productGrid">
+            @if (Model.Products != null && Model.Products.Any())
             {
-                foreach (var item in Model.Categories)
+                foreach (var product in Model.Products)
                 {
-                    var isActive = string.Equals(Model.SelectedCategory, item, StringComparison.OrdinalIgnoreCase);
-                    <a asp-controller="Storefront"
-                       asp-action="Index"
-                       asp-route-search="@Model.SearchTerm"
-                       asp-route-category="@item"
-                       data-category="@item"
-                       class="mg-pill-btn @(isActive ? "active" : "")">
-                        <i class="bi bi-capsule"></i> @item
-                    </a>
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3 product-item-col"
+                         data-brand="@(product.BrandName?.ToLowerInvariant() ?? "")"
+                         data-generic="@(product.GenericName?.ToLowerInvariant() ?? "")"
+                         data-category="@(product.Category?.Name ?? "")"
+                         data-location="@(product.PharmacyArea?.ToLowerInvariant() ?? "")"
+                         data-pharmacy="@(product.PharmacyName?.ToLowerInvariant() ?? "")">
+                        @await Html.PartialAsync("_ProductCard", product)
+                    </div>
                 }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5" id="emptyState">
+                    <i class="bi bi-search fs-1 text-muted"></i>
+                    <h5 class="mt-3 text-secondary">No products available</h5>
+                    <p class="text-muted small">There are currently no products matching the storefront criteria.</p>
+                </div>
             }
         </div>
 
-        <!-- Main Product Catalog Layout -->
-        <div class="mg-catalog-layout">
-            <section class="mg-product-section w-100" aria-label="Medicine products">
-
-                @if (!Model.Products.Any())
-                {
-                    <div class="mg-empty-state text-center py-5 bg-light rounded-4 my-3" id="emptyState">
-                        <i class="bi bi-search fs-1 text-muted"></i>
-                        <h3 class="mt-3 text-secondary">No products found</h3>
-                        <p class="text-muted small">No active products match your search terms or category selection.</p>
-                        <a asp-controller="Storefront"
-                           asp-action="Index"
-                           class="btn btn-mg-teal mt-2">
-                            Show All Products
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="mg-product-grid row g-3 g-md-4" id="productGrid">
-                        @foreach (var product in Model.Products)
-                        {
-                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3 product-item-col"
-                                 data-brand="@(product.BrandName?.ToLower() ?? "")"
-                                 data-generic="@(product.GenericName?.ToLower() ?? "")"
-                                 data-category="@(product.Category?.Name ?? "")"
-                                 data-location=""
-                                 data-pharmacy="">
-                                <partial name="_ProductCard" model="product" />
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Client-Side No Results Fallback Message -->
-                    <div id="noResultsMessage" class="text-center py-5 bg-light rounded-4 my-3 d-none">
-                        <i class="bi bi-search fs-1 text-muted"></i>
-                        <h4 class="mt-3 text-secondary">No matching products found</h4>
-                        <p class="text-muted small">Try refining your search name, location, pharmacy, or selected category.</p>
-                    </div>
-                }
-            </section>
+        <!-- Client-side no-results fallback -->
+        <div id="noResultsMessage" class="text-center py-5 d-none">
+            <i class="bi bi-search fs-1 text-muted"></i>
+            <h5 class="mt-3 text-secondary">No matching products found</h5>
+            <p class="text-muted small">Try refining your search terms or selecting a different category.</p>
         </div>
 
     </div>
 </div>
 
-<!-- Prescription Requirement Alert Notification Container -->
+<!-- Cart / prescription notification -->
 <div id="mg-cart-notice"
      class="mg-cart-notice position-fixed bottom-0 end-0 p-3"
      style="z-index: 1090;"

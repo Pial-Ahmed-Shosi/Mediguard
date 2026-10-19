@@ -5,17 +5,16 @@
     const PRESCRIPTION_MESSAGE =
         "Note: Uploading a valid prescription will be required at checkout for this item.";
 
-    // DOM References
+    // DOM elements
     const noticeContainer = document.getElementById("mg-cart-notice");
     const noticeText = document.getElementById("mg-cart-notice-text");
     const noticeClose = document.getElementById("mg-cart-notice-close");
 
-    // 3 Search Inputs
-    const searchInput = document.getElementById("search");         // 1. Medicine / Item Name
-    const locationInput = document.getElementById("location");     // 2. Location / Area
-    const pharmacyInput = document.getElementById("pharmacy");     // 3. Pharmacy / Hospital
+    const searchInput = document.getElementById("search");
+    const locationInput = document.getElementById("location");
+    const pharmacyInput = document.getElementById("pharmacy");
+    const btnFilter = document.getElementById("btnFilter");
 
-    const categorySelect = document.getElementById("category");
     const categoryPillContainer = document.getElementById("categoryPillContainer");
     const productGrid = document.getElementById("productGrid");
     const productCountBadge = document.getElementById("productCountBadge");
@@ -23,9 +22,8 @@
 
     let autoHideTimer = null;
 
-    /**
-     * Reads saved cart state from LocalStorage safely.
-     */
+    /* ------------------------------ Cart state ------------------------------ */
+
     function readCart() {
         try {
             const saved = localStorage.getItem(CART_KEY);
@@ -47,9 +45,6 @@
         }
     }
 
-    /**
-     * Persists cart array to LocalStorage and triggers UI badge update.
-     */
     function saveCart(cart) {
         try {
             localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -61,27 +56,24 @@
         }
     }
 
-    /**
-     * Updates header cart badge indicators across page loads.
-     */
     function updateCartBadge(cart) {
         const currentCart = cart || readCart();
         const totalCount = currentCart.reduce((sum, item) => sum + item.quantity, 0);
 
-        const badges = document.querySelectorAll("#cartBadge, .cart-count-badge, [data-cart-count]");
-        badges.forEach(badge => {
-            badge.textContent = totalCount;
-            if (totalCount > 0) {
-                badge.classList.remove("d-none");
-            }
-        });
+        document
+            .querySelectorAll("#cartBadge, .cart-count-badge, [data-cart-count]")
+            .forEach(badge => {
+                badge.textContent = totalCount;
+                badge.classList.toggle("d-none", totalCount <= 0);
+            });
 
-        window.dispatchEvent(new CustomEvent("cartUpdated", { detail: { cart: currentCart, totalCount } }));
+        window.dispatchEvent(
+            new CustomEvent("cartUpdated", { detail: { cart: currentCart, totalCount } })
+        );
     }
 
-    /**
-     * Displays prescription notification alert notice toast safely.
-     */
+    /* ----------------------------- Notifications ---------------------------- */
+
     function showNotice(message) {
         if (!noticeContainer) {
             window.alert(message);
@@ -98,9 +90,7 @@
         noticeContainer.classList.remove("d-none");
 
         if (autoHideTimer) clearTimeout(autoHideTimer);
-        autoHideTimer = setTimeout(() => {
-            hideNotice();
-        }, 6000);
+        autoHideTimer = setTimeout(hideNotice, 6000);
     }
 
     function hideNotice() {
@@ -110,9 +100,8 @@
         }
     }
 
-    /**
-     * Handles Add to Cart action, enforcing stock boundaries and prescription notification requirements.
-     */
+    /* ------------------------------- Add to cart ----------------------------- */
+
     function addToCart(button) {
         const productId = String(button.dataset.productId || "");
         const name = button.dataset.brandName;
@@ -143,21 +132,12 @@
             existing.stock = stock;
             existing.requiresPrescription = requiresPrescription;
         } else {
-            cart.push({
-                productId,
-                name,
-                unitPrice,
-                quantity: 1,
-                stock,
-                requiresPrescription
-            });
+            cart.push({ productId, name, unitPrice, quantity: 1, stock, requiresPrescription });
         }
 
-        if (!saveCart(cart)) {
-            return;
-        }
+        if (!saveCart(cart)) return;
 
-        // Ticket 31 Requirement: Exact Prescription Warning Notification
+        // Exact prescription notice only for prescription-dependent products
         if (requiresPrescription) {
             showNotice(PRESCRIPTION_MESSAGE);
         } else {
@@ -165,43 +145,40 @@
         }
     }
 
-    /**
-     * Filters catalog based on all 3 search options (Name, Location, Pharmacy) and Category selection.
-     */
+    /* ------------------------------- Filtering ------------------------------- */
+
+    const norm = value => (value || "").toLowerCase().replace(/\s+/g, " ").trim();
+
     function filterCatalog() {
         if (!productGrid) return;
 
-        const nameQuery = (searchInput ? searchInput.value : "").toLowerCase().trim();
-        const locationQuery = (locationInput ? locationInput.value : "").toLowerCase().trim();
-        const pharmacyQuery = (pharmacyInput ? pharmacyInput.value : "").toLowerCase().trim();
+        const nameQuery = norm(searchInput && searchInput.value);
+        const locationQuery = norm(locationInput && locationInput.value);
+        const pharmacyQuery = norm(pharmacyInput && pharmacyInput.value);
 
-        // Get category from pills or select dropdown
-        const activePill = categoryPillContainer ? categoryPillContainer.querySelector(".mg-pill-btn.active") : null;
-        const pillCategory = activePill ? activePill.getAttribute("data-category") : "";
-        const dropdownCategory = categorySelect ? categorySelect.value : "";
-        const selectedCategory = (pillCategory || dropdownCategory).toLowerCase().trim();
+        const activePill = categoryPillContainer
+            ? categoryPillContainer.querySelector(".mg-pill-btn.active")
+            : null;
+        const selectedCategory = norm(activePill ? activePill.getAttribute("data-category") : "All");
 
         const items = productGrid.querySelectorAll(".product-item-col");
         let visibleCount = 0;
 
         items.forEach(item => {
-            const brand = (item.getAttribute("data-brand") || "").toLowerCase();
-            const generic = (item.getAttribute("data-generic") || "").toLowerCase();
-            const category = (item.getAttribute("data-category") || "").toLowerCase();
-            const location = (item.getAttribute("data-location") || "").toLowerCase();
-            const pharmacy = (item.getAttribute("data-pharmacy") || "").toLowerCase();
+            const brand = norm(item.getAttribute("data-brand"));
+            const generic = norm(item.getAttribute("data-generic"));
+            const category = norm(item.getAttribute("data-category"));
+            const location = norm(item.getAttribute("data-location"));
+            const pharmacy = norm(item.getAttribute("data-pharmacy"));
 
             const matchesName = !nameQuery || brand.includes(nameQuery) || generic.includes(nameQuery);
-            const matchesLocation = !locationQuery || location.includes(locationQuery) || brand.includes(locationQuery);
-            const matchesPharmacy = !pharmacyQuery || pharmacy.includes(pharmacyQuery) || brand.includes(pharmacyQuery);
-            const matchesCategory = !selectedCategory || selectedCategory === "all" || category === selectedCategory;
+            const matchesLocation = !locationQuery || location.includes(locationQuery);
+            const matchesPharmacy = !pharmacyQuery || pharmacy.includes(pharmacyQuery);
+            const matchesCategory = selectedCategory === "all" || category === selectedCategory;
 
-            if (matchesName && matchesLocation && matchesPharmacy && matchesCategory) {
-                item.classList.remove("d-none");
-                visibleCount++;
-            } else {
-                item.classList.add("d-none");
-            }
+            const visible = matchesName && matchesLocation && matchesPharmacy && matchesCategory;
+            item.classList.toggle("d-none", !visible);
+            if (visible) visibleCount++;
         });
 
         if (productCountBadge) {
@@ -209,48 +186,43 @@
         }
 
         if (noResultsMessage) {
-            if (visibleCount === 0 && items.length > 0) {
-                noResultsMessage.classList.remove("d-none");
-            } else {
-                noResultsMessage.classList.add("d-none");
-            }
+            noResultsMessage.classList.toggle("d-none", !(visibleCount === 0 && items.length > 0));
         }
     }
 
-    // Event Bindings
+    /* -------------------------------- Wiring --------------------------------- */
+
     document.addEventListener("DOMContentLoaded", () => {
         updateCartBadge();
 
-        if (noticeClose) {
-            noticeClose.addEventListener("click", hideNotice);
-        }
+        if (noticeClose) noticeClose.addEventListener("click", hideNotice);
+        if (btnFilter) btnFilter.addEventListener("click", filterCatalog);
 
-        // Live filtration listeners for all 3 search options
-        if (searchInput) searchInput.addEventListener("input", filterCatalog);
-        if (locationInput) locationInput.addEventListener("input", filterCatalog);
-        if (pharmacyInput) pharmacyInput.addEventListener("input", filterCatalog);
-        if (categorySelect) categorySelect.addEventListener("change", filterCatalog);
+        [searchInput, locationInput, pharmacyInput].forEach(input => {
+            if (input) input.addEventListener("input", filterCatalog);
+        });
 
         if (categoryPillContainer) {
             categoryPillContainer.addEventListener("click", event => {
-                const pill = event.target.closest("[data-category]");
+                const pill = event.target.closest(".mg-pill-btn");
                 if (!pill) return;
 
-                const pills = categoryPillContainer.querySelectorAll(".mg-pill-btn");
-                pills.forEach(p => p.classList.remove("active"));
+                categoryPillContainer
+                    .querySelectorAll(".mg-pill-btn")
+                    .forEach(p => p.classList.remove("active"));
                 pill.classList.add("active");
 
                 filterCatalog();
             });
         }
+
+        // Apply any pre-filled search term (e.g. from the server-side query string)
+        if (searchInput && searchInput.value) filterCatalog();
     });
 
     document.addEventListener("click", event => {
         const button = event.target.closest(".mg-add-to-cart");
-        if (!button || button.disabled) {
-            return;
-        }
-
+        if (!button || button.disabled) return;
         addToCart(button);
     });
 })();
