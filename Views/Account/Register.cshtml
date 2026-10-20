@@ -1,4 +1,4 @@
-﻿@model MediGuard.Models.ViewModels.RegisterViewModel
+@model MediGuard.Models.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Create Account - MediGuard";
 }
@@ -494,6 +494,11 @@
         <form id="authForm" asp-action="Register" method="post">
             @Html.AntiForgeryToken()
 
+            <div asp-validation-summary="All" class="alert alert-danger rounded-3 mb-3 p-3 text-start shadow-sm" style="display: @(ViewData.ModelState.IsValid ? "none" : "block");">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Please check the following errors:</strong>
+            </div>
+
             <div class="form-step">
                 <div class="step-index">1</div>
                 <div class="step-copy">
@@ -504,7 +509,7 @@
 
             <div class="role-select" role="group" aria-label="Account type">
                 <div class="role-pill">
-                    <input type="radio" asp-for="Role" value="Regular User" id="role-customer" class="role-card-input" checked>
+                    <input type="radio" asp-for="Role" value="Customer" id="role-customer" class="role-card-input" checked>
                     <label for="role-customer" class="role-card">
                         <i class="bi bi-person role-icon"></i>
                         <span class="role-title">Customer</span>
@@ -542,53 +547,71 @@
             </div>
 
             <div class="field-grid">
-                <div class="form-floating">
-                    <input asp-for="FullName" class="form-control" placeholder="John Doe" required />
-                    <label asp-for="FullName"></label>
-                </div>
-                <div class="form-floating">
-                    <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
-                    <label asp-for="Email"></label>
-                    <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
-                </div>
-                <div class="input-group">
-                    <div class="form-floating flex-grow-1">
-                        <input asp-for="Password" class="form-control border-end-0" placeholder="Password" id="regPassword" required />
-                        <label asp-for="Password"></label>
+                <div>
+                    <div class="form-floating">
+                        <input asp-for="FullName" class="form-control" placeholder="John Doe" required />
+                        <label asp-for="FullName"></label>
                     </div>
-                    <button type="button" class="input-group-text toggle-password" data-target="regPassword">
-                        <i class="bi bi-eye"></i>
-                    </button>
+                    <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
                 </div>
-                <div class="input-group">
-                    <div class="form-floating flex-grow-1">
-                        <input asp-for="ConfirmPassword" class="form-control border-end-0" placeholder="Confirm Password" id="regConfirm" required />
-                        <label asp-for="ConfirmPassword"></label>
+                <div>
+                    <div class="form-floating">
+                        <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                        <label asp-for="Email"></label>
+                        <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
                     </div>
-                    <button type="button" class="input-group-text toggle-password" data-target="regConfirm">
-                        <i class="bi bi-eye"></i>
-                    </button>
+                    <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+                <div>
+                    <div class="input-group">
+                        <div class="form-floating flex-grow-1">
+                            <input asp-for="Password" class="form-control border-end-0" placeholder="Password (min 6 characters)" id="regPassword" required />
+                            <label asp-for="Password"></label>
+                        </div>
+                        <button type="button" class="input-group-text toggle-password" data-target="regPassword" title="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+                <div>
+                    <div class="input-group">
+                        <div class="form-floating flex-grow-1">
+                            <input asp-for="ConfirmPassword" class="form-control border-end-0" placeholder="Confirm Password" id="regConfirm" required />
+                            <label asp-for="ConfirmPassword"></label>
+                        </div>
+                        <button type="button" class="input-group-text toggle-password" data-target="regConfirm" title="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
                 </div>
             </div>
 
             <div id="dynamic-fields-container">
 
-                <div id="fields-regular-user" class="role-specific-section">
+                <div id="fields-customer" class="role-specific-section">
                     <div class="form-step">
                         <div class="step-index">3</div>
                         <div class="step-copy">
                             <h2>Contact details</h2>
-                            <p>Where we'll send pickup notifications.</p>
+                            <p>Where we'll send pickup and delivery notifications.</p>
                         </div>
                     </div>
                     <div class="field-grid">
-                        <div class="form-floating">
-                            <input asp-for="PhoneNumber" class="form-control" placeholder="+880" />
-                            <label asp-for="PhoneNumber">Phone number</label>
+                        <div>
+                            <div class="form-floating">
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+880" />
+                                <label asp-for="PhoneNumber">Phone number</label>
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
                         </div>
-                        <div class="form-floating">
-                            <input asp-for="DeliveryAddress" class="form-control" placeholder="Address" />
-                            <label asp-for="DeliveryAddress">Default delivery address</label>
+                        <div>
+                            <div class="form-floating">
+                                <input asp-for="DeliveryAddress" class="form-control" placeholder="Address" />
+                                <label asp-for="DeliveryAddress">Default delivery address</label>
+                            </div>
+                            <span asp-validation-for="DeliveryAddress" class="text-danger small mt-1 d-block"></span>
                         </div>
                     </div>
                 </div>
@@ -673,17 +696,67 @@
     <script>
         (function () {
             var blurbs = {
-                'Regular User': "A customer \u2014 order medicines for pickup at your nearest partner pharmacy and track every order in one place.",
+                'Customer': "A customer \u2014 order medicines for pickup or delivery at your nearest partner pharmacy and track every order in one place.",
+                'Regular User': "A customer \u2014 order medicines for pickup or delivery at your nearest partner pharmacy and track every order in one place.",
                 'Pharmacy Manager': "A pharmacy manager \u2014 manage stock, pricing and incoming pickup orders for your storefront.",
                 'Deliveryman': "A delivery rider \u2014 pick up routes, confirm handoffs, and keep pharmacies stocked on schedule.",
                 'Admin': "An admin \u2014 oversee accounts, pharmacies and activity across MediGuard."
             };
+
+            var sectionMap = {
+                'Customer': 'fields-customer',
+                'Regular User': 'fields-customer',
+                'Pharmacy Manager': 'fields-pharmacy-manager',
+                'Deliveryman': 'fields-deliveryman',
+                'Admin': 'fields-admin'
+            };
+
             var radios = document.querySelectorAll('.role-card-input');
             var blurbEl = document.getElementById('roleBlurb');
+
+            function updateRoleView(roleVal) {
+                if (blurbEl && blurbs[roleVal]) {
+                    blurbEl.textContent = blurbs[roleVal];
+                }
+
+                var targetId = sectionMap[roleVal] || 'fields-customer';
+                document.querySelectorAll('.role-specific-section').forEach(function (sec) {
+                    if (sec.id === targetId) {
+                        sec.classList.remove('d-none');
+                    } else {
+                        sec.classList.add('d-none');
+                    }
+                });
+            }
+
             radios.forEach(function (radio) {
                 radio.addEventListener('change', function () {
-                    if (radio.checked && blurbs[radio.value] && blurbEl) {
-                        blurbEl.textContent = blurbs[radio.value];
+                    if (radio.checked) {
+                        updateRoleView(radio.value);
+                    }
+                });
+            });
+
+            // Password eye toggle
+            document.querySelectorAll('.toggle-password').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var input = document.getElementById(targetId);
+                    if (input) {
+                        var icon = this.querySelector('i');
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            if (icon) {
+                                icon.classList.remove('bi-eye');
+                                icon.classList.add('bi-eye-slash');
+                            }
+                        } else {
+                            input.type = 'password';
+                            if (icon) {
+                                icon.classList.remove('bi-eye-slash');
+                                icon.classList.add('bi-eye');
+                            }
+                        }
                     }
                 });
             });

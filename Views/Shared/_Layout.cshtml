@@ -135,6 +135,12 @@
                            asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link @(currentController == "Storefront" ? "active" : "")"
+                           asp-controller="Storefront" asp-action="Index">
+                            <i class="bi bi-shop me-1 text-teal"></i> Medicines
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link @(currentController == "Home" && currentAction == "About" ? "active" : "")"
                            asp-controller="Home" asp-action="About">About</a>
                     </li>
@@ -171,11 +177,46 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
+                    <a asp-controller="Checkout" asp-action="Payment" class="btn btn-light position-relative rounded-pill px-3 py-2 border shadow-sm text-dark d-flex align-items-center gap-1" title="View Cart / Checkout">
+                        <i class="bi bi-bag text-teal fs-5"></i>
+                        <span class="badge rounded-pill text-white ms-1" id="cartCountBadge" style="background-color: var(--mg-teal);">0</span>
+                    </a>
+
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <span class="text-muted fw-semibold me-2">
-                            <i class="bi bi-person-circle text-teal"></i> @User.Identity.Name
-                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-teal-outline dropdown-toggle px-3 py-2 d-flex align-items-center gap-2"
+                                    type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle text-teal"></i>
+                                <span>@User.Identity.Name</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="Account" asp-action="UserProfile">
+                                        <i class="bi bi-speedometer2 text-teal me-2"></i> My Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="Storefront" asp-action="Index">
+                                        <i class="bi bi-bag text-teal me-2"></i> Browse Store
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="Prescription" asp-action="Upload">
+                                        <i class="bi bi-cloud-arrow-up text-teal me-2"></i> Upload Prescription
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item py-2 text-danger">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {

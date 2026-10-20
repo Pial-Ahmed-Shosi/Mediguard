@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -91,8 +91,24 @@ namespace MediGuard.ViewComponents
                 }
                 else // Customer
                 {
-                    viewModel.ActiveOrdersInTransit = 2;
-                    viewModel.UploadedPrescriptionStatus = "Verified & Approved";
+                    int activeOrders = await _context.Orders
+                        .CountAsync(o => (o.CustomerId == userId || o.UserId == userId) &&
+                            (o.DeliveryStatus == "IN_TRANSIT" || o.DeliveryStatus == "PENDING" || o.Status == "IN_TRANSIT"));
+
+                    var latestRx = await _context.Prescriptions
+                        .Where(p => p.CustomerId == userId)
+                        .OrderByDescending(p => p.CreatedAt)
+                        .Select(p => p.Status)
+                        .FirstOrDefaultAsync();
+
+                    viewModel.ActiveOrdersInTransit = activeOrders;
+                    viewModel.UploadedPrescriptionStatus = latestRx switch
+                    {
+                        "APPROVED" => "Verified & Approved",
+                        "PENDING_VERIFICATION" or "PENDING" => "Under Pharmacist Review",
+                        "REJECTED" => "Rejected / Re-upload Required",
+                        _ => "No Active Prescriptions"
+                    };
                 }
 
                 return viewModel;

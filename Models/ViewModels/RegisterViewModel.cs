@@ -1,11 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MediGuard.Models.ViewModels
 {
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Please select a role.")]
-        public string Role { get; set; } = "Regular User";
+        public string Role { get; set; } = "Customer";
 
         // --- Common Fields ---
         [Required(ErrorMessage = "Full Name is required.")]

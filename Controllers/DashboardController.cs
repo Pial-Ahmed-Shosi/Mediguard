@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediGuard.Services;
@@ -26,15 +26,22 @@ namespace MediGuard.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Extract PharmacyId from Claims
+            // Extract Role from Claims
+            string role = User.FindFirstValue(ClaimTypes.Role) ?? "Staff";
+
+            // If Customer user, redirect to Customer Profile & Dashboard
+            if (string.Equals(role, "Customer", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(role, "Regular User", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("UserProfile", "Account");
+            }
+
+            // Extract PharmacyId from Claims for Staff/Managers
             string? pharmacyIdClaim = User.FindFirst("PharmacyId")?.Value;
             if (!Guid.TryParse(pharmacyIdClaim, out Guid pharmacyId))
             {
                 return RedirectToAction("Login", "Account");
             }
-
-            // Extract Role from Claims
-            string role = User.FindFirstValue(ClaimTypes.Role) ?? "Staff";
 
             var summaryModel = await _dashboardService.GetDashboardDataAsync(userId, pharmacyId, role);
 

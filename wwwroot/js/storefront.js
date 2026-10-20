@@ -42,8 +42,65 @@
     function updateCartBadge() {
         const cart = loadCart();
         const total = cart.reduce((acc, i) => acc + (i.quantity || 1), 0);
+        const totalPrice = cart.reduce((acc, i) => acc + ((i.unitPrice || 0) * (i.quantity || 1)), 0);
+
         const badge = document.getElementById("cartCountBadge");
         if (badge) badge.textContent = total;
+
+        const floatBar = document.getElementById("mg-floating-cart-bar");
+        const floatCount = document.getElementById("floatingCartCount");
+        const floatTotal = document.getElementById("floatingCartTotal");
+
+        if (floatBar) {
+            if (total > 0) {
+                floatBar.classList.remove("d-none");
+                if (floatCount) floatCount.textContent = `${total} ${total === 1 ? 'item' : 'items'} in cart`;
+                if (floatTotal) floatTotal.textContent = `Total: ৳${totalPrice.toFixed(2)}`;
+            } else {
+                floatBar.classList.add("d-none");
+            }
+        }
+    }
+
+    async function proceedToCheckout() {
+        const cart = loadCart();
+        if (!cart.length) return;
+
+        const btn = document.getElementById("btnFloatingCheckout");
+        const origText = btn ? btn.innerHTML : "";
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Preparing...';
+        }
+
+        try {
+            const payload = {
+                items: cart.map(i => ({ productId: i.productId, quantity: i.quantity || 1 }))
+            };
+
+            const response = await fetch("/Checkout/CreateB2COrder", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                    return;
+                }
+            } else if (response.status === 401) {
+                window.location.href = "/Account/Login?returnUrl=" + encodeURIComponent("/Checkout/Payment");
+                return;
+            }
+        } catch (err) {
+            console.error("Checkout submission error:", err);
+        }
+
+        window.location.href = "/Checkout/Payment";
     }
 
     // ─── Notification toast ───────────────────────────────────────────
@@ -138,6 +195,8 @@
             setTimeout(() => { icon.className = "bi bi-bag-plus fs-6"; }, 1200);
         }
     });
+
+    document.getElementById("btnFloatingCheckout")?.addEventListener("click", proceedToCheckout);
 
     // ─── Boot ─────────────────────────────────────────────────────────
     updateCartBadge();

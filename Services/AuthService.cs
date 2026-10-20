@@ -61,9 +61,15 @@ namespace MediGuard.Services
 
         public async Task<(bool IsSuccess, string? ErrorMessage, ClaimsPrincipal? Principal)> AuthenticateUserAsync(string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return (false, "Email is required.", null);
+            }
+
+            string cleanEmail = email.Trim().ToLowerInvariant();
             var user = await _context.Users
                 .Include(u => u.Pharmacy)
-                .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == email.ToLower());
+                .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == cleanEmail);
 
             if (user == null)
             {
@@ -82,7 +88,11 @@ namespace MediGuard.Services
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            string primaryRole = roles.FirstOrDefault() ?? user.Role ?? "Regular User";
+            string primaryRole = roles.FirstOrDefault() ?? user.Role ?? "Customer";
+            if (string.Equals(primaryRole, "Regular User", StringComparison.OrdinalIgnoreCase))
+            {
+                primaryRole = "Customer";
+            }
 
             // Enforce domain check on login for managers
             if (primaryRole.Contains("Manager", StringComparison.OrdinalIgnoreCase) && user.Pharmacy != null)
@@ -110,6 +120,19 @@ namespace MediGuard.Services
                 new Claim("PharmacyId", user.PharmacyId?.ToString() ?? string.Empty),
                 new Claim("IsMediPlusActive", isMediPlusActive.ToString().ToLower())
             };
+
+            foreach (var r in roles)
+            {
+                if (!claims.Any(c => c.Type == ClaimTypes.Role && c.Value.Equals(r, StringComparison.OrdinalIgnoreCase)))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, r));
+                }
+            }
+
+            if (!string.IsNullOrEmpty(user.SecurityStamp))
+            {
+                claims.Add(new Claim("AspNet.Identity.SecurityStamp", user.SecurityStamp));
+            }
 
             var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
             return (true, null, new ClaimsPrincipal(identity));
