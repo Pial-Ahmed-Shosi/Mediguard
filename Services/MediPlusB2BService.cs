@@ -1,4 +1,4 @@
-﻿using MediGuard.Data;
+using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -66,8 +66,13 @@ namespace MediGuard.Services
                     PharmacyId = model.PurchaserPharmacyId,       // PurchaserId
                     SupplierPharmacyId = model.SupplierPharmacyId, // SupplierId
                     IsB2BOrder = true,                             // is_b2b_order = true
-                    ShippingAddress = model.ShippingAddress,
+                    OrderNumber = $"B2B-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..6].ToUpper()}",
+                    OrderType = "B2B_MEDI_PLUS",
+                    Subtotal = totalAmount,
                     TotalAmount = totalAmount,
+                    PaymentStatus = "UNPAID",
+                    PaymentMethod = "ONLINE",
+                    ShippingAddress = model.ShippingAddress,
                     OrderStatus = "PENDING",
                     DeliveryStatus = "PENDING",
                     Notes = model.Notes,
@@ -77,8 +82,10 @@ namespace MediGuard.Services
                     {
                         Id = Guid.NewGuid(),
                         MedicineId = item.MedicineId,
+                        BatchId = item.BatchId,
                         Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.Quantity * item.UnitPrice
                     }).ToList()
                 };
 

@@ -313,6 +313,12 @@ namespace MediGuard.Data
                       .HasColumnType("TIMESTAMPTZ")
                       .HasDefaultValueSql("NOW()");
 
+                entity.Property(o => o.ShippingAddress)
+                      .HasMaxLength(500);
+
+                entity.Property(o => o.Notes)
+                      .HasMaxLength(1000);
+
                 entity.HasIndex(o => new { o.PharmacyId, o.CreatedAt })
                       .HasDatabaseName("idx_orders_pharmacy_date");
 

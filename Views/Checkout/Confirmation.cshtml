@@ -1,365 +1,654 @@
-﻿
-@model MediGuard.Models.ViewModels.OrderConfirmationViewModel
+﻿@model MediGuard.Models.ViewModels.OrderConfirmationViewModel
 
 @{
     ViewData["Title"] = "Order Confirmation";
 
-    var statusClass = Model.IsPaymentSuccessful
-        ? "confirmation-success"
-        : Model.IsPaymentFailed
-            ? "confirmation-failure"
-            : "confirmation-pending";
+    var isSuccess = Model.IsPaymentSuccessful;
+    var isFailed = Model.IsPaymentFailed;
 
-    var statusTitle = Model.IsPaymentSuccessful
-        ? "Payment Successful!"
-        : Model.IsPaymentFailed
-            ? "Payment Failed"
-            : "Payment Pending";
+    var statusClass = isSuccess
+        ? "status-banner-success"
+        : isFailed
+            ? "status-banner-failure"
+            : "status-banner-pending";
 
-    var statusMessage = !string.IsNullOrWhiteSpace(
-        Model.PaymentStatusMessage)
+    var statusTitle = isSuccess
+        ? "Order & Payment Successful!"
+        : isFailed
+            ? "Payment Unsuccessful"
+            : "Payment Processing";
+
+    var statusMessage = !string.IsNullOrWhiteSpace(Model.PaymentStatusMessage)
         ? Model.PaymentStatusMessage
-        : Model.IsPaymentSuccessful
-            ? "Your payment has been confirmed."
-            : Model.IsPaymentFailed
-                ? "Your payment was not successful."
-                : "Your payment is awaiting confirmation.";
+        : isSuccess
+            ? "Thank you for your order. Your transaction has been completed successfully."
+            : isFailed
+                ? "We could not process your payment. Please try again or contact support."
+                : "Your transaction is awaiting gateway settlement.";
 
-    var displayPaymentStatus = Model.IsPaymentSuccessful
-        ? "Paid"
-        : Model.IsPaymentFailed
-            ? "Failed"
-            : "Pending";
-
-    var displayAmount = Model.IsPaymentSuccessful
-        ? Model.TotalPaidAmount
-        : Model.OrderTotalAmount;
+    var displayAmount = isSuccess ? Model.TotalPaidAmount : Model.OrderTotalAmount;
 }
 
-<div class="container py-5">
-    <div class="confirmation-wrapper mx-auto">
+<div class="checkout-layout">
+    <!-- Left Theme Sidebar (Dynamic Customer Profile) -->
+    <aside class="sidebar-panel no-print">
+        <div class="user-profile">
+            <!-- Dynamic Circle displaying First, Middle & Last Name First Letters -->
+            <div class="avatar-circle">@Model.CustomerInitials</div>
+            <div class="user-info">
+                <!-- Dynamic Customer Name in place of "Customer Portal" -->
+                <span class="user-name">@Model.CustomerName</span>
+            </div>
+        </div>
 
-        <section class="confirmation-card">
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 13H4a.5.5 0 0 1-.491-.408L1.01 3H.5a.5.5 0 0 1-.5-.5z" />
+                </svg>
+                <span>MediGo</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.5H6a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5V5.6z" />
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                </svg>
+                <span>History</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z" />
+                </svg>
+                <span>Complain</span>
+            </a>
+        </nav>
+    </aside>
 
-            <!-- Payment Status Banner -->
-            <div class="confirmation-banner @statusClass"
-                 role="status"
-                 aria-live="polite">
+    <!-- Main Content Panel -->
+    <main class="main-content-panel">
 
-                <div class="confirmation-icon"
-                     aria-hidden="true">
-                    @(Model.IsPaymentSuccessful
-                        ? "✓"
-                        : Model.IsPaymentFailed
-                            ? "!"
-                            : "…")
-                </div>
-
-                <h1>@statusTitle</h1>
-
-                <p>@statusMessage</p>
+        <!-- Top Header & Left-Aligned Stepper Progress Bar -->
+        <header class="top-header no-print">
+            <div class="header-nav-bar">
+                <a asp-controller="Storefront" asp-action="Index" class="back-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                    </svg>
+                    Back to Store
+                </a>
+                <a href="/" class="header-nav-link">🏠 Home</a>
+                <a href="/Dashboard" class="header-nav-link">👤 Dashboard</a>
             </div>
 
-            <!-- Order Summary -->
-            <div class="confirmation-body">
-
-                <h2>Order Summary</h2>
-
-                <div class="confirmation-detail">
-                    <span>Order Number</span>
-                    <strong>@Model.OrderNumber</strong>
+            <!-- Stepper Progress Bar -->
+            <div class="stepper-bar">
+                <div class="step step-completed">
+                    <span class="step-circle step-circle-completed">✓</span>
+                    <span class="step-label">Cart</span>
                 </div>
 
-                <div class="confirmation-detail">
-                    <span>Transaction Reference</span>
+                <div class="step-divider active"></div>
 
-                    <strong class="reference-value">
-                        @(string.IsNullOrWhiteSpace(
-                            Model.TransactionReferenceId)
-                            ? "Not available"
-                            : Model.TransactionReferenceId)
-                    </strong>
+                <div class="step step-completed">
+                    <span class="step-circle step-circle-completed">✓</span>
+                    <span class="step-label">Checkout</span>
                 </div>
 
-                <div class="confirmation-detail">
-                    <span>Payment Status</span>
+                <div class="step-divider active"></div>
 
-                    <strong class="@(Model.IsPaymentSuccessful
-                                                ? "status-success"
-                                                : Model.IsPaymentFailed
-                                                    ? "status-failure"
-                                                    : "status-pending")">
-                        @displayPaymentStatus
-                    </strong>
+                <div class="step step-active">
+                    <span class="step-circle step-circle-active">3</span>
+                    <span class="step-label active-label">Confirmation</span>
                 </div>
+            </div>
+        </header>
 
-                <div class="confirmation-detail">
-                    <span>Payment Method</span>
+        <!-- Main Confirmation Content -->
+        <div class="confirmation-container">
+            <div class="row g-4 justify-content-center">
 
-                    <strong>
-                        @(string.IsNullOrWhiteSpace(
-                            Model.PaymentMethod)
-                            ? "Not available"
-                            : Model.PaymentMethod)
-                    </strong>
-                </div>
+                <div class="col-lg-8">
+                    <div class="mediguard-card">
 
-                <div class="confirmation-detail">
-                    <span>
-                        @(Model.IsPaymentSuccessful
-                            ? "Total Paid"
-                            : "Order Total")
-                    </span>
+                        <!-- Dynamic Visual Outcome Banner -->
+                        <div class="confirmation-banner @statusClass" role="status" aria-live="polite">
+                            <div class="banner-icon-wrapper">
+                                @if (isSuccess)
+                                {
+                                    <div class="status-icon icon-success">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                                        </svg>
+                                    </div>
+                                }
+                                else if (isFailed)
+                                {
+                                    <div class="status-icon icon-failure">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                        </svg>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="status-icon icon-pending">⏳</div>
+                                }
+                            </div>
 
-                    <strong>
-                        @displayAmount.ToString("N2")
-                    </strong>
-                </div>
+                            <h1 class="banner-title">@statusTitle</h1>
+                            <p class="banner-subtext">@statusMessage</p>
+                        </div>
 
-                <!-- Estimated Delivery -->
-                <div class="delivery-badge">
-                    <span aria-hidden="true">&#128666;</span>
+                        <!-- Fulfillment Expectation Badge -->
+                        <div class="delivery-time-badge" role="note">
+                            <span class="badge-clock-icon">🕒</span>
+                            <span>Estimated delivery: <strong>@Model.EstimatedDeliveryTimeframe</strong></span>
+                        </div>
 
-                    <span>
-                        Estimated Delivery:
+                        <!-- Order & Payment Metadata Summary -->
+                        <div class="metadata-section">
+                            <h3 class="section-title">Transaction Details</h3>
 
-                        <strong>
-                            @Model.EstimatedDeliveryTimeframe
-                        </strong>
-                    </span>
-                </div>
+                            <div class="metadata-grid">
+                                <div class="meta-item">
+                                    <span class="meta-label">Order Number</span>
+                                    <span class="meta-value order-id-highlight">#@Model.OrderNumber</span>
+                                </div>
 
-                <!-- Payment Guidance -->
-                @if (Model.IsPaymentFailed)
-                {
-                    <p class="payment-help">
-                        If money was deducted from your account,
-                        please verify the transaction status with
-                        your payment provider before attempting
-                        another payment.
-                    </p>
-                }
-                else if (!Model.IsPaymentSuccessful)
-                {
-                    <p class="payment-pending-help">
-                        Your payment is awaiting confirmation.
-                        Please wait for the final status before
-                        attempting another payment.
-                    </p>
-                }
+                                <div class="meta-item">
+                                    <span class="meta-label">Gateway Reference ID</span>
+                                    <span class="meta-value tx-code">
+                                        @(string.IsNullOrWhiteSpace(Model.TransactionReferenceId) ? "N/A" : Model.TransactionReferenceId)
+                                    </span>
+                                </div>
 
-                <!-- Action Buttons -->
-                <div class="confirmation-actions">
+                                <div class="meta-item">
+                                    <span class="meta-label">Payment Status</span>
+                                    <span class="meta-value">
+                                        @if (isSuccess)
+                                        {
+                                            <span class="pill-badge pill-success">Paid</span>
+                                        }
+                                        else if (isFailed)
+                                        {
+                                            <span class="pill-badge pill-danger">Failed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="pill-badge pill-warning">Pending</span>
+                                        }
+                                    </span>
+                                </div>
 
-                    <button type="button"
-                            class="btn btn-primary"
-                            onclick="window.print()">
-                        Print Order Confirmation
-                    </button>
+                                <div class="meta-item">
+                                    <span class="meta-label">Payment Method</span>
+                                    <span class="meta-value fw-bold">
+                                        @(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Cash / Online Payment" : Model.PaymentMethod)
+                                    </span>
+                                </div>
 
-                    <a asp-controller="Storefront"
-                       asp-action="Index"
-                       class="btn btn-outline-secondary">
-                        Return to Storefront
-                    </a>
+                                <div class="meta-item total-row">
+                                    <span class="meta-label">@(isSuccess ? "Total Amount Paid" : "Total Amount Due")</span>
+                                    <span class="meta-value amount-text">৳ @displayAmount.ToString("N2")</span>
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- Failure Guidance -->
+                        @if (isFailed)
+                        {
+                            <div class="failure-help-box">
+                                <strong>Need Help?</strong> If money was debited from your account, it will be refunded automatically or you can reach out with Reference ID: <code>@Model.TransactionReferenceId</code>.
+                            </div>
+                        }
+
+                        <!-- Post-Transaction Actions -->
+                        <div class="action-buttons-group no-print">
+                            <button type="button" class="btn btn-teal-solid" onclick="window.print()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z" />
+                                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm1 2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-3z" />
+                                </svg>
+                                Print Order Confirmation
+                            </button>
+
+                            <a asp-controller="Storefront" asp-action="Index" class="btn btn-teal-outline">
+                                Return to Storefront
+                            </a>
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
-        </section>
-
-    </div>
+        </div>
+    </main>
 </div>
 
 <style>
-    .confirmation-wrapper {
-        max-width: 760px;
+    :root {
+        --teal-primary: #005d52;
+        --teal-dark: #00453d;
+        --teal-light: #e6f4f1;
+        --mint-bg: #f4f7f6;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
     }
 
-    .confirmation-card {
-        background: var(--bs-body-bg, #fff);
-        border: 1px solid #dee2e6;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
-    }
-
-    /* Payment Status Banners */
-    .confirmation-banner {
-        padding: 30px 24px;
-        text-align: center;
-    }
-
-    .confirmation-success {
-        background: #e8f7ed;
-        color: #176b36;
-    }
-
-    .confirmation-failure {
-        background: #fdecec;
-        color: #a51d27;
-    }
-
-    .confirmation-pending {
-        background: #fff4d6;
-        color: #805600;
-    }
-
-    .confirmation-banner h1 {
-        font-size: 27px;
-        margin-bottom: 8px;
-    }
-
-    .confirmation-banner p {
+    body {
+        background-color: var(--mint-bg);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         margin: 0;
     }
 
-    /* Status Icon */
-    .confirmation-icon {
-        width: 58px;
-        height: 58px;
-        margin: 0 auto 14px;
-        border: 2px solid currentColor;
+    .checkout-layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-panel {
+        width: 240px;
+        background-color: var(--teal-primary);
+        color: #ffffff;
+        padding: 30px 20px;
+        flex-shrink: 0;
+    }
+
+    .user-profile {
+        text-align: center;
+        padding-bottom: 25px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        margin-bottom: 25px;
+    }
+
+    .avatar-circle {
+        width: 68px;
+        height: 68px;
+        background: #ffffff;
+        color: var(--teal-primary);
+        font-size: 22px;
+        font-weight: 700;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 32px;
+        margin: 0 auto 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        letter-spacing: 1px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        font-size: 15px;
+        word-break: break-word;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+    /* Main Area */
+    .main-content-panel {
+        flex-grow: 1;
+        padding: 24px 36px;
+        background-color: var(--mint-bg);
+    }
+
+    /* Top Header Aligned Left */
+    .top-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .header-nav-bar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .back-link, .header-nav-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Left-Aligned Stepper Bar */
+    .stepper-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .step-circle {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .step-circle-completed {
+        background-color: var(--teal-primary);
+        color: #ffffff;
+    }
+
+    .step-label {
+        color: #9ca3af;
+        font-size: 14px;
+    }
+
+    .step-circle-active {
+        background-color: #ffffff;
+        border: 2px solid var(--teal-primary);
+        color: var(--teal-primary);
         font-weight: 700;
     }
 
-    /* Order Summary */
-    .confirmation-body {
-        padding: 28px;
+    .active-label {
+        color: var(--teal-primary);
+        font-weight: 700;
     }
 
-        .confirmation-body h2 {
-            font-size: 21px;
-            margin-bottom: 22px;
+    .step-divider {
+        width: 36px;
+        height: 2.5px;
+        background-color: #d1d5db;
+    }
+
+        .step-divider.active {
+            background-color: var(--teal-primary);
         }
 
-    .confirmation-detail {
+    /* Card & Banners */
+    .mediguard-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .confirmation-banner {
+        border-radius: 12px;
+        padding: 28px 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .status-banner-success {
+        background: linear-gradient(135deg, #e6f7f0 0%, #d0f0e3 100%);
+        border: 1px solid #a3e6cd;
+        color: #065f46;
+    }
+
+    .status-banner-failure {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+    }
+
+    .status-banner-pending {
+        background: linear-gradient(135deg, #fffbe3 0%, #fef3c7 100%);
+        border: 1px solid #fde68a;
+        color: #92400e;
+    }
+
+    .status-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-success {
+        color: #10b981;
+    }
+
+    .icon-failure {
+        color: #ef4444;
+    }
+
+    .icon-pending {
+        color: #f59e0b;
+        font-size: 28px;
+    }
+
+    .banner-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .banner-subtext {
+        font-size: 14px;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .delivery-time-badge {
+        background-color: #eef8f6;
+        border: 1px solid #bce3db;
+        color: var(--teal-primary);
+        padding: 12px 18px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .metadata-section {
+        margin-top: 20px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 16px;
+    }
+
+    .metadata-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .meta-item {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 14px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-        .confirmation-detail > span {
-            color: #626b75;
-        }
-
-        .confirmation-detail > strong {
-            text-align: right;
-            overflow-wrap: anywhere;
-        }
-
-    .reference-value {
-        max-width: 60%;
-    }
-
-    /* Payment Status Text */
-    .status-success {
-        color: #16803d;
-    }
-
-    .status-failure {
-        color: #b42318;
-    }
-
-    .status-pending {
-        color: #805600;
-    }
-
-    /* Estimated Delivery */
-    .delivery-badge {
-        display: flex;
-        flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
-        margin-top: 22px;
+        padding: 12px 0;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .meta-label {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .meta-value {
+        font-size: 14px;
+        color: var(--text-dark);
+    }
+
+    .order-id-highlight {
+        font-weight: 700;
+        color: var(--teal-primary);
+    }
+
+    .tx-code {
+        font-family: monospace;
+        background-color: #f3f4f6;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .total-row {
+        border-bottom: none;
+        border-top: 2px solid #e5e7eb;
+        padding-top: 16px;
+        margin-top: 8px;
+    }
+
+    .amount-text {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--teal-primary);
+    }
+
+    .pill-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .pill-success {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .pill-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .pill-warning {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .failure-help-box {
+        margin-top: 20px;
         padding: 14px;
-        background: #edf4ff;
-        color: #244d86;
-        border-radius: 10px;
+        background-color: #fff1f2;
+        border-left: 4px solid #f43f5e;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #881337;
     }
 
-    /* Payment Guidance */
-    .payment-help {
-        margin-top: 18px;
-        color: #8a3030;
-        font-size: 14px;
-    }
-
-    .payment-pending-help {
-        margin-top: 18px;
-        color: #805600;
-        font-size: 14px;
-    }
-
-    /* Action Buttons */
-    .confirmation-actions {
+    .action-buttons-group {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 28px;
+        gap: 14px;
+        margin-top: 30px;
     }
 
-    /* Responsive Design */
-
-    @@media (max-width: 576px) {
-        .confirmation-body {
-            padding: 20px;
-        }
-
-        .confirmation-banner h1 {
-            font-size: 23px;
-        }
-
-        .confirmation-detail {
-            flex-direction: column;
-            gap: 6px;
-        }
-
-            .confirmation-detail > strong {
-                text-align: left;
-            }
-
-        .reference-value {
-            max-width: 100%;
-        }
-
-        .confirmation-actions .btn {
-            width: 100%;
-        }
+    .btn-teal-solid {
+        background-color: var(--teal-primary);
+        color: #ffffff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
     }
 
-    /* Print Design */
+        .btn-teal-solid:hover {
+            background-color: var(--teal-dark);
+            color: #ffffff;
+        }
+
+    .btn-teal-outline {
+        background-color: transparent;
+        color: var(--teal-primary);
+        border: 2px solid var(--teal-primary);
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-teal-outline:hover {
+            background-color: var(--teal-light);
+            color: var(--teal-primary);
+        }
+
     @@media print {
-        body {
-            background: #fff !important;
-        }
-
-        .confirmation-wrapper {
-            max-width: 100%;
-        }
-
-        .confirmation-card {
-            border: 0;
-            box-shadow: none;
-        }
-
-        .confirmation-actions,
-        .payment-help,
-        .payment-pending-help {
+        .no-print, .sidebar-panel, .top-header {
             display: none !important;
         }
 
-        .confirmation-banner {
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
+        .checkout-layout {
+            display: block;
+        }
+
+        .main-content-panel {
+            padding: 0;
+            background: #fff;
+        }
+
+        .mediguard-card {
+            border: none;
+            box-shadow: none;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .checkout-layout {
+            flex-direction: column;
+        }
+
+        .sidebar-panel {
+            width: 100%;
+        }
+
+        .action-buttons-group {
+            flex-direction: column;
         }
     }
 </style>
