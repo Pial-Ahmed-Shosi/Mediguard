@@ -6,133 +6,270 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/storefront.css" asp-append-version="true" />
+    <style>
+        :root {
+            --mg-teal: #007a78;
+            --mg-teal-dark: #005f5d;
+            --mg-teal-light: #e6f2f2;
+        }
+
+        .mg-storefront-wrapper {
+            background-color: #fafbfb;
+            min-height: 100vh;
+        }
+
+        .mg-subheader {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .mg-search-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eaeaea;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .mg-input-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #556060;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .mg-input-field {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            color: #212529;
+            transition: all 0.2s ease;
+        }
+
+        .mg-input-field:focus {
+            border-color: var(--mg-teal);
+            box-shadow: 0 0 0 0.2rem rgba(0, 122, 120, 0.12);
+        }
+
+        .btn-mg-search {
+            background-color: var(--mg-teal);
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.25rem;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-size: 0.875rem;
+            transition: background-color 0.2s ease;
+            height: 42px;
+        }
+
+        .btn-mg-search:hover {
+            background-color: var(--mg-teal-dark);
+            color: #ffffff;
+        }
+
+        .mg-pills-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .mg-pill-btn {
+            border-radius: 50rem;
+            padding: 0.4rem 1.1rem;
+            font-size: 0.825rem;
+            font-weight: 500;
+            border: 1px solid #e0e0e0;
+            color: #333333;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .mg-pill-btn.active, .mg-pill-btn:hover {
+            background-color: var(--mg-teal);
+            color: #ffffff;
+            border-color: var(--mg-teal);
+        }
+
+        .mg-pill-btn.active i, .mg-pill-btn:hover i {
+            color: #ffffff;
+        }
+
+        .mg-pill-btn i {
+            color: var(--mg-teal);
+        }
+    </style>
 }
 
-<div class="mg-storefront">
-    <div class="container py-4 py-lg-5">
+<div class="mg-storefront-wrapper py-4">
+    <div class="container-fluid px-lg-5">
 
-        <div class="mg-page-heading">
-            <div>
-                <span class="mg-eyebrow">
-                    <i class="bi bi-shield-check"></i>
-                    MediGuard Pharmacy Marketplace
-                </span>
-                <h1>Find medicines &amp; healthcare items</h1>
-                <p>Compare available products and find the medicine you need.</p>
-            </div>
-
-            <div class="mg-result-count">
+        <!-- Header Context Line & Item Count -->
+        <div class="d-flex justify-content-between align-items-center mb-3 mg-subheader">
+            <span>Compare prices across verified pharmacies near you.</span>
+            <span class="fw-semibold text-dark" id="productCountBadge">
                 @Model.TotalProducts @(Model.TotalProducts == 1 ? "item" : "items") found
-            </div>
+            </span>
         </div>
 
-        <form asp-controller="Storefront"
-              asp-action="Index"
-              method="get"
-              class="mg-search-panel">
+        <!-- 3 Search Options Panel -->
+        <div class="mg-search-container mb-4">
+            <form id="storefrontSearchForm" onsubmit="return false;">
+                <div class="row g-3 align-items-end">
 
-            <div class="mg-search-field">
-                <label for="search">Medicine / item name</label>
-                <input id="search"
-                       name="search"
-                       value="@Model.SearchTerm"
-                       class="form-control"
-                       placeholder="e.g. Clindamycin, NAPA..."
-                       maxlength="200" />
-            </div>
+                    <!-- Search Option 1: Medicine / Item Name -->
+                    <div class="col-12 col-md-4">
+                        <label for="search" class="mg-input-label">
+                            <i class="bi bi-capsule text-teal"></i> Medicine / Item Name
+                        </label>
+                        <input id="search"
+                               name="search"
+                               value="@Model.SearchTerm"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Clindacin, Napa, Syringe..."
+                               maxlength="200" />
+                    </div>
 
-            <div class="mg-search-field">
-                <label for="category">Category</label>
-                <select id="category"
-                        name="category"
-                        class="form-select">
-                    <option value="">All categories</option>
-                    @foreach (var item in Model.Categories)
-                    {
-                        <option value="@item"
-                                selected="@(Model.SelectedCategory == item)">
-                            @item
-                        </option>
-                    }
-                </select>
-            </div>
+                    <!-- Search Option 2: Location / Area -->
+                    <div class="col-12 col-md-3">
+                        <label for="location" class="mg-input-label">
+                            <i class="bi bi-geo-alt text-teal"></i> Location / Area
+                        </label>
+                        <input id="location"
+                               name="location"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Dhanmondi, Gulshan..."
+                               maxlength="100" />
+                    </div>
 
-            <button type="submit" class="btn mg-search-button">
-                <i class="bi bi-search"></i>
-                Find Items
+                    <!-- Search Option 3: Pharmacy / Hospital -->
+                    <div class="col-12 col-md-3">
+                        <label for="pharmacy" class="mg-input-label">
+                            <i class="bi bi-hospital text-teal"></i> Pharmacy / Hospital
+                        </label>
+                        <input id="pharmacy"
+                               name="pharmacy"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Lazz Pharma, Square Hospital..."
+                               maxlength="100" />
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="col-12 col-md-2">
+                        <button type="button" id="btnFilter" class="btn btn-mg-search w-100">
+                            <i class="bi bi-search"></i> Find Items
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Category Navigational Pills -->
+        <div class="mg-pills-row mb-4" id="categoryPillContainer">
+            <button class="btn mg-pill-btn active" data-category="All">
+                <i class="bi bi-grid-fill"></i> All
             </button>
-
-            <a asp-controller="Storefront"
-               asp-action="Index"
-               class="mg-reset-link">
-                Reset
-            </a>
-        </form>
-
-        <div class="mg-catalog-layout">
-
-            <aside class="mg-category-sidebar">
-                <h2>Categories</h2>
-
-                <a asp-controller="Storefront"
-                   asp-action="Index"
-                   asp-route-search="@Model.SearchTerm"
-                   class="mg-category-link @(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")">
-                    <i class="bi bi-grid"></i>
-                    All items
-                </a>
-
-                @foreach (var item in Model.Categories)
+            @if (Model.Categories != null && Model.Categories.Any())
+            {
+                foreach (var item in Model.Categories)
                 {
-                    <a asp-controller="Storefront"
-                       asp-action="Index"
-                       asp-route-search="@Model.SearchTerm"
-                       asp-route-category="@item"
-                       class="mg-category-link @(Model.SelectedCategory == item ? "active" : "")">
-                        <i class="bi bi-capsule"></i>
-                        @item
-                    </a>
+                    <button class="btn mg-pill-btn" data-category="@item">
+                        <i class="bi bi-capsule"></i> @item
+                    </button>
                 }
-            </aside>
-
-            <section class="mg-product-section"
-                     aria-label="Medicine products">
-
-                @if (!Model.Products.Any())
-                {
-                    <div class="mg-empty-state">
-                        <i class="bi bi-search"></i>
-                        <h2>No products found</h2>
-                        <p>
-                            No active products match your search.
-                            Try a different name or category.
-                        </p>
-                        <a asp-controller="Storefront"
-                           asp-action="Index"
-                           class="btn mg-search-button">
-                            Show all products
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="mg-product-grid">
-                        @foreach (var product in Model.Products)
-                        {
-                            <partial name="_ProductCard" model="product" />
-                        }
-                    </div>
-                }
-            </section>
+            }
+            else
+            {
+                <button class="btn mg-pill-btn" data-category="Tablets & Capsules">
+                    <i class="bi bi-capsule"></i> Tablets & Capsules
+                </button>
+                <button class="btn mg-pill-btn" data-category="Syrups & Liquids">
+                    <i class="bi bi-droplet"></i> Syrups & Liquids
+                </button>
+                <button class="btn mg-pill-btn" data-category="Injections">
+                    <i class="bi bi-eyedropper"></i> Injections
+                </button>
+                <button class="btn mg-pill-btn" data-category="Devices">
+                    <i class="bi bi-cpu"></i> Devices
+                </button>
+                <button class="btn mg-pill-btn" data-category="IV Fluids">
+                    <i class="bi bi-moisture"></i> IV Fluids
+                </button>
+                <button class="btn mg-pill-btn" data-category="Bandages">
+                    <i class="bi bi-bandaid"></i> Bandages
+                </button>
+            }
         </div>
+
+        <!-- 4-Column Product Grid -->
+        <div class="row g-3 g-md-4" id="productGrid">
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                foreach (var product in Model.Products)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3 product-item-col"
+                         data-brand="@(product.BrandName?.ToLower() ?? "")"
+                         data-generic="@(product.GenericName?.ToLower() ?? "")"
+                         data-category="@(product.Category?.Name ?? "")">
+                        @await Html.PartialAsync("_ProductCard", product)
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5" id="emptyState">
+                    <i class="bi bi-search fs-1 text-muted"></i>
+                    <h5 class="mt-3 text-secondary">No products available</h5>
+                    <p class="text-muted small">There are currently no products matching the storefront criteria.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Client-Side No Search Results Fallback -->
+        <div id="noResultsMessage" class="text-center py-5 d-none">
+            <i class="bi bi-search fs-1 text-muted"></i>
+            <h5 class="mt-3 text-secondary">No matching products found</h5>
+            <p class="text-muted small">Try refining your search terms or selecting a different category filter.</p>
+        </div>
+
     </div>
 </div>
 
+<!-- Prescription Warning Toast Notification -->
 <div id="mg-cart-notice"
-     class="mg-cart-notice"
+     class="mg-cart-notice position-fixed bottom-0 end-0 p-3"
+     style="z-index: 1090;"
      role="status"
      aria-live="polite"
      hidden>
+    <div class="toast align-items-center text-white bg-dark border-0 shadow-lg show" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
+                <span id="mg-cart-notice-text" class="small fw-normal"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" id="mg-cart-notice-close" aria-label="Close"></button>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
