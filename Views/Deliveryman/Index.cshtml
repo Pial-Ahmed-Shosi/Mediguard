@@ -1,0 +1,414 @@
+@{
+    ViewData["Title"] = "Delivery Dashboard";
+    Layout = "_Layout";
+}
+
+@section Styles {
+<style>
+    :root {
+        --dv-teal: #007a78;
+        --dv-teal-dark: #005f5d;
+        --dv-teal-light: #e6f4f3;
+        --dv-border: #e0e7e7;
+        --dv-bg: #f4f7f6;
+    }
+
+    body { background: var(--dv-bg); }
+
+    .dv-page {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 1rem 1rem 5rem;
+    }
+
+    /* Header */
+    .dv-header {
+        background: linear-gradient(135deg, var(--dv-teal), var(--dv-teal-dark));
+        border-radius: 20px;
+        padding: 1.5rem 1.75rem;
+        color: #fff;
+        margin-bottom: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dv-header h1 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 0 0 0.2rem;
+    }
+
+    .dv-header p {
+        margin: 0;
+        font-size: 0.82rem;
+        opacity: 0.85;
+    }
+
+    .dv-header-icon {
+        font-size: 2.5rem;
+        opacity: 0.25;
+    }
+
+    /* Tabs */
+    .dv-tabs {
+        display: flex;
+        gap: 0;
+        background: #fff;
+        border-radius: 14px;
+        padding: 4px;
+        box-shadow: 0 2px 12px rgba(0,122,120,0.07);
+        margin-bottom: 1.25rem;
+    }
+
+    .dv-tab-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        border-radius: 10px;
+        padding: 0.65rem 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #6b7280;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+    }
+
+    .dv-tab-btn.active {
+        background: var(--dv-teal);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(0,122,120,0.25);
+    }
+
+    .dv-tab-badge {
+        font-size: 0.7rem;
+        background: rgba(255,255,255,0.25);
+        border-radius: 20px;
+        padding: 1px 7px;
+        font-weight: 700;
+    }
+
+    .dv-tab-btn:not(.active) .dv-tab-badge {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    /* Tab panels */
+    .dv-panel { display: none; }
+    .dv-panel.active { display: block; }
+
+    /* Loading spinner */
+    .dv-loading {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+
+    /* Empty state */
+    .dv-empty {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #9ca3af;
+    }
+
+    .dv-empty i {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Delivery Card */
+    .dv-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 14px rgba(0,0,0,0.05);
+        border: 1px solid var(--dv-border);
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dv-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(0,122,120,0.1);
+    }
+
+    .dv-card-header {
+        background: var(--dv-teal-light);
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .dv-order-type {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.3em 0.8em;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .dv-type-b2c {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .dv-type-b2b {
+        background: #ede9fe;
+        color: #6d28d9;
+    }
+
+    .dv-order-id {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--dv-teal-dark);
+        font-family: monospace;
+    }
+
+    .dv-card-body {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .dv-recipient-name {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 0.6rem;
+    }
+
+    .dv-meta {
+        font-size: 0.82rem;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .dv-meta i {
+        color: var(--dv-teal);
+        font-size: 0.9rem;
+        width: 16px;
+        flex-shrink: 0;
+    }
+
+    .dv-meta a {
+        color: var(--dv-teal);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .dv-meta a:hover { text-decoration: underline; }
+
+    /* Items checklist */
+    .dv-items-list {
+        margin: 0.75rem 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px dashed var(--dv-border);
+        padding-top: 0.75rem;
+    }
+
+    .dv-items-list li {
+        font-size: 0.82rem;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .dv-items-list li i {
+        color: var(--dv-teal);
+        font-size: 0.85rem;
+    }
+
+    /* Action Buttons */
+    .dv-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.85rem 1.25rem;
+        background: #f9fafb;
+        border-top: 1px solid var(--dv-border);
+        flex-wrap: wrap;
+    }
+
+    .btn-dv-done {
+        background: var(--dv-teal);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.25rem;
+        font-size: 0.83rem;
+        font-weight: 700;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    .btn-dv-done:hover:not(:disabled) {
+        background: var(--dv-teal-dark);
+        transform: translateY(-1px);
+    }
+
+    .btn-dv-cancel {
+        background: #fee2e2;
+        color: #dc2626;
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.25rem;
+        font-size: 0.83rem;
+        font-weight: 700;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    .btn-dv-cancel:hover:not(:disabled) {
+        background: #fca5a5;
+        transform: translateY(-1px);
+    }
+
+    .btn-dv-done:disabled, .btn-dv-cancel:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Done / Cancelled info rows */
+    .dv-completion-info {
+        font-size: 0.78rem;
+        color: #6b7280;
+        padding: 0.7rem 1.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .dv-completion-info.text-success { color: #059669 !important; }
+    .dv-completion-info.text-danger  { color: #dc2626 !important; }
+
+    /* Toast notification */
+    .dv-toast-wrap {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 9999;
+    }
+</style>
+}
+
+<div class="dv-page py-3">
+
+    <!-- Header -->
+    <div class="dv-header">
+        <div>
+            <h1><i class="bi bi-truck me-2"></i>Delivery Dashboard</h1>
+            <p>Manage and update your assigned deliveries</p>
+        </div>
+        <i class="bi bi-map dv-header-icon"></i>
+    </div>
+
+    <!-- Tabs -->
+    <div class="dv-tabs" role="tablist" aria-label="Delivery status tabs">
+        <button class="dv-tab-btn active" role="tab" aria-selected="true"
+                data-tab="pending" id="tab-pending" aria-controls="panel-pending">
+            <i class="bi bi-clock"></i> Pending
+            <span class="dv-tab-badge" id="badge-pending">—</span>
+        </button>
+        <button class="dv-tab-btn" role="tab" aria-selected="false"
+                data-tab="done" id="tab-done" aria-controls="panel-done">
+            <i class="bi bi-check2-all"></i> Done
+            <span class="dv-tab-badge" id="badge-done">—</span>
+        </button>
+        <button class="dv-tab-btn" role="tab" aria-selected="false"
+                data-tab="cancelled" id="tab-cancelled" aria-controls="panel-cancelled">
+            <i class="bi bi-x-circle"></i> Cancelled
+            <span class="dv-tab-badge" id="badge-cancelled">—</span>
+        </button>
+    </div>
+
+    <!-- Tab Panels -->
+    <div id="panel-pending" class="dv-panel active" role="tabpanel" aria-labelledby="tab-pending">
+        <div id="list-pending" class="dv-loading">
+            <i class="bi bi-arrow-repeat"></i> Loading deliveries...
+        </div>
+    </div>
+
+    <div id="panel-done" class="dv-panel" role="tabpanel" aria-labelledby="tab-done">
+        <div id="list-done" class="dv-loading">
+            <i class="bi bi-arrow-repeat"></i> Loading deliveries...
+        </div>
+    </div>
+
+    <div id="panel-cancelled" class="dv-panel" role="tabpanel" aria-labelledby="tab-cancelled">
+        <div id="list-cancelled" class="dv-loading">
+            <i class="bi bi-arrow-repeat"></i> Loading deliveries...
+        </div>
+    </div>
+
+</div>
+
+<!-- Cancel Delivery Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1"
+     aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; overflow:hidden;">
+            <div class="modal-header border-0" style="background:#fff5f5;">
+                <h5 class="modal-title fw-bold text-danger" id="cancelModalLabel">
+                    <i class="bi bi-x-circle-fill me-2"></i> Cancel Delivery
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="background:#fff5f5;">
+                <p class="text-muted small mb-3">Please select or enter a cancellation reason:</p>
+                <label for="cancelReasonInput" class="form-label fw-semibold">Reason <span class="text-danger">*</span></label>
+                <textarea id="cancelReasonInput" class="form-control" rows="3" maxlength="300"
+                          placeholder="e.g. Recipient Unreachable, Wrong Address..."
+                          style="border-radius:10px;"></textarea>
+                <div id="cancelReasonError" class="text-danger small mt-1" hidden>A cancellation reason is required.</div>
+                <div class="mt-2 d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary dv-reason-chip"
+                            data-reason="Recipient Unreachable">Recipient Unreachable</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary dv-reason-chip"
+                            data-reason="Wrong Address">Wrong Address</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary dv-reason-chip"
+                            data-reason="Customer Refused Package">Customer Refused Package</button>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-white">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+                <button type="button" id="btnConfirmCancel" class="btn btn-danger fw-bold px-4">
+                    <i class="bi bi-x-circle me-1"></i> Confirm Cancellation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="dv-toast-wrap" id="dvToastWrap" aria-live="polite"></div>
+
+@section Scripts {
+    <script>
+        const dvAntiForgery = '@Html.AntiForgeryToken()';
+    </script>
+    <script src="~/js/deliveryman.js" asp-append-version="true"></script>
+}

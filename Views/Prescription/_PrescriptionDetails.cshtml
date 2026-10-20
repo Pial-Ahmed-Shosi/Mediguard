@@ -1,0 +1,82 @@
+@model MediGuard.Models.Prescription
+
+@{
+    var statusClass = Model.Status switch
+    {
+        "APPROVED"  => "text-success",
+        "REJECTED"  => "text-danger",
+        _           => "text-warning"
+    };
+    var statusIcon = Model.Status switch
+    {
+        "APPROVED"  => "bi-check-circle-fill",
+        "REJECTED"  => "bi-x-circle-fill",
+        _           => "bi-hourglass-split"
+    };
+}
+
+<div class="rx-details-panel">
+
+    <!-- Status Row -->
+    <div class="rx-detail-row">
+        <span class="rx-detail-label">Status</span>
+        <span class="rx-detail-value @statusClass fw-bold">
+            <i class="bi @statusIcon me-1"></i>
+            @Model.Status
+        </span>
+    </div>
+
+    <!-- Order Reference -->
+    <div class="rx-detail-row">
+        <span class="rx-detail-label">Order ID</span>
+        <span class="rx-detail-value">
+            <code>#@Model.OrderId.ToString().Substring(0, 8).ToUpper()</code>
+        </span>
+    </div>
+
+    <!-- Customer -->
+    <div class="rx-detail-row">
+        <span class="rx-detail-label">Customer ID</span>
+        <span class="rx-detail-value text-truncate">@(Model.CustomerId ?? "—")</span>
+    </div>
+
+    <!-- File Type -->
+    <div class="rx-detail-row">
+        <span class="rx-detail-label">File Type</span>
+        <span class="rx-detail-value">
+            @if (Model.FileType.ToLower() == "pdf")
+            {
+                <span class="badge bg-danger text-white">PDF</span>
+            }
+            else
+            {
+                <span class="badge bg-info text-dark">@Model.FileType.ToUpper()</span>
+            }
+        </span>
+    </div>
+
+    <!-- Submitted -->
+    <div class="rx-detail-row">
+        <span class="rx-detail-label">Submitted</span>
+        <span class="rx-detail-value">@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</span>
+    </div>
+
+    <!-- Verified By -->
+    @if (!string.IsNullOrWhiteSpace(Model.VerifiedById))
+    {
+        <div class="rx-detail-row">
+            <span class="rx-detail-label">Reviewed By</span>
+            <span class="rx-detail-value text-truncate">@Model.VerifiedById</span>
+        </div>
+    }
+
+    <!-- Rejection Reason -->
+    @if (Model.Status == "REJECTED" && !string.IsNullOrWhiteSpace(Model.RejectionReason))
+    {
+        <div class="rx-rejection-box mt-2">
+            <i class="bi bi-exclamation-triangle-fill me-1 text-danger"></i>
+            <strong>Rejection Reason:</strong> @Model.RejectionReason
+        </div>
+    }
+
+</div>

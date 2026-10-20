@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
     "use strict";
 
     const form = document.getElementById("payment-form");
@@ -140,7 +140,7 @@
                 throw new Error("Online payment is not configured yet. Please contact support.");
 
             // Intent creation only prepares the payment; it is NOT a completed charge.
-            const response = await fetch("/Payment/CreateIntent", {
+            const response = await fetch("/api/Payment/create-intent", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "RequestVerificationToken": csrfToken },
                 credentials: "same-origin",
