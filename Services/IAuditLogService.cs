@@ -32,6 +32,7 @@ namespace MediGuard.Services
             DateTime? startDate = null,
             DateTime? endDate = null,
             string? userId = null,
-            string? actionType = null);
+            string? actionType = null,
+            string? searchTerm = null);
     }
 }

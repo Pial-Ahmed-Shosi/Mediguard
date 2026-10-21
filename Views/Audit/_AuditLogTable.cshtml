@@ -1,4 +1,4 @@
-﻿
+
 @model IEnumerable<MediGuard.Models.ViewModels.AuditLogEntryViewModel>
 
 <table class="table audit-table align-middle mb-0">
@@ -34,6 +34,13 @@
             @foreach (var entry in Model)
             {
                 var action = (entry.ActionType ?? "").ToUpperInvariant();
+                var isInsert = action.Contains("INSERT") || action.Contains("CREATE");
+                var isUpdate = action.Contains("UPDATE") || action.Contains("EDIT") || action.Contains("PATCH");
+                var isDelete = action.Contains("DELETE") || action.Contains("REMOVE");
+                var badgeClass = isInsert ? "audit-insert" :
+                                 isUpdate ? "audit-update" :
+                                 isDelete ? "audit-delete" :
+                                 "audit-other";
 
                 <tr>
                     <td class="text-nowrap">
@@ -51,11 +58,7 @@
                     </td>
 
                     <td>
-                        <span class="audit-action-badge
-                            @(action == "INSERT" ? "audit-insert" :
-                              action == "UPDATE" ? "audit-update" :
-                              action == "DELETE" ? "audit-delete" :
-                              "audit-other")">
+                        <span class="audit-action-badge @badgeClass">
                             @action
                         </span>
                     </td>

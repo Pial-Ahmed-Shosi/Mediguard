@@ -76,7 +76,8 @@ namespace MediGuard.Services
             DateTime? startDate = null,
             DateTime? endDate = null,
             string? userId = null,
-            string? actionType = null)
+            string? actionType = null,
+            string? searchTerm = null)
         {
             if (pharmacyId == Guid.Empty)
             {
@@ -113,7 +114,30 @@ namespace MediGuard.Services
                 if (!string.IsNullOrWhiteSpace(actionType))
                 {
                     var upperAction = actionType.Trim().ToUpperInvariant();
-                    query = query.Where(a => a.Action.ToUpper().Contains(upperAction));
+                    if (upperAction == "INSERT" || upperAction == "CREATE")
+                    {
+                        query = query.Where(a => a.Action.ToUpper().Contains("INSERT") || a.Action.ToUpper().Contains("CREATE"));
+                    }
+                    else if (upperAction == "UPDATE" || upperAction == "EDIT")
+                    {
+                        query = query.Where(a => a.Action.ToUpper().Contains("UPDATE") || a.Action.ToUpper().Contains("EDIT"));
+                    }
+                    else if (upperAction == "DELETE" || upperAction == "REMOVE")
+                    {
+                        query = query.Where(a => a.Action.ToUpper().Contains("DELETE") || a.Action.ToUpper().Contains("REMOVE"));
+                    }
+                    else
+                    {
+                        query = query.Where(a => a.Action.ToUpper().Contains(upperAction));
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var term = searchTerm.Trim().ToLower();
+                    query = query.Where(a => a.EntityName.ToLower().Contains(term) ||
+                                             a.Action.ToLower().Contains(term) ||
+                                             (a.IpAddress != null && a.IpAddress.ToLower().Contains(term)));
                 }
 
                 return await query
