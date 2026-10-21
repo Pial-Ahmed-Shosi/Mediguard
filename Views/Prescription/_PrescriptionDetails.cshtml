@@ -1,0 +1,505 @@
+@model MediGuard.Models.ViewModels.PrescriptionReviewViewModel
+@{
+    var status = (Model.Status ?? "PENDING").ToUpperInvariant();
+    var statusClass = status switch
+    {
+        "APPROVED" => "bg-success",
+        "REJECTED" => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+
+    var hasRejection = !string.IsNullOrWhiteSpace(Model.RejectionReason);
+
+    var items = Model.Items ?? new List<MediGuard.Models.ViewModels.PrescriptionOrderItemViewModel>();
+    var totalUnits = items.Sum(i => i.Quantity);
+    var rxCount = items.Count(i => i.RequiresPrescription);
+
+    var fullName = (Model.CustomerName ?? string.Empty).Trim();
+    var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = nameParts.Length == 0
+        ? "?"
+        : nameParts.Length == 1
+            ? nameParts[0].Substring(0, 1).ToUpperInvariant()
+            : (nameParts[0].Substring(0, 1) + nameParts[nameParts.Length - 1].Substring(0, 1)).ToUpperInvariant();
+}
+
+<style>
+    .rxd-card {
+        border: 1px solid #d7eadf;
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(20, 83, 45, .07);
+        margin-bottom: 1.25rem;
+    }
+    .rxd-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .9rem 1.15rem;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-bottom: 1px solid #d7eadf;
+    }
+    .rxd-card-title {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        margin: 0;
+        font-size: .95rem;
+        font-weight: 700;
+        color: #14532d;
+        letter-spacing: .01em;
+    }
+    .rxd-title-icon {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: .55rem;
+        background: #16a34a;
+        color: #fff;
+        font-size: .95rem;
+    }
+    .rxd-count-pill {
+        font-size: .72rem;
+        font-weight: 700;
+        padding: .25rem .65rem;
+        border-radius: 999px;
+        background: #fff;
+        color: #15803d;
+        border: 1px solid #bbe5c9;
+    }
+
+    /* Customer profile */
+    .rxd-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.15rem 1.15rem .9rem;
+    }
+    .rxd-avatar {
+        flex: 0 0 auto;
+        width: 58px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #22c55e, #0b3d2e);
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+        box-shadow: 0 6px 14px rgba(22, 163, 74, .35);
+        border: 3px solid #dcfce7;
+    }
+    .rxd-profile-name {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0b3d2e;
+        line-height: 1.2;
+    }
+    .rxd-status-pill { margin-left: auto; flex: 0 0 auto; }
+    .rxd-status-pill .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-weight: 700;
+        font-size: .72rem;
+        letter-spacing: .05em;
+        padding: .45em .85em;
+        border-radius: 999px;
+    }
+
+    .rxd-info-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 1.15rem 1.15rem;
+        display: grid;
+        gap: .55rem;
+    }
+    .rxd-info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+        padding: .6rem .75rem;
+        border-radius: .7rem;
+        background: #f7fcf9;
+        border: 1px solid #e3f1e8;
+    }
+    .rxd-info-icon {
+        flex: 0 0 auto;
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: .55rem;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: .95rem;
+    }
+    .rxd-info-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #6b8577;
+    }
+    .rxd-info-value {
+        display: block;
+        font-size: .9rem;
+        font-weight: 600;
+        color: #1f2d27;
+        word-break: break-word;
+    }
+    .rxd-notes {
+        margin: 0 1.15rem 1.15rem;
+        padding: .75rem 1rem;
+        border-radius: .7rem;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-left: 5px solid #f59e0b;
+        color: #78350f;
+        font-size: .88rem;
+    }
+    .rxd-notes-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: .2rem;
+    }
+
+    /* Summary strip */
+    .rxd-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid #d7eadf;
+    }
+    .rxd-stat {
+        padding: .85rem .5rem;
+        text-align: center;
+        border-right: 1px solid #e3f1e8;
+    }
+    .rxd-stat:last-child { border-right: 0; }
+    .rxd-stat-value {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #15803d;
+        line-height: 1.1;
+    }
+    .rxd-stat-label {
+        display: block;
+        margin-top: .15rem;
+        font-size: .68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #6b8577;
+    }
+
+    /* Line items */
+    .rxd-items { list-style: none; margin: 0; padding: 0; }
+    .rxd-item {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .85rem 1.15rem;
+        border-bottom: 1px solid #edf5f0;
+        transition: background .15s ease;
+    }
+    .rxd-item:hover { background: #f7fcf9; }
+    .rxd-item:last-child { border-bottom: 0; }
+    .rxd-item-icon {
+        flex: 0 0 auto;
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: .7rem;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 1.1rem;
+    }
+    .rxd-item-body { flex: 1 1 auto; min-width: 0; }
+    .rxd-item-name {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: .4rem;
+        font-weight: 700;
+        color: #1f2d27;
+        font-size: .92rem;
+    }
+    .rxd-item-generic { font-size: .78rem; color: #6b8577; }
+    .rxd-item-calc { font-size: .75rem; color: #5d7367; margin-top: .1rem; }
+    .rxd-item-total {
+        flex: 0 0 auto;
+        font-weight: 800;
+        color: #14532d;
+        font-size: .95rem;
+        white-space: nowrap;
+    }
+    .rxd-rx-tag {
+        font-size: .62rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        padding: .2rem .5rem;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+    .rxd-empty {
+        padding: 2rem 1rem;
+        text-align: center;
+        color: #6b8577;
+        font-size: .9rem;
+    }
+    .rxd-empty i { display: block; font-size: 2rem; margin-bottom: .4rem; color: #9ccfb0; }
+
+    .rxd-total-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.15rem;
+        background: linear-gradient(135deg, #0b3d2e 0%, #15803d 100%);
+        color: #fff;
+    }
+    .rxd-total-label {
+        font-size: .78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        opacity: .85;
+    }
+    .rxd-total-value { font-size: 1.5rem; font-weight: 800; letter-spacing: .01em; }
+
+    /* Verification */
+    .rxd-verify-body { padding: 1.15rem; }
+    .rxd-verify-hint { font-size: .82rem; color: #5d7367; margin-bottom: .9rem; }
+    .rxd-actions { display: flex; gap: .75rem; }
+    .rxd-btn {
+        flex: 1 1 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .85rem 1rem;
+        border: 0;
+        border-radius: .8rem;
+        font-weight: 700;
+        font-size: .95rem;
+        color: #fff;
+        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .rxd-btn-approve {
+        background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+        box-shadow: 0 8px 18px rgba(22, 163, 74, .35);
+    }
+    .rxd-btn-reject {
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        box-shadow: 0 8px 18px rgba(220, 38, 38, .28);
+    }
+    .rxd-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+        color: #fff;
+    }
+    .rxd-btn:focus-visible {
+        outline: 3px solid rgba(34, 197, 94, .45);
+        outline-offset: 2px;
+    }
+    .rxd-btn:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+    .rxd-locked {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-top: .9rem;
+        padding: .6rem .85rem;
+        border-radius: .7rem;
+        background: #f0fdf4;
+        border: 1px dashed #9ccfb0;
+        color: #14532d;
+        font-size: .82rem;
+        font-weight: 500;
+    }
+    .rxd-reject-box {
+        padding: .8rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: .75rem;
+        background: #fff5f5;
+        border: 1px solid #f5c2c7;
+        border-left: 5px solid #dc3545;
+        color: #842029;
+    }
+    .rxd-reject-label {
+        display: block;
+        font-size: .68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: .2rem;
+    }
+
+    @@media (max-width: 575.98px) {
+        .rxd-profile { flex-wrap: wrap; }
+        .rxd-status-pill { margin-left: 0; }
+        .rxd-actions { flex-direction: column; }
+    }
+</style>
+
+<!-- Customer profile -->
+<div class="rxd-card">
+    <div class="rxd-card-head">
+        <h3 class="rxd-card-title">
+            <span class="rxd-title-icon"><i class="bi bi-person-vcard"></i></span>Customer Profile
+        </h3>
+    </div>
+
+    <div class="rxd-profile">
+        <div class="rxd-avatar" aria-hidden="true">@initials</div>
+        <p class="rxd-profile-name">@(string.IsNullOrWhiteSpace(fullName) ? "Unknown customer" : fullName)</p>
+        <div class="rxd-status-pill">
+            <span id="rxStatusBadge" class="badge @statusClass">@Model.Status</span>
+        </div>
+    </div>
+
+    <ul class="rxd-info-list">
+        <li class="rxd-info-row">
+            <span class="rxd-info-icon"><i class="bi bi-envelope"></i></span>
+            <span>
+                <span class="rxd-info-label">Email</span>
+                <span class="rxd-info-value">@Model.CustomerEmail</span>
+            </span>
+        </li>
+        <li class="rxd-info-row">
+            <span class="rxd-info-icon"><i class="bi bi-telephone"></i></span>
+            <span>
+                <span class="rxd-info-label">Phone</span>
+                <span class="rxd-info-value">@(string.IsNullOrWhiteSpace(Model.CustomerPhone) ? "N/A" : Model.CustomerPhone)</span>
+            </span>
+        </li>
+    </ul>
+
+    @if (!string.IsNullOrWhiteSpace(Model.CustomerNotes))
+    {
+        <div class="rxd-notes">
+            <span class="rxd-notes-label"><i class="bi bi-chat-square-text me-1"></i>Notes from customer</span>
+            @Model.CustomerNotes
+        </div>
+    }
+</div>
+
+<!-- Order line items -->
+<div class="rxd-card">
+    <div class="rxd-card-head">
+        <h3 class="rxd-card-title">
+            <span class="rxd-title-icon"><i class="bi bi-bag-check"></i></span>Order Line Items
+        </h3>
+        <span class="rxd-count-pill">@items.Count @(items.Count == 1 ? "item" : "items")</span>
+    </div>
+
+    <div class="rxd-summary">
+        <div class="rxd-stat">
+            <span class="rxd-stat-value">@items.Count</span>
+            <span class="rxd-stat-label">Products</span>
+        </div>
+        <div class="rxd-stat">
+            <span class="rxd-stat-value">@totalUnits</span>
+            <span class="rxd-stat-label">Units</span>
+        </div>
+        <div class="rxd-stat">
+            <span class="rxd-stat-value">@rxCount</span>
+            <span class="rxd-stat-label">Rx required</span>
+        </div>
+    </div>
+
+    @if (items.Count == 0)
+    {
+        <div class="rxd-empty">
+            <i class="bi bi-inbox"></i>No items on this order.
+        </div>
+    }
+    else
+    {
+        <ul class="rxd-items">
+            @foreach (var item in items)
+            {
+                <li class="rxd-item">
+                    <span class="rxd-item-icon"><i class="bi bi-capsule"></i></span>
+                    <div class="rxd-item-body">
+                        <div class="rxd-item-name">
+                            @item.BrandName
+                            @if (item.RequiresPrescription)
+                            {
+                                <span class="rxd-rx-tag">Rx</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(item.GenericName))
+                        {
+                            <div class="rxd-item-generic">@item.GenericName</div>
+                        }
+                        <div class="rxd-item-calc">@item.Quantity &times; $@item.UnitPrice.ToString("N2")</div>
+                    </div>
+                    <div class="rxd-item-total">$@item.TotalPrice.ToString("N2")</div>
+                </li>
+            }
+        </ul>
+    }
+
+    <div class="rxd-total-bar">
+        <span class="rxd-total-label">Order Total</span>
+        <span class="rxd-total-value">$@Model.TotalAmount.ToString("N2")</span>
+    </div>
+</div>
+
+<!-- Verification -->
+<div class="rxd-card mb-0">
+    <div class="rxd-card-head">
+        <h3 class="rxd-card-title">
+            <span class="rxd-title-icon"><i class="bi bi-shield-check"></i></span>Verification
+        </h3>
+    </div>
+
+    <div class="rxd-verify-body">
+        <div id="rxRejectionBox" class="rxd-reject-box @(hasRejection ? "" : "d-none")">
+            <span class="rxd-reject-label"><i class="bi bi-chat-left-text me-1"></i>Rejection reason</span>
+            <div id="rxRejectionText">@Model.RejectionReason</div>
+        </div>
+
+        @if (!Model.IsDecided)
+        {
+            <p class="rxd-verify-hint">
+                Compare the document against the customer and order details, then approve or reject.
+            </p>
+        }
+
+        <div class="rxd-actions">
+            <button type="button" id="btnApprove" class="rxd-btn rxd-btn-approve"
+                    data-prescription-id="@Model.PrescriptionId" @(Model.IsDecided ? "disabled" : "")>
+                <i class="bi bi-check-circle-fill"></i>Approve
+            </button>
+            <button type="button" id="btnReject" class="rxd-btn rxd-btn-reject"
+                    data-prescription-id="@Model.PrescriptionId" @(Model.IsDecided ? "disabled" : "")>
+                <i class="bi bi-x-circle-fill"></i>Reject
+            </button>
+        </div>
+
+        @if (Model.IsDecided)
+        {
+            <div class="rxd-locked">
+                <i class="bi bi-lock-fill"></i>A decision has already been recorded for this prescription.
+            </div>
+        }
+    </div>
+</div>

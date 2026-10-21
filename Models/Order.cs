@@ -9,6 +9,7 @@ namespace MediGuard.Models
     public class Order
     {
         [Key]
+        [Column("id")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         // ---------------------------------------------------------------
@@ -16,6 +17,20 @@ namespace MediGuard.Models
         // ---------------------------------------------------------------
 
         [Required]
+        [MaxLength(50)]
+        [Column("order_number")]
+        public string OrderNumber { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(30)]
+        [Column("order_type")]
+        public string OrderType { get; set; } = "POS"; // POS, ONLINE, B2B
+
+        [Column("is_b2b_order")]
+        public bool IsB2BOrder { get; set; } = false;
+
+        [Required]
+        [Column("pharmacy_id")]
         public Guid PharmacyId { get; set; }
 
         /// <summary>
@@ -23,9 +38,8 @@ namespace MediGuard.Models
         /// </summary>
         public string? UserId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string OrderNumber { get; set; } = string.Empty;
+        [Column("customer_id")]
+        public string? CustomerId { get; set; }
 
         /// <summary>
         /// Allowed values: 'POS', 'B2C_ONLINE', 'B2B_MEDI_PLUS'
@@ -35,17 +49,20 @@ namespace MediGuard.Models
         public string OrderType { get; set; } = "POS";
 
         [Required]
-        [Column(TypeName = "numeric(10,2)")]
+        [MaxLength(30)]
+        [Column("delivery_status")]
+        public string DeliveryStatus { get; set; } = "NOT_REQUIRED"; // NOT_REQUIRED, PENDING, IN_TRANSIT, DELIVERED, CANCELLED
+
+        [Column("subtotal")]
         public decimal Subtotal { get; set; }
 
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("tax")]
         public decimal Tax { get; set; } = 0.00m;
 
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("discount")]
         public decimal Discount { get; set; } = 0.00m;
 
-        [Required]
-        [Column(TypeName = "numeric(10,2)")]
+        [Column("total_amount")]
         public decimal TotalAmount { get; set; }
 
         /// <summary>
@@ -62,6 +79,7 @@ namespace MediGuard.Models
         [StringLength(30)]
         public string PaymentMethod { get; set; } = "CASH";
 
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Optional status fields retained for cross-module compatibility
@@ -124,6 +142,9 @@ namespace MediGuard.Models
         // Ticket 28: Core navigations
         [ForeignKey("PharmacyId")]
         public virtual Pharmacy? Pharmacy { get; set; }
+
+        [ForeignKey("SupplierPharmacyId")]
+        public virtual Pharmacy? SupplierPharmacy { get; set; }
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
