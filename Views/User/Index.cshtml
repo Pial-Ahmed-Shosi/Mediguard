@@ -1,7 +1,7 @@
-﻿@model MediGuard.Models.ViewModels.UserManagementViewModel
+@model MediGuard.Models.ViewModels.StaffPagedListViewModel
 @{
     ViewData["Title"] = "Staff Management";
-    var staffCount = Model.Users?.Count() ?? 0;
+    var staffCount = Model.Users?.Count ?? 0;
 }
 
 <style>
@@ -174,28 +174,28 @@
     </div>
     <div class="offcanvas-body">
         <form id="addStaffForm" asp-action="AddStaff" method="post">
+            @Html.AntiForgeryToken()
             <div class="mb-3">
-                <label asp-for="NewStaff.FullName" class="mg-label">Full name</label>
-                <input asp-for="NewStaff.FullName" class="form-control mg-field" placeholder="e.g. Rahim Uddin" />
-                <span asp-validation-for="NewStaff.FullName" class="text-danger small"></span>
+                <label for="staffFullName" class="mg-label">Full name</label>
+                <input id="staffFullName" name="FullName" class="form-control mg-field" placeholder="e.g. Rahim Uddin" required />
             </div>
             <div class="mb-3">
-                <label asp-for="NewStaff.Email" class="mg-label">Email</label>
-                <input asp-for="NewStaff.Email" class="form-control mg-field" placeholder="name@pharmacy.com" />
-                <span asp-validation-for="NewStaff.Email" class="text-danger small"></span>
+                <label for="staffEmail" class="mg-label">Email</label>
+                <input id="staffEmail" name="Email" type="email" class="form-control mg-field" placeholder="name@pharmacy.com" required />
             </div>
             <div class="mb-3">
-                <label asp-for="NewStaff.Role" class="mg-label">Role</label>
-                <select asp-for="NewStaff.Role" class="form-select mg-field">
+                <label for="staffRole" class="mg-label">Role</label>
+                <select id="staffRole" name="Role" class="form-select mg-field">
                     <option value="Staff">General Staff</option>
                     <option value="Pharmacy Manager">Pharmacy Manager</option>
+                    <option value="Pharmacist">Pharmacist</option>
+                    <option value="Cashier">Cashier</option>
                     <option value="Deliveryman">Deliveryman</option>
                 </select>
             </div>
             <div class="mb-4">
-                <label asp-for="NewStaff.Phone" class="mg-label">Phone</label>
-                <input asp-for="NewStaff.Phone" class="form-control mg-field" placeholder="+880 1XXX-XXXXXX" /> 
-                <span asp-validation-for="NewStaff.Phone" class="text-danger small"></span>
+                <label for="staffPhone" class="mg-label">Phone</label>
+                <input id="staffPhone" name="Phone" class="form-control mg-field" placeholder="+880 1XXX-XXXXXX" /> 
             </div>
             <button type="submit" class="btn btn-mg w-100">
                 <i class="bi bi-check2-circle me-2"></i>Save employee
@@ -205,7 +205,7 @@
 </div>
 
 <!-- Render Permission Modal (Ticket 5) -->
-<partial name="_RoleAssignmentModal" />
+<partial name="_RoleAssignmentModal" model="new MediGuard.Models.ViewModels.RoleAssignmentViewModel()" />
 
 @section Scripts {
     <script src="~/js/user-management.js"></script>

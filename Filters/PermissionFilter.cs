@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MediGuard.Filters
@@ -20,6 +20,14 @@ namespace MediGuard.Filters
             if (httpContext.User.Identity?.IsAuthenticated != true)
             {
                 context.Result = new ChallengeResult();
+                return Task.CompletedTask;
+            }
+
+            // Managers and Admins bypass fine-grained permission codes
+            if (httpContext.User.IsInRole("Pharmacy Manager") ||
+                httpContext.User.IsInRole("Manager") ||
+                httpContext.User.IsInRole("Admin"))
+            {
                 return Task.CompletedTask;
             }
 

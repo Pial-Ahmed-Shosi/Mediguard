@@ -1,0 +1,1001 @@
+@model MediGuard.Models.ViewModels.PharmacyManagerDashboardViewModel
+@{
+    ViewData["Title"] = "Pharmacy Manager Dashboard";
+    Layout = "_Layout";
+}
+
+<style>
+    .manager-header-card {
+        background: linear-gradient(135deg, #0f4c5c 0%, #00796b 100%);
+        border-radius: 1.25rem;
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 121, 107, 0.25);
+    }
+
+    .manager-avatar-img {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .metric-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
+    }
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.09);
+    }
+
+    .badge-soft-teal { background-color: rgba(0, 121, 107, 0.12); color: #00796b; }
+    .badge-soft-success { background-color: rgba(40, 167, 69, 0.15); color: #28a745; }
+    .badge-soft-danger { background-color: rgba(220, 53, 69, 0.15); color: #dc3545; }
+    .badge-soft-warning { background-color: rgba(255, 193, 7, 0.2); color: #b78103; }
+    .badge-soft-info { background-color: rgba(23, 162, 184, 0.15); color: #17a2b8; }
+
+    .nav-tabs-custom .nav-link {
+        font-weight: 600;
+        color: #495057;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1.25rem;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #00796b;
+        border-bottom: 3px solid #00796b;
+        background: transparent;
+    }
+
+    .form-switch .form-check-input {
+        width: 3.25em;
+        height: 1.75em;
+        cursor: pointer;
+    }
+    .form-switch .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .dual-search-input {
+        border-radius: 50px;
+        padding-left: 2.75rem;
+        background-color: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+    }
+    .dual-search-input:focus {
+        background-color: #ffffff;
+        border-color: #00796b;
+        box-shadow: 0 0 0 0.2rem rgba(0, 121, 107, 0.15);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 121, 107, 0.03);
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Feedback Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+            <div>@TempData["ErrorMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 1. Header & Branch Profile Management -->
+    <div class="card manager-header-card p-4 mb-4">
+        <div class="row align-items-center g-4">
+            <!-- Manager Avatar & Info -->
+            <div class="col-lg-6 d-flex align-items-center gap-3">
+                <div class="position-relative">
+                    @if (!string.IsNullOrEmpty(Model.ManagerUser.ProfileImageUrl))
+                    {
+                        <img src="@Model.ManagerUser.ProfileImageUrl" alt="Avatar" class="manager-avatar-img" />
+                    }
+                    else
+                    {
+                        <div class="manager-avatar-img bg-white text-teal d-flex align-items-center justify-content-center fs-2 fw-bold" style="color: #00796b;">
+                            @(string.IsNullOrEmpty(Model.ManagerUser.FullName) ? "M" : Model.ManagerUser.FullName.Substring(0, 1).ToUpper())
+                        </div>
+                    }
+                    <button type="button" class="btn btn-sm btn-light rounded-circle position-absolute bottom-0 end-0 shadow-sm p-1"
+                            data-bs-toggle="modal" data-bs-target="#managerAvatarModal" title="Upload/Change Avatar" style="width: 28px; height: 28px;">
+                        <i class="bi bi-camera-fill text-dark small" style="font-size: 12px;"></i>
+                    </button>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="mb-0 fw-bold">@(string.IsNullOrEmpty(Model.ManagerUser.FullName) ? Model.ManagerUser.UserName : Model.ManagerUser.FullName)</h4>
+                        <span class="badge bg-light text-teal fw-semibold">@Model.ManagerUser.Role</span>
+                    </div>
+                    <div class="small text-white-50 mt-1">
+                        <i class="bi bi-envelope me-1"></i> @Model.ManagerUser.Email
+                        @if (!string.IsNullOrEmpty(Model.ManagerUser.PhoneNumber))
+                        {
+                            <span class="ms-2"><i class="bi bi-telephone me-1"></i> @Model.ManagerUser.PhoneNumber</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Branch Details Badge & Interactive Operating Status Toggle -->
+            <div class="col-lg-6">
+                <div class="bg-white bg-opacity-10 rounded-3 p-3 d-flex flex-wrap align-items-center justify-content-between gap-3 border border-white border-opacity-25">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-hospital fs-5"></i>
+                            <strong class="fs-6">@Model.Pharmacy.Name</strong>
+                        </div>
+                        <div class="small text-white-75 mt-1">
+                            <span><i class="bi bi-geo-alt me-1"></i>@Model.Pharmacy.Address, @Model.Pharmacy.City</span>
+                            <span class="ms-3 badge bg-white bg-opacity-25 text-white">ID: #@Model.Pharmacy.Id.ToString().Substring(0, 8)</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Real-time Operating Status Toggle -->
+                    <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-25 px-3 py-2 rounded-pill">
+                        <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="pharmacyStatusSwitch"
+                                   @(Model.IsPharmacyOpen ? "checked" : "") onchange="handleOperatingStatusToggle(this)">
+                            <label class="form-check-label fw-bold small text-white" for="pharmacyStatusSwitch" id="pharmacyStatusLabel">
+                                @(Model.IsPharmacyOpen ? "BRANCH OPEN" : "BRANCH CLOSED")
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Financial & Register Metrics Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Daily Cash Drawer Total -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card metric-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-semibold text-uppercase">Today's Cash Drawer</span>
+                    <div class="badge-soft-success p-2 rounded-3"><i class="bi bi-cash-stack fs-5"></i></div>
+                </div>
+                <h3 class="fw-bold text-dark mt-2 mb-1">৳@Model.DailyDrawerTotal.ToString("N2")</h3>
+                <span class="small text-muted"><i class="bi bi-receipt me-1"></i>@Model.TodayOfflineSales.Count walk-in counter sales</span>
+            </div>
+        </div>
+
+        <!-- Online Payment Verification -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card metric-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-semibold text-uppercase">Online Verification</span>
+                    <div class="badge-soft-info p-2 rounded-3"><i class="bi bi-credit-card-2-front fs-5"></i></div>
+                </div>
+                <div class="mt-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Prepaid (Cards/MFS):</span>
+                        <strong class="text-success">৳@Model.PrepaidOnlineTotal.ToString("N2")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span class="text-muted">Pending COD:</span>
+                        <strong class="text-warning">৳@Model.PendingCodTotal.ToString("N2")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Financial Total -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card metric-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-semibold text-uppercase">Monthly Revenue</span>
+                    <div class="badge-soft-teal p-2 rounded-3"><i class="bi bi-graph-up-arrow fs-5"></i></div>
+                </div>
+                <h3 class="fw-bold text-teal mt-2 mb-1" style="color: #00796b;">৳@Model.MonthlyRevenueTotal.ToString("N2")</h3>
+                <span class="small text-muted">@Model.TotalOnlineOrdersMonth orders • @Model.TotalPosSalesMonth POS sales</span>
+            </div>
+        </div>
+
+        <!-- Quick Launch POS Counter Terminal -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card metric-card p-3 h-100 text-center d-flex flex-column justify-content-center align-items-center bg-light">
+                <div class="mb-2">
+                    <i class="bi bi-cart3 fs-3 text-teal" style="color: #00796b;"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-2">POS Counter Terminal</h6>
+                <a asp-controller="POS" asp-action="Index" class="btn btn-sm btn-teal-solid px-3 py-2 w-100 rounded-pill">
+                    <i class="bi bi-upc-scan me-1"></i> Open POS Terminal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs for Dashboard Modules -->
+    <ul class="nav nav-tabs nav-tabs-custom mb-4" id="managerDashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#tab-inventory" type="button" role="tab">
+                <i class="bi bi-boxes me-2"></i> Medicine Inventory
+                <span class="badge badge-soft-teal ms-1">@Model.BranchInventory.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#tab-orders" type="button" role="tab">
+                <i class="bi bi-truck me-2"></i> Online Orders Queue
+                <span class="badge badge-soft-warning ms-1">@Model.IncomingOrders.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="rx-tab" data-bs-toggle="tab" data-bs-target="#tab-prescriptions" type="button" role="tab">
+                <i class="bi bi-file-earmark-medical me-2"></i> Prescriptions Terminal
+                <span class="badge badge-soft-danger ms-1">@Model.PendingPrescriptions.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sales-tab" data-bs-toggle="tab" data-bs-target="#tab-sales" type="button" role="tab">
+                <i class="bi bi-receipt me-2"></i> Today's POS Register
+                <span class="badge badge-soft-info ms-1">@Model.TodayOfflineSales.Count</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="managerTabsContent">
+
+        <!-- TAB 1: PHARMACY-SPECIFIC MEDICINE INVENTORY -->
+        <div class="tab-pane fade show active" id="tab-inventory" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <!-- Search & Actions Bar -->
+                <div class="row g-3 align-items-center mb-4">
+                    <div class="col-lg-6 position-relative">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="inventoryDualSearch" class="form-control dual-search-input"
+                               placeholder="Search branch inventory by Medicine Name OR Batch Number..."
+                               onkeyup="filterInventoryTable()">
+                    </div>
+                    <div class="col-lg-6 d-flex flex-wrap justify-content-lg-end gap-2">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" onclick="setInventoryFilter('ALL', this)">All Batches</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="setInventoryFilter('EXPIRING', this)">
+                                Expiring (&lt;30d) <span class="badge bg-warning text-dark">@Model.ExpiringBatches.Count</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="setInventoryFilter('LOW_STOCK', this)">
+                                Low Stock (&lt;10) <span class="badge bg-danger">@Model.LowStockBatches.Count</span>
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-teal-solid btn-sm px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#restockModal">
+                            <i class="bi bi-plus-circle me-1"></i> Restock Medicine
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Branch Scoped Inventory Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="branchInventoryTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Medicine Name</th>
+                                <th>Batch No.</th>
+                                <th>Available Stock</th>
+                                <th>Unit Price (৳)</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.BranchInventory.Any())
+                            {
+                                foreach (var item in Model.BranchInventory)
+                                {
+                                    <tr class="inventory-row"
+                                        data-name="@item.MedicineName.ToLower() @item.GenericName.ToLower()"
+                                        data-batch="@item.BatchNumber.ToLower()"
+                                        data-expiring="@(item.IsExpiringSoon ? "true" : "false")"
+                                        data-lowstock="@(item.IsLowStock ? "true" : "false")">
+                                        <td>
+                                            <div class="fw-bold text-dark">@item.MedicineName</div>
+                                            <div class="small text-muted"><i class="bi bi-capsule me-1"></i>@item.GenericName</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border font-monospace">@item.BatchNumber</span>
+                                        </td>
+                                        <td>
+                                            @if (item.Quantity <= 0)
+                                            {
+                                                <span class="badge badge-soft-danger px-2 py-1"><i class="bi bi-x-circle me-1"></i>0 units (Out of Stock)</span>
+                                            }
+                                            else if (item.IsLowStock)
+                                            {
+                                                <span class="badge badge-soft-warning px-2 py-1"><i class="bi bi-exclamation-triangle me-1"></i>@item.Quantity units (Low Stock)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-soft-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>@item.Quantity units</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">৳@item.SellingPrice.ToString("N2")</div>
+                                            <div class="small text-muted">Cost: ৳@item.PurchasePrice.ToString("N2")</div>
+                                        </td>
+                                        <td>
+                                            @if (item.IsExpired)
+                                            {
+                                                <span class="badge bg-danger text-white"><i class="bi bi-exclamation-diamond me-1"></i>Expired: @item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                            }
+                                            else if (item.IsExpiringSoon)
+                                            {
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i>@item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary small">@item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.IsExpired)
+                                            {
+                                                <span class="badge bg-secondary">EXPIRED</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-soft-success">ACTIVE</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-sm btn-outline-teal rounded-pill px-3"
+                                                    onclick="openQuickRestock('@item.MedicineId', '@item.MedicineName', '@item.GenericName', '@item.BatchNumber', '@item.PurchasePrice', '@item.SellingPrice')">
+                                                <i class="bi bi-arrow-repeat me-1"></i> Restock
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="bi bi-box-seam fs-1 d-block mb-2 text-muted"></i>
+                                        No medicines found in this branch's inventory yet.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: ONLINE ORDER PROCESSING & FULFILLMENT QUEUE -->
+        <div class="tab-pane fade" id="tab-orders" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Incoming Online Orders Queue</h5>
+                    <span class="badge badge-soft-teal px-3 py-2">Scope: @Model.Pharmacy.Name</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order Ref & Date</th>
+                                <th>Customer Details</th>
+                                <th>Items Ordered</th>
+                                <th>Amount & Payment</th>
+                                <th>Fulfillment Status</th>
+                                <th class="text-end">Action Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.IncomingOrders.Any())
+                            {
+                                foreach (var order in Model.IncomingOrders)
+                                {
+                                    <tr id="order-row-@order.Id">
+                                        <td>
+                                            <span class="font-monospace fw-bold text-dark">#@order.Id.ToString().Substring(0, 8).ToUpper()</span>
+                                            <div class="small text-muted">@order.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">@(order.Customer?.FullName ?? "Online Customer")</div>
+                                            <div class="small text-muted"><i class="bi bi-telephone me-1"></i>@(order.Customer?.PhoneNumber ?? "N/A")</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">@order.OrderItems.Count items</span>
+                                            <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                                @string.Join(", ", order.OrderItems.Select(i => i.Medicine?.BrandName ?? "Item"))
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">৳@order.TotalAmount.ToString("N2")</div>
+                                            @if (order.PaymentStatus == "PAID")
+                                            {
+                                                <span class="badge badge-soft-success">PAID (@order.PaymentMethod)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-soft-warning">COD PENDING</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @(order.Status == "COMPLETED" ? "bg-success" : (order.Status == "IN_TRANSIT" ? "bg-info text-dark" : "bg-warning text-dark")) px-2 py-1" id="status-badge-@order.Id">
+                                                @order.Status
+                                            </span>
+                                            @if (order.AssignedDeliveryman != null)
+                                            {
+                                                <div class="small text-teal mt-1">
+                                                    <i class="bi bi-bicycle me-1"></i>Rider: @order.AssignedDeliveryman.FullName
+                                                </div>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                @if (order.Status == "PENDING")
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="updateOrderStatus('@order.Id', 'ACCEPT')">
+                                                        <i class="bi bi-check2 me-1"></i> Accept
+                                                    </button>
+                                                }
+                                                else if (order.Status == "APPROVED")
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="updateOrderStatus('@order.Id', 'PREPARE')">
+                                                        <i class="bi bi-box me-1"></i> Prepare
+                                                    </button>
+                                                }
+                                                else if (order.Status == "IN_PREPARATION")
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="updateOrderStatus('@order.Id', 'READY_PICKUP')">
+                                                        <i class="bi bi-bag-check me-1"></i> Ready
+                                                    </button>
+                                                }
+                                                else if (order.Status == "READY_FOR_PICKUP")
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-teal" onclick="openAssignRiderModal('@order.Id')">
+                                                        <i class="bi bi-bicycle me-1"></i> Assign Rider
+                                                    </button>
+                                                }
+                                                else if (order.Status == "IN_TRANSIT")
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-success" onclick="updateOrderStatus('@order.Id', 'COMPLETE')">
+                                                        <i class="bi bi-check-all me-1"></i> Complete
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small"><i class="bi bi-check2-circle text-success me-1"></i>Fulfilled</span>
+                                                }
+                                                <a asp-controller="Checkout" asp-action="Invoice" asp-route-orderId="@order.Id" class="btn btn-sm btn-outline-secondary" target="_blank" title="Print Invoice">
+                                                    <i class="bi bi-printer"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+                                        No incoming online orders pending for this branch.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: PRESCRIPTION REVIEW TERMINAL -->
+        <div class="tab-pane fade" id="tab-prescriptions" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Pharmacist Prescription Verification Terminal</h5>
+                    <span class="badge badge-soft-warning px-3 py-2">@Model.PendingPrescriptions.Count Under Review</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rx ID & Date</th>
+                                <th>Customer Info</th>
+                                <th>Document Preview</th>
+                                <th>Associated Order</th>
+                                <th>Pharmacist Review Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.PendingPrescriptions.Any())
+                            {
+                                foreach (var rx in Model.PendingPrescriptions)
+                                {
+                                    <tr id="rx-row-@rx.Id">
+                                        <td>
+                                            <span class="font-monospace fw-bold text-dark">#@rx.Id.ToString().Substring(0, 8).ToUpper()</span>
+                                            <div class="small text-muted">@rx.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">@(rx.Customer?.FullName ?? "Customer")</div>
+                                            <div class="small text-muted"><i class="bi bi-envelope me-1"></i>@(rx.Customer?.Email ?? "N/A")</div>
+                                            <div class="small text-muted"><i class="bi bi-telephone me-1"></i>@(rx.Customer?.PhoneNumber ?? "N/A")</div>
+                                        </td>
+                                        <td>
+                                            <a href="@rx.FilePath" target="_blank" class="btn btn-sm btn-light border rounded-pill px-3">
+                                                <i class="bi bi-file-earmark-image text-teal me-1"></i> View Document (@rx.FileType.ToUpper())
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @if (rx.Order != null)
+                                            {
+                                                <span class="badge bg-light text-dark border">Order #@rx.Order.Id.ToString().Substring(0, 8).ToUpper()</span>
+                                                <div class="small text-teal">৳@rx.Order.TotalAmount.ToString("N2")</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">Direct Upload</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-success rounded-pill px-3" onclick="reviewPrescription('@rx.Id', 'APPROVE')">
+                                                    <i class="bi bi-check2-circle me-1"></i> Approve
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="openRejectRxModal('@rx.Id')">
+                                                    <i class="bi bi-x-circle me-1"></i> Reject
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-file-earmark-check fs-1 d-block mb-2 text-muted"></i>
+                                        All prescriptions have been reviewed! No pending items.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: TODAY'S POS SALES REGISTER -->
+        <div class="tab-pane fade" id="tab-sales" role="tabpanel">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Today's Counter POS Register</h5>
+                    <a asp-controller="POS" asp-action="Index" class="btn btn-teal-solid btn-sm px-3 rounded-pill">
+                        <i class="bi bi-cart-plus me-1"></i> New Counter Sale
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Transaction Ref</th>
+                                <th>Timestamp</th>
+                                <th>Branch</th>
+                                <th>Total Amount</th>
+                                <th class="text-end">Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TodayOfflineSales.Any())
+                            {
+                                foreach (var sale in Model.TodayOfflineSales)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="font-monospace fw-bold text-dark">#@sale.Id.ToString().Substring(0, 8).ToUpper()</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small">@sale.CreatedAt.ToString("hh:mm tt")</span>
+                                        </td>
+                                        <td>
+                                            <span class="small">@Model.Pharmacy.Name</span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-dark">৳@sale.TotalAmount.ToString("N2")</strong>
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3" onclick="window.print()">
+                                                <i class="bi bi-printer me-1"></i> Print Receipt
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="bi bi-receipt-cutoff fs-1 d-block mb-2 text-muted"></i>
+                                        No walk-in POS sales recorded for today yet.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- 1. Restock Medicine Batch Modal -->
+<div class="modal fade" id="restockModal" tabindex="-1" aria-labelledby="restockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="restockModalLabel"><i class="bi bi-box-seam text-teal me-2"></i>Restock Medicine Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Dashboard" asp-action="RestockBatch" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" name="MedicineId" id="restockMedicineId" />
+
+                    <!-- Medicine Name Selection / Input -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Select Existing Medicine or Enter Name</label>
+                        <input list="branchMedicinesList" name="MedicineName" id="restockMedicineName" class="form-control"
+                               placeholder="e.g. Napa Extra, Amoxicillin" required oninput="autoFillGeneric(this)">
+                        <datalist id="branchMedicinesList">
+                            @foreach (var med in Model.BranchMedicines)
+                            {
+                                <option value="@med.BrandName" data-generic="@med.GenericName" data-id="@med.Id" data-price="@med.Price"></option>
+                            }
+                        </datalist>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Generic Chemical Name</label>
+                        <input type="text" name="GenericName" id="restockGenericName" class="form-control" placeholder="e.g. Paracetamol 500mg">
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Batch Number</label>
+                            <input type="text" name="BatchNumber" id="restockBatchNumber" class="form-control font-monospace" placeholder="e.g. BT-2026-90" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Quantity Added</label>
+                            <input type="number" name="QuantityAdded" id="restockQuantityAdded" class="form-control" min="1" value="50" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Expiry Date</label>
+                        <input type="date" name="ExpiryDate" id="restockExpiryDate" class="form-control" required value="@DateTime.UtcNow.AddYears(2).ToString("yyyy-MM-dd")">
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Purchase Cost (৳)</label>
+                            <input type="number" step="0.01" name="PurchaseCost" id="restockPurchaseCost" class="form-control" placeholder="10.00" value="15.00">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold">Retail Price (৳)</label>
+                            <input type="number" step="0.01" name="RetailUnitPrice" id="restockRetailUnitPrice" class="form-control" placeholder="15.00" value="20.00" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-teal-solid rounded-pill px-4">Confirm Restock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Assign Delivery Rider Modal -->
+<div class="modal fade" id="assignRiderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-bicycle text-teal me-2"></i>Assign Branch Delivery Rider</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="assignOrderId" />
+                <label class="form-label small fw-bold mb-2">Select Active Courier Rider for this Order</label>
+                <select id="selectedRiderId" class="form-select mb-3">
+                    @if (Model.ActiveDeliveryRiders.Any())
+                    {
+                        foreach (var rider in Model.ActiveDeliveryRiders)
+                        {
+                            <option value="@rider.Id">@rider.FullName (@(string.IsNullOrEmpty(rider.PhoneNumber) ? "No Phone" : rider.PhoneNumber)) - @(rider.VehicleDetails ?? "Motorcycle")</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="">No branch riders registered. Add in User Management.</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-teal-solid rounded-pill px-4" onclick="confirmAssignRider()">Dispatch Rider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Reject Prescription Modal -->
+<div class="modal fade" id="rejectRxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-x-circle me-2"></i>Reject Prescription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="rejectRxId" />
+                <label class="form-label small fw-bold mb-2">Pharmacist Rejection Notes (Visible to Customer)</label>
+                <textarea id="rejectRxNotes" class="form-control" rows="3" placeholder="e.g. Image blurry, medicine dosage illegible, or prescription has expired."></textarea>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" onclick="confirmRejectPrescription()">Confirm Rejection</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Manager Avatar Upload Modal -->
+<div class="modal fade" id="managerAvatarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-circle text-teal me-2"></i>Update Manager Avatar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form asp-controller="Account" asp-action="UploadProfileImage" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Select Profile Photo (JPG, PNG, WEBP)</label>
+                        <input type="file" name="profilePhoto" class="form-control" accept="image/*" required />
+                    </div>
+                    <button type="submit" class="btn btn-teal-solid w-100 rounded-pill py-2">Upload Photo</button>
+                </form>
+
+                @if (!string.IsNullOrEmpty(Model.ManagerUser.ProfileImageUrl))
+                {
+                    <hr class="my-3">
+                    <form asp-controller="Account" asp-action="DeleteProfileImage" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger w-100 rounded-pill py-2">
+                            <i class="bi bi-trash me-1"></i> Remove Current Avatar
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // 1. Dual-Field Search (Medicine Name OR Batch Number)
+    function filterInventoryTable() {
+        const query = document.getElementById('inventoryDualSearch').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#branchInventoryTable tbody .inventory-row');
+
+        rows.forEach(row => {
+            const name = row.getAttribute('data-name') || '';
+            const batch = row.getAttribute('data-batch') || '';
+
+            if (name.includes(query) || batch.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Filter by Tabs (All, Expiring, Low Stock)
+    let currentFilter = 'ALL';
+    function setInventoryFilter(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const rows = document.querySelectorAll('#branchInventoryTable tbody .inventory-row');
+        rows.forEach(row => {
+            const isExpiring = row.getAttribute('data-expiring') === 'true';
+            const isLowStock = row.getAttribute('data-lowstock') === 'true';
+
+            if (filter === 'ALL') {
+                row.style.display = '';
+            } else if (filter === 'EXPIRING') {
+                row.style.display = isExpiring ? '' : 'none';
+            } else if (filter === 'LOW_STOCK') {
+                row.style.display = isLowStock ? '' : 'none';
+            }
+        });
+    }
+
+    // Quick Restock populate
+    function openQuickRestock(medicineId, medName, generic, batchNo, purchase, retail) {
+        document.getElementById('restockMedicineId').value = medicineId;
+        document.getElementById('restockMedicineName').value = medName;
+        document.getElementById('restockGenericName').value = generic;
+        document.getElementById('restockBatchNumber').value = batchNo;
+        document.getElementById('restockPurchaseCost').value = purchase;
+        document.getElementById('restockRetailUnitPrice').value = retail;
+
+        const modal = new bootstrap.Modal(document.getElementById('restockModal'));
+        modal.show();
+    }
+
+    function autoFillGeneric(input) {
+        const val = input.value.trim().toLowerCase();
+        const options = document.querySelectorAll('#branchMedicinesList option');
+        for (const opt of options) {
+            if (opt.value.toLowerCase() === val) {
+                document.getElementById('restockGenericName').value = opt.getAttribute('data-generic') || '';
+                document.getElementById('restockMedicineId').value = opt.getAttribute('data-id') || '';
+                const price = opt.getAttribute('data-price');
+                if (price) document.getElementById('restockRetailUnitPrice').value = price;
+                break;
+            }
+        }
+    }
+
+    // 2. Interactive Real-time Operating Status Toggle
+    async function handleOperatingStatusToggle(checkbox) {
+        const isOpen = checkbox.checked;
+        const label = document.getElementById('pharmacyStatusLabel');
+        label.innerText = isOpen ? "BRANCH OPEN" : "BRANCH CLOSED";
+
+        try {
+            const resp = await fetch('/Dashboard/ToggleOperatingStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isOpen: isOpen })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                // Toast notification
+                showToast(`Branch operating status switched to: ${isOpen ? 'OPEN' : 'CLOSED'}`);
+            }
+        } catch (err) {
+            console.error(err);
+            checkbox.checked = !isOpen;
+            label.innerText = !isOpen ? "BRANCH OPEN" : "BRANCH CLOSED";
+            alert("Failed to update operating status.");
+        }
+    }
+
+    // 3. Online Order Status Transitions
+    async function updateOrderStatus(orderId, action) {
+        try {
+            const resp = await fetch('/Dashboard/UpdateOrderStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: orderId, action: action })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast(`Order status updated to: ${data.newStatus}`);
+                setTimeout(() => location.reload(), 800);
+            } else {
+                alert(data.message || 'Error updating order');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update order status.');
+        }
+    }
+
+    function openAssignRiderModal(orderId) {
+        document.getElementById('assignOrderId').value = orderId;
+        const modal = new bootstrap.Modal(document.getElementById('assignRiderModal'));
+        modal.show();
+    }
+
+    async function confirmAssignRider() {
+        const orderId = document.getElementById('assignOrderId').value;
+        const riderId = document.getElementById('selectedRiderId').value;
+        if (!riderId) {
+            alert('Please select a delivery rider.');
+            return;
+        }
+
+        try {
+            const resp = await fetch('/Dashboard/UpdateOrderStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: orderId, action: 'ASSIGN_RIDER', deliverymanId: riderId })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast('Rider assigned & order transitioned to IN_TRANSIT');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                alert(data.message || 'Error assigning rider');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to assign rider.');
+        }
+    }
+
+    // 4. Prescription Review Actions
+    async function reviewPrescription(rxId, decision, notes = '') {
+        try {
+            const resp = await fetch('/Dashboard/ReviewPrescription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prescriptionId: rxId, decision: decision, notes: notes })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast(`Prescription marked as: ${data.status}`);
+                const row = document.getElementById(`rx-row-${rxId}`);
+                if (row) row.remove();
+            } else {
+                alert(data.message || 'Error reviewing prescription');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to review prescription.');
+        }
+    }
+
+    function openRejectRxModal(rxId) {
+        document.getElementById('rejectRxId').value = rxId;
+        const modal = new bootstrap.Modal(document.getElementById('rejectRxModal'));
+        modal.show();
+    }
+
+    function confirmRejectPrescription() {
+        const rxId = document.getElementById('rejectRxId').value;
+        const notes = document.getElementById('rejectRxNotes').value;
+        reviewPrescription(rxId, 'REJECT', notes);
+        const modalEl = document.getElementById('rejectRxModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+    }
+
+    function showToast(message) {
+        const toastDiv = document.createElement('div');
+        toastDiv.className = 'position-fixed bottom-0 end-0 p-3';
+        toastDiv.style.zIndex = '9999';
+        toastDiv.innerHTML = `
+            <div class="toast align-items-center text-white bg-dark border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body"><i class="bi bi-info-circle text-teal me-2"></i>${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toastDiv);
+        setTimeout(() => toastDiv.remove(), 4000);
+    }
+</script>
+}

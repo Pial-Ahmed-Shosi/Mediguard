@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+// Enable Npgsql legacy timestamp behavior to allow DateTime with Unspecified Kind
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MVC View Engine Services with Global Audit Logging Filter (Ticket 48)

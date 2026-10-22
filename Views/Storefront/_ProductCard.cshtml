@@ -1,4 +1,4 @@
-﻿@model MediGuard.Models.StorefrontProduct
+@model MediGuard.Models.StorefrontProduct
 
 @{
     var inStock = Model.StockQuantity > 0;
@@ -196,30 +196,65 @@
             <span>Verified Quality Assurance</span>
         </div>
 
-        <!-- Partner Pharmacy -->
-        <div class="mg-meta-item text-truncate mb-3">
-            <i class="bi bi-shop"></i>
-            <span>Partner Pharmacy</span>
+        <!-- Partner Pharmacy & Location -->
+        <div class="mg-meta-item text-truncate">
+            <i class="bi bi-shop text-teal"></i>
+            <span class="fw-semibold text-dark">@(Model.Pharmacy?.Name ?? "Partner Pharmacy")</span>
+        </div>
+        <div class="mg-meta-item text-truncate mb-2">
+            <i class="bi bi-geo-alt text-danger"></i>
+            <span>@(string.IsNullOrWhiteSpace(Model.Pharmacy?.City) ? "Central Hub" : Model.Pharmacy.City)</span>
         </div>
 
-        <!-- Bottom Row: Price & Circular Cart Action Button -->
+        <!-- Stock Availability Details -->
+        <div class="d-flex align-items-center justify-content-between mb-2 small">
+            <span class="text-muted" style="font-size: 0.72rem;">
+                <i class="bi bi-box-seam me-1"></i>Availability:
+            </span>
+            @if (inStock)
+            {
+                <span class="text-success fw-bold" style="font-size: 0.75rem;">@Model.StockQuantity units in stock</span>
+            }
+            else
+            {
+                <span class="text-danger fw-bold" style="font-size: 0.75rem;">Out of stock</span>
+            }
+        </div>
+
+        <!-- Bottom Row: Price & Quantity / Cart Action Button -->
         <div class="mt-auto d-flex align-items-center justify-content-between pt-2 border-top">
             <div>
                 <span class="mg-price-exact">৳ @Model.UnitPrice.ToString("N2")</span>
                 <small class="text-muted" style="font-size: 0.75rem;">/ unit</small>
             </div>
 
-            <button type="button"
-                    class="mg-cart-btn-circle mg-add-to-cart"
-                    data-product-id="@Model.Id"
-                    data-brand-name="@Model.BrandName"
-                    data-unit-price="@Model.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                    data-stock="@Model.StockQuantity"
-                    data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
-                    disabled="@(Model.StockQuantity <= 0 ? "disabled" : null)"
-                    aria-label="Add @Model.BrandName to cart">
-                <i class="bi bi-bag-plus fs-6"></i>
-            </button>
+            <div class="d-flex align-items-center gap-1">
+                <button type="button" class="btn btn-sm btn-outline-secondary p-1 rounded-circle"
+                        style="width: 26px; height: 26px; font-size: 0.75rem; line-height: 1;"
+                        onclick="const q = document.getElementById('qty-@Model.Id'); if(q && parseInt(q.value)>1) q.value = parseInt(q.value)-1;"
+                        aria-label="Decrease quantity">-</button>
+                <input type="number" id="qty-@Model.Id" class="form-control form-control-sm text-center px-1"
+                       value="1" min="1" max="@(Model.StockQuantity > 0 ? Model.StockQuantity : 1)"
+                       style="width: 36px; height: 26px; font-size: 0.75rem;" readonly />
+                <button type="button" class="btn btn-sm btn-outline-secondary p-1 rounded-circle"
+                        style="width: 26px; height: 26px; font-size: 0.75rem; line-height: 1;"
+                        onclick="const q = document.getElementById('qty-@Model.Id'); if(q && parseInt(q.value)<@Model.StockQuantity) q.value = parseInt(q.value)+1;"
+                        aria-label="Increase quantity">+</button>
+
+                <button type="button"
+                        class="mg-cart-btn-circle mg-add-to-cart ms-1"
+                        data-product-id="@Model.Id"
+                        data-brand-name="@Model.BrandName"
+                        data-unit-price="@Model.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                        data-stock="@Model.StockQuantity"
+                        data-requires-prescription="@Model.RequiresPrescription.ToString().ToLowerInvariant()"
+                        data-pharmacy-name="@(Model.Pharmacy?.Name ?? "MediGuard Partner")"
+                        data-pharmacy-city="@(Model.Pharmacy?.City ?? "Dhaka")"
+                        disabled="@(Model.StockQuantity <= 0 ? "disabled" : null)"
+                        aria-label="Add @Model.BrandName to cart">
+                    <i class="bi bi-bag-plus fs-6"></i>
+                </button>
+            </div>
         </div>
 
     </div>

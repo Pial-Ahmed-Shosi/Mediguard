@@ -148,6 +148,15 @@
                         <a class="nav-link @(currentController == "Home" && currentAction == "Services" ? "active" : "")"
                            asp-controller="Home" asp-action="Services">Services</a>
                     </li>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("Pharmacist") || User.IsInRole("Staff")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Dashboard" ? "active" : "")"
+                               asp-controller="Dashboard" asp-action="Index">
+                                <i class="bi bi-speedometer2 text-teal me-1"></i> Pharmacy Dashboard
+                            </a>
+                        </li>
+                    }
                     @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin") || User.IsInRole("Pharmacist")))
                     {
                         <li class="nav-item">
@@ -174,6 +183,15 @@
                             </a>
                         </li>
                     }
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Admin")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "User" ? "active" : "")"
+                               asp-controller="User" asp-action="Index">
+                                <i class="bi bi-people text-teal me-1"></i> Staff Team
+                            </a>
+                        </li>
+                    }
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
@@ -191,11 +209,27 @@
                                 <span>@User.Identity.Name</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userMenuDropdown">
-                                <li>
-                                    <a class="dropdown-item py-2" asp-controller="Account" asp-action="UserProfile">
-                                        <i class="bi bi-speedometer2 text-teal me-2"></i> My Dashboard
-                                    </a>
-                                </li>
+                                @if (User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager") || User.IsInRole("Pharmacist") || User.IsInRole("Admin") || User.IsInRole("Staff"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Dashboard" asp-action="Index">
+                                            <i class="bi bi-speedometer2 text-teal me-2"></i> Pharmacy Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="User" asp-action="Index">
+                                            <i class="bi bi-people text-teal me-2"></i> Staff Management
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-controller="Account" asp-action="UserProfile">
+                                            <i class="bi bi-speedometer2 text-teal me-2"></i> Customer Dashboard
+                                        </a>
+                                    </li>
+                                }
                                 <li>
                                     <a class="dropdown-item py-2" asp-controller="Storefront" asp-action="Index">
                                         <i class="bi bi-bag text-teal me-2"></i> Browse Store
@@ -232,8 +266,8 @@
 
     <!-- Page Body Content Injected Here -->
     <main role="main">
-        <!-- Ticket 6: Dynamic User Dashboard ViewComponent Header -->
-        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        <!-- Ticket 6: Dynamic User Dashboard ViewComponent Header (omitted on full dedicated dashboards) -->
+        @if (User.Identity != null && User.Identity.IsAuthenticated && currentController != "Dashboard" && !(currentController == "Account" && currentAction == "UserProfile"))
         {
             <div class="container pt-4">
                 @await Component.InvokeAsync("UserDashboard")

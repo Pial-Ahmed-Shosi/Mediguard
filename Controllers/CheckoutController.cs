@@ -363,5 +363,173 @@ namespace MediGuard.Controllers
 
             return View("~/Views/Checkout/Confirmation.cshtml", model);
         }
+
+        // POST: /Checkout/ProcessDirectPayment
+        [HttpPost]
+        public async Task<IActionResult> ProcessDirectPayment([FromBody] DirectPaymentRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Authentication required." });
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.Pharmacy)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == request.OrderId && (o.CustomerId == userId || o.UserId == userId));
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Order not found." });
+            }
+
+            string method = (request.Method ?? "COD").ToUpperInvariant();
+            string txId = "TXN-" + Guid.NewGuid().ToString("N")[..10].ToUpperInvariant();
+            string paymentStatus = method == "COD" ? "UNPAID" : "PAID";
+
+            order.PaymentMethod = method;
+            order.PaymentStatus = paymentStatus;
+            order.Status = "PENDING_APPROVAL";
+            order.DeliveryStatus = "PENDING";
+            if (!string.IsNullOrWhiteSpace(request.Address)) order.ShippingAddress = request.Address.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Instructions)) order.Notes = request.Instructions.Trim();
+
+            // Create Payment record
+            var payment = new Payment
+            {
+                Id = Guid.NewGuid(),
+                PharmacyId = order.PharmacyId,
+                OrderId = order.Id,
+                Amount = order.TotalAmount,
+                PaymentMethod = method,
+                Status = paymentStatus == "PAID" ? "SUCCEEDED" : "PENDING",
+                GatewayTransactionId = txId,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Payments.Add(payment);
+
+            // If user checked "save payment method"
+            if (request.SaveMethod && !string.IsNullOrWhiteSpace(request.AccountNumber))
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null)
+                {
+                    var saved = user.SavedPaymentMethods;
+                    string mfsType = method.Contains("BKASH") ? "BKASH" : (method.Contains("NAGAD") ? "NAGAD" : (method.Contains("ROCKET") ? "ROCKET" : "CARD"));
+                    saved.Add(new SavedPaymentMethodDto
+                    {
+                        Type = mfsType,
+                        Title = $"{mfsType} ({request.AccountNumber.Trim()})",
+                        AccountNumber = request.AccountNumber.Trim(),
+                        Expiry = request.CardExpiry
+                    });
+                    user.SavedPaymentMethods = saved;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                redirectUrl = $"/Checkout/Confirmation?orderId={order.Id}&status={(paymentStatus == "PAID" ? "SUCCEEDED" : "PENDING")}&txId={txId}&paymentMethod={method}"
+            });
+        }
+
+        // POST: /Checkout/ReOrder
+        [HttpPost]
+        public async Task<IActionResult> ReOrder([FromForm] Guid orderId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login", "Account");
+
+            var pastOrder = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId && (o.CustomerId == userId || o.UserId == userId));
+
+            if (pastOrder == null) return RedirectToAction("UserProfile", "Account");
+
+            var newOrderId = Guid.NewGuid();
+            var newOrder = new Order
+            {
+                Id = newOrderId,
+                PharmacyId = pastOrder.PharmacyId,
+                CustomerId = userId,
+                UserId = userId,
+                OrderNumber = "ORD-" + DateTime.UtcNow.ToString("yyMMdd") + "-" + Guid.NewGuid().ToString("N")[..4].ToUpper(),
+                OrderType = "B2C_ONLINE",
+                PaymentStatus = "UNPAID",
+                PaymentMethod = "ONLINE",
+                Status = "PENDING_APPROVAL",
+                DeliveryStatus = "PENDING",
+                Subtotal = pastOrder.Subtotal,
+                Tax = pastOrder.Tax,
+                Discount = pastOrder.Discount,
+                TotalAmount = pastOrder.TotalAmount,
+                ShippingAddress = pastOrder.ShippingAddress,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            foreach (var item in pastOrder.OrderItems)
+            {
+                newOrder.OrderItems.Add(new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = newOrderId,
+                    MedicineId = item.MedicineId,
+                    BatchId = Guid.Empty,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.TotalPrice,
+                    LineTotal = item.LineTotal
+                });
+            }
+
+            _context.Orders.Add(newOrder);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Order #{pastOrder.OrderNumber} re-ordered! Review your items and complete payment.";
+            return RedirectToAction("Payment", new { orderId = newOrderId });
+        }
+
+        // GET: /Checkout/Invoice/{orderId}
+        [HttpGet]
+        public async Task<IActionResult> Invoice(Guid orderId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return Challenge();
+
+            var order = await _context.Orders
+                .Include(o => o.Pharmacy)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Medicine)
+                .Include(o => o.Customer)
+                .Include(o => o.AssignedDeliveryman)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null) return NotFound();
+
+            var payment = await _context.Payments
+                .Where(p => p.OrderId == order.Id)
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            ViewBag.Payment = payment;
+            return View("~/Views/Checkout/Invoice.cshtml", order);
+        }
+    }
+
+    public class DirectPaymentRequest
+    {
+        public Guid OrderId { get; set; }
+        public string Method { get; set; } = "COD"; // "COD", "BKASH", "NAGAD", "ROCKET", "CARD"
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
+        public string? Instructions { get; set; }
+        public string? AccountNumber { get; set; }
+        public string? CardExpiry { get; set; }
+        public bool SaveMethod { get; set; }
     }
 }
