@@ -322,7 +322,7 @@ namespace MediGuard.Data
                 entity.HasIndex(o => new { o.PharmacyId, o.CreatedAt })
                       .HasDatabaseName("idx_orders_pharmacy_date");
 
-                // Composite Index for Delivery Dashboard Queries (Ticket 37)
+                // Composite Index for Delivery Dashboard Queries
                 entity.HasIndex(o => new { o.AssignedDeliverymanId, o.DeliveryStatus })
                       .HasDatabaseName("idx_orders_delivery");
 
@@ -424,24 +424,37 @@ namespace MediGuard.Data
 
                 entity.Property(p => p.FilePath)
                       .IsRequired()
-                      .HasMaxLength(500);
+                      .HasMaxLength(1000);
 
                 entity.Property(p => p.FileType)
                       .IsRequired()
-                      .HasMaxLength(20)
+                      .HasMaxLength(50)
                       .HasDefaultValue("jpg");
 
                 entity.Property(p => p.Status)
                       .IsRequired()
-                      .HasMaxLength(30)
+                      .HasMaxLength(50)
                       .HasDefaultValue("PENDING");
 
                 entity.Property(p => p.RejectionReason)
                       .HasMaxLength(500);
 
+                entity.Property(p => p.Notes)
+                      .HasMaxLength(1000);
+
                 entity.Property(p => p.CreatedAt)
                       .HasColumnType("TIMESTAMPTZ")
                       .HasDefaultValueSql("NOW()");
+
+                entity.Property(p => p.UpdatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(p => new { p.PharmacyId, p.Status })
+                      .HasDatabaseName("idx_prescriptions_pharmacy_status");
+
+                entity.HasIndex(p => p.OrderId)
+                      .HasDatabaseName("idx_prescriptions_order");
 
                 entity.HasOne(p => p.Order)
                       .WithMany()
@@ -453,7 +466,7 @@ namespace MediGuard.Data
                       .HasForeignKey(p => p.CustomerId)
                       .OnDelete(DeleteBehavior.SetNull);
 
-                entity.HasOne(p => p.VerifiedBy)
+                entity.HasOne(p => p.Verifier)
                       .WithMany()
                       .HasForeignKey(p => p.VerifiedById)
                       .OnDelete(DeleteBehavior.SetNull);
@@ -475,9 +488,6 @@ namespace MediGuard.Data
                 entity.Property(d => d.Id)
                       .HasDefaultValueSql("gen_random_uuid()");
 
-                entity.Property(d => d.DeliverymanId)
-                      .IsRequired();
-
                 entity.Property(d => d.DeliveryType)
                       .IsRequired()
                       .HasMaxLength(20)
@@ -485,8 +495,17 @@ namespace MediGuard.Data
 
                 entity.Property(d => d.Status)
                       .IsRequired()
-                      .HasMaxLength(30)
+                      .HasMaxLength(50)
                       .HasDefaultValue("PENDING");
+
+                entity.Property(d => d.RecipientName)
+                      .HasMaxLength(255);
+
+                entity.Property(d => d.RecipientPhone)
+                      .HasMaxLength(50);
+
+                entity.Property(d => d.DeliveryAddress)
+                      .HasMaxLength(500);
 
                 entity.Property(d => d.CancellationReason)
                       .HasMaxLength(500);
@@ -497,6 +516,20 @@ namespace MediGuard.Data
 
                 entity.Property(d => d.CompletedAt)
                       .HasColumnType("TIMESTAMPTZ");
+
+                entity.Property(d => d.CreatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
+                      .HasDefaultValueSql("NOW()");
+
+                entity.Property(d => d.UpdatedAt)
+                      .HasColumnType("TIMESTAMPTZ")
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(d => new { d.PharmacyId, d.Status })
+                      .HasDatabaseName("idx_deliveries_pharmacy_status");
+
+                entity.HasIndex(d => new { d.DeliverymanId, d.Status })
+                      .HasDatabaseName("idx_deliveries_deliveryman_status");
 
                 entity.HasIndex(d => new { d.OrderId, d.Status })
                       .HasDatabaseName("idx_deliveries_order_status");
@@ -510,10 +543,15 @@ namespace MediGuard.Data
                       .WithMany()
                       .HasForeignKey(d => d.DeliverymanId)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Pharmacy)
+                      .WithMany()
+                      .HasForeignKey(d => d.PharmacyId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             // -------------------------------------------------------------
-            // Payment Ledger Configuration (Ticket 44)
+            // Payment Ledger Configuration (Ticket 44 & 45)
             // -------------------------------------------------------------
             builder.Entity<Payment>(entity =>
             {

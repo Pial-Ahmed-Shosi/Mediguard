@@ -59,24 +59,33 @@ namespace MediGuard.Controllers
                 pharmacyId = order.PharmacyId;
             }
 
-            var result = await _paymentService.CreatePaymentIntentAsync(request.OrderId, pharmacyId);
-
-            if (!result.Success)
+            try
             {
-                if (result.IsGatewayError)
+                var result = await _paymentService.CreatePaymentIntentAsync(request.OrderId, pharmacyId);
+
+                if (!result.Success)
                 {
-                    return StatusCode(500, new { message = result.ErrorMessage });
+                    if (result.IsGatewayError)
+                    {
+                        _logger.LogError("Payment gateway error encountered for OrderId: {OrderId}", request.OrderId);
+                        return StatusCode(500, new { message = result.ErrorMessage ?? "Payment gateway is currently unavailable. Please try again later." });
+                    }
+
+                    return BadRequest(new { message = result.ErrorMessage ?? "Unable to initialize payment intent." });
                 }
 
-                return BadRequest(new { message = result.ErrorMessage });
+                // Expected JSON Response format: { clientSecret = "...", transactionId = "..." }
+                return Ok(new
+                {
+                    clientSecret = result.ClientSecret,
+                    transactionId = result.TransactionId
+                });
             }
-
-            // Expected JSON Response format: { clientSecret = "...", transactionId = "..." }
-            return Ok(new
+            catch (Exception ex)
             {
-                clientSecret = result.ClientSecret,
-                transactionId = result.TransactionId
-            });
+                _logger.LogError(ex, "Unexpected error initializing payment intent for OrderId: {OrderId}", request.OrderId);
+                return StatusCode(500, new { message = "An error occurred while processing your payment session request." });
+            }
         }
     }
 
