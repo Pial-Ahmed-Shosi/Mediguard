@@ -1,4 +1,4 @@
-﻿// File: Services/DashboardService.cs
+// File: Services/DashboardService.cs
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -125,7 +125,8 @@ namespace MediGuard.Services
 
                 case "customer":
                     metrics.ActiveOrdersInTransit = await _context.Orders
-                        .Where(o => o.PharmacyId == pharmacyId && o.Status == "IN_TRANSIT")
+                        .Where(o => (o.CustomerId == userIdStr || o.UserId == userIdStr) &&
+                                    (o.Status == "IN_TRANSIT" || o.DeliveryStatus == "IN_TRANSIT" || o.DeliveryStatus == "PENDING"))
                         .CountAsync();
                     break;
             }

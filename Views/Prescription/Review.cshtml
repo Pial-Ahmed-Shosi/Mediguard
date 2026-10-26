@@ -1,461 +1,484 @@
-@model MediGuard.Models.ViewModels.PrescriptionReviewViewModel
+@model MediGuard.Models.Prescription
+
 @{
     ViewData["Title"] = "Prescription Review";
-    var hasFile = !string.IsNullOrWhiteSpace(Model.FileUrl);
+    Layout = "_Layout";
+    var isPdf = Model.FileType?.ToLower() == "pdf";
 }
 
-<link rel="stylesheet" href="@Url.Content("~/css/prescription-review.css")" />
-
+@section Styles {
 <style>
-    /* ===== Page ===== */
-    .rx-page {
-        --g-950: #052e1f;
-        --g-900: #0b3d2e;
-        --g-800: #14532d;
-        --g-700: #15803d;
-        --g-600: #16a34a;
-        --g-500: #22c55e;
-        --g-200: #bbf7d0;
-        --g-100: #dcfce7;
-        --g-50:  #f0fdf4;
-        --g-line: #d7eadf;
-        --g-ink: #1f2d27;
-        --g-muted: #5d7367;
-        color: var(--g-ink);
-        background:
-            radial-gradient(900px 300px at 100% 0%, rgba(34, 197, 94, .10), transparent 70%),
-            linear-gradient(180deg, var(--g-50) 0%, #ffffff 320px);
+    :root {
+        --rx-teal: #007a78;
+        --rx-teal-dark: #005f5d;
+        --rx-teal-light: #e6f4f3;
+        --rx-danger: #dc3545;
+        --rx-success: #198754;
+        --rx-border: #e0e7e7;
     }
 
-    /* ===== Hero ===== */
-    .rx-page .rv-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1.25rem;
-        padding: 1.5rem 1.75rem;
+    .rx-review-page {
+        background: #f4f7f6;
+        min-height: 100vh;
+        padding: 1.5rem 0 4rem;
+    }
+
+    /* Page Header */
+    .rx-review-header {
+        background: linear-gradient(135deg, var(--rx-teal), var(--rx-teal-dark));
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
         color: #fff;
-        background: linear-gradient(120deg, var(--g-950) 0%, var(--g-800) 55%, var(--g-600) 100%);
-        box-shadow: 0 18px 40px rgba(20, 83, 45, .28);
-    }
-    .rx-page .rv-hero::before,
-    .rx-page .rv-hero::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        pointer-events: none;
-        background: rgba(255, 255, 255, .07);
-    }
-    .rx-page .rv-hero::before { width: 260px; height: 260px; top: -110px; right: -60px; }
-    .rx-page .rv-hero::after  { width: 160px; height: 160px; bottom: -90px; right: 180px; background: rgba(255, 255, 255, .05); }
-    .rx-page .rv-hero > * { position: relative; z-index: 1; }
-
-    .rx-page .rv-hero-icon {
-        width: 58px;
-        height: 58px;
-        display: grid;
-        place-items: center;
-        font-size: 1.8rem;
-        border-radius: 1rem;
-        background: rgba(255, 255, 255, .16);
-        border: 1px solid rgba(255, 255, 255, .3);
-        backdrop-filter: blur(4px);
-    }
-    .rx-page .rv-breadcrumb {
-        --bs-breadcrumb-divider-color: rgba(255, 255, 255, .55);
-        margin: 0 0 .25rem;
-        font-size: .78rem;
-        letter-spacing: .02em;
-    }
-    .rx-page .rv-breadcrumb .breadcrumb-item { color: rgba(255, 255, 255, .75); }
-    .rx-page .rv-breadcrumb .breadcrumb-item.active { color: #fff; font-weight: 600; }
-    .rx-page .rv-title { font-size: 1.55rem; font-weight: 800; letter-spacing: -.01em; margin: 0; }
-    .rx-page .rv-subtitle { margin: .15rem 0 0; font-size: .85rem; color: rgba(255, 255, 255, .8); }
-
-    .rx-page .rv-chips { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; }
-    .rx-page .rv-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: .45rem;
-        padding: .45rem .85rem;
-        border-radius: 999px;
-        font-size: .8rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, .14);
-        border: 1px solid rgba(255, 255, 255, .25);
-        backdrop-filter: blur(4px);
-        white-space: nowrap;
-    }
-    .rx-page .rv-chip i { color: #86efac; }
-    .rx-page .rv-chip-strong { background: #fff; color: var(--g-900); border-color: #fff; }
-    .rx-page .rv-chip-strong i { color: var(--g-600); }
-
-    /* ===== Viewer panel ===== */
-    .rx-page .rv-sticky { position: sticky; top: 1rem; }
-    .rx-page .rv-panel {
-        background: #fff;
-        border: 1px solid var(--g-line);
-        border-radius: 1.25rem;
-        overflow: hidden;
-        box-shadow: 0 10px 28px rgba(20, 83, 45, .09);
-    }
-    .rx-page .rv-panel-head {
+        margin-bottom: 1.5rem;
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
         justify-content: space-between;
-        gap: .75rem;
-        padding: .9rem 1.15rem;
-        background: linear-gradient(135deg, var(--g-50) 0%, var(--g-100) 100%);
-        border-bottom: 1px solid var(--g-line);
-    }
-    .rx-page .rv-panel-title {
-        display: flex;
         align-items: center;
-        gap: .6rem;
-        margin: 0;
-        font-size: .98rem;
-        font-weight: 700;
-        color: var(--g-800);
-    }
-    .rx-page .rv-title-icon {
-        width: 32px;
-        height: 32px;
-        display: grid;
-        place-items: center;
-        border-radius: .6rem;
-        background: var(--g-600);
-        color: #fff;
-        font-size: 1rem;
-    }
-
-    .rx-page .rv-toolbar {
-        display: inline-flex;
-        align-items: center;
-        gap: .25rem;
-        padding: .25rem;
-        background: #fff;
-        border: 1px solid var(--g-line);
-        border-radius: .85rem;
-        box-shadow: 0 2px 6px rgba(20, 83, 45, .06);
-    }
-    .rx-page .rv-tool-sep { width: 1px; height: 22px; background: var(--g-line); margin: 0 .15rem; }
-    .rx-page .rv-tool {
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-        padding: .45rem .65rem;
-        border: 0;
-        border-radius: .6rem;
-        background: transparent;
-        color: var(--g-700);
-        font-size: .82rem;
-        font-weight: 600;
-        line-height: 1;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background .15s ease, color .15s ease, transform .15s ease;
-    }
-    .rx-page .rv-tool i { font-size: 1rem; }
-    .rx-page .rv-tool:hover { background: var(--g-600); color: #fff; }
-    .rx-page .rv-tool:active { transform: scale(.96); }
-    .rx-page .rv-tool:focus-visible { outline: 3px solid rgba(34, 197, 94, .45); outline-offset: 1px; }
-
-    /* Viewer area (the sizing logic is handled by prescription-review.js, so padding stays 24px) */
-    .rx-page .rx-viewer-container {
-        height: 70vh;
-        background-color: #eef6f1;
-        background-image: radial-gradient(#cfe5d8 1.2px, transparent 1.2px);
-        background-size: 18px 18px;
-        background-position: 0 0;
-        box-shadow: inset 0 3px 10px rgba(20, 83, 45, .08);
-    }
-    .rx-page .rx-viewer-container:fullscreen {
-        background-color: #08130d;
-        background-image: none;
-    }
-    .rx-page .rx-document {
-        border-radius: .6rem;
-        box-shadow: 0 14px 34px rgba(5, 46, 31, .28);
-    }
-    .rx-page .rx-empty {
-        background: #fff;
-        border: 2px dashed var(--g-line);
-        border-radius: 1rem;
-    }
-
-    .rx-page .rv-panel-foot {
-        display: flex;
         flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: .6rem;
-        padding: .7rem 1.15rem;
-        background: var(--g-50);
-        border-top: 1px solid var(--g-line);
-        font-size: .82rem;
-        color: var(--g-muted);
+        gap: 1rem;
     }
-    .rx-page .rv-stat {
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        padding: .3rem .75rem;
-        border-radius: 999px;
-        background: #fff;
-        border: 1px solid var(--g-line);
-        color: var(--g-800);
-    }
-    .rx-page .rv-stat i { color: var(--g-600); }
-    .rx-page .rv-stat strong { font-weight: 800; }
-    .rx-page .rv-tip i { color: var(--g-600); }
 
-    /* ===== Alerts ===== */
-    .rx-page .alert { border: 0; border-radius: .9rem; font-weight: 600; padding: .9rem 1.1rem; }
-    .rx-page .alert-success {
-        background: var(--g-100);
-        color: var(--g-900);
-        border-left: 5px solid var(--g-600);
-    }
-    .rx-page .alert-danger { border-left: 5px solid #dc3545; }
-
-    /* ===== Rejection modal ===== */
-    .rx-modal .modal-content {
-        border: 0;
-        border-radius: 1.25rem;
-        overflow: hidden;
-        box-shadow: 0 28px 70px rgba(5, 46, 31, .35);
-    }
-    .rx-modal .modal-header {
-        padding: 1.1rem 1.35rem;
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-        border-bottom: 1px solid #d7eadf;
-    }
-    .rx-modal .rv-modal-icon {
-        width: 46px;
-        height: 46px;
-        display: grid;
-        place-items: center;
-        border-radius: .9rem;
-        background: #fee2e2;
-        color: #dc2626;
+    .rx-review-header h1 {
         font-size: 1.3rem;
-        box-shadow: 0 6px 14px rgba(220, 38, 38, .18);
+        font-weight: 800;
+        margin: 0 0 0.2rem;
     }
-    .rx-modal .modal-title { font-weight: 800; color: #14532d; }
-    .rx-modal .modal-body { padding: 1.35rem; }
-    .rx-modal .rv-modal-note {
-        display: flex;
-        gap: .6rem;
-        align-items: flex-start;
-        padding: .75rem .95rem;
-        margin-bottom: 1.1rem;
-        border-radius: .8rem;
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        color: #14532d;
-        font-size: .85rem;
-    }
-    .rx-modal .rv-modal-note i { color: #16a34a; margin-top: .1rem; }
-    .rx-modal .form-label { color: #14532d; }
-    .rx-modal .form-control,
-    .rx-modal .form-select { border-radius: .75rem; border-color: #cfe5d8; padding: .6rem .85rem; }
-    .rx-modal .form-control:focus,
-    .rx-modal .form-select:focus {
-        border-color: #22c55e;
-        box-shadow: 0 0 0 .22rem rgba(34, 197, 94, .2);
-    }
-    .rx-modal .form-control.is-invalid:focus { border-color: #dc3545; box-shadow: 0 0 0 .22rem rgba(220, 53, 69, .18); }
-    .rx-modal .modal-footer { padding: 1rem 1.35rem; background: #f8fdfb; border-top: 1px solid #d7eadf; }
-    .rx-modal .btn-light { border-radius: .75rem; font-weight: 600; padding: .6rem 1.2rem; }
-    .rx-modal .btn-danger {
-        border: 0;
-        border-radius: .75rem;
-        font-weight: 700;
-        padding: .6rem 1.4rem;
-        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-        box-shadow: 0 8px 18px rgba(220, 38, 38, .28);
-    }
-    .rx-modal .btn-danger:disabled { opacity: .55; box-shadow: none; }
 
-    /* ===== Responsive / motion ===== */
-    @@media (max-width: 991.98px) {
-        .rx-page .rv-sticky { position: static; }
-        .rx-page .rv-chips { justify-content: flex-start; }
-        .rx-page .rx-viewer-container { height: 60vh; }
+    .rx-review-header p {
+        margin: 0;
+        opacity: 0.85;
+        font-size: 0.85rem;
     }
-    @@media (max-width: 575.98px) {
-        .rx-page .rv-hero { padding: 1.15rem; }
-        .rx-page .rv-title { font-size: 1.3rem; }
-        .rx-page .rv-tool { padding: .45rem .55rem; }
+
+    /* Status badge */
+    .rx-status-pill {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
     }
-    @@media (prefers-reduced-motion: reduce) {
-        .rx-page .rv-tool { transition: none; }
+
+    /* Split-View Layout */
+    .rx-split-view {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @@media (max-width: 991px) {
+        .rx-split-view {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Image Viewer Panel */
+    .rx-viewer-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,122,120,0.07);
+        border: 1px solid var(--rx-border);
+        overflow: hidden;
+    }
+
+    .rx-viewer-toolbar {
+        background: #f8fafa;
+        border-bottom: 1px solid var(--rx-border);
+        padding: 0.75rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .rx-viewer-toolbar .toolbar-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #4b6060;
+        margin-right: auto;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .rx-tool-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--rx-border);
+        background: #fff;
+        color: var(--rx-teal);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .rx-tool-btn:hover {
+        background: var(--rx-teal-light);
+        border-color: var(--rx-teal);
+    }
+
+    .rx-viewer-body {
+        padding: 1.5rem;
+        min-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafbfb;
+        overflow: hidden;
+    }
+
+    #rxPrescriptionImg {
+        max-width: 100%;
+        max-height: 520px;
+        object-fit: contain;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+        transform-origin: center center;
+        cursor: zoom-in;
+    }
+
+    .rx-pdf-viewer {
+        width: 100%;
+        height: 520px;
+        border: none;
+        border-radius: 8px;
+    }
+
+    /* Right Panel */
+    .rx-right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .rx-panel-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,122,120,0.06);
+        border: 1px solid var(--rx-border);
+        padding: 1.5rem;
+    }
+
+    .rx-panel-card h3 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #4b6060;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* Details Rows */
+    .rx-detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.55rem 0;
+        border-bottom: 1px dashed #eef2f2;
+        font-size: 0.85rem;
+    }
+
+    .rx-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .rx-detail-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .rx-detail-value {
+        font-weight: 600;
+        color: #111827;
+        max-width: 60%;
+        text-align: right;
+    }
+
+    .rx-rejection-box {
+        background: #fff5f5;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.83rem;
+        color: #7f1d1d;
+    }
+
+    /* Order Items */
+    .rx-order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.55rem 0;
+        border-bottom: 1px dashed #eef2f2;
+        font-size: 0.85rem;
+    }
+
+    .rx-order-item:last-child { border-bottom: none; }
+
+    /* Action Buttons */
+    .btn-rx-approve {
+        background: var(--rx-success);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-rx-approve:hover:not(:disabled) {
+        background: #146c43;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(25, 135, 84, 0.3);
+        color: #fff;
+    }
+
+    .btn-rx-reject {
+        background: var(--rx-danger);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-rx-reject:hover:not(:disabled) {
+        background: #b02a37;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(220, 53, 69, 0.3);
+        color: #fff;
+    }
+
+    .btn-rx-approve:disabled,
+    .btn-rx-reject:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Success/Error banners */
+    .rx-action-result {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: none;
+        margin-top: 0.5rem;
     }
 </style>
+}
 
-@Html.AntiForgeryToken()
+<div class="rx-review-page">
+    <div class="container-fluid px-lg-5">
 
-<div id="reviewRoot"
-     class="rx-page container-fluid py-4 px-lg-4"
-     data-prescription-id="@Model.PrescriptionId"
-     data-is-pdf="@(Model.IsPdf ? "true" : "false")"
-     data-approve-url="@Url.Action("Approve", "Prescription")"
-     data-reject-url="@Url.Action("Reject", "Prescription")">
+        <!-- Page Header -->
+        <div class="rx-review-header">
+            <div>
+                <h1>
+                    <i class="bi bi-file-earmark-medical me-2"></i>
+                    Prescription Review
+                </h1>
+                <p>Order <strong>#@Model.OrderId.ToString().Substring(0, 8).ToUpper()</strong> &bull; Submitted @Model.CreatedAt.ToString("dd MMM yyyy")</p>
+            </div>
+            @{
+                var pillClass = Model.Status switch
+                {
+                    "APPROVED" => "bg-success text-white",
+                    "REJECTED" => "bg-danger text-white",
+                    _ => "bg-warning text-dark"
+                };
+            }
+            <span class="rx-status-pill @pillClass">@Model.Status</span>
+        </div>
 
-    <!-- Page header -->
-    <div class="rv-hero mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rv-hero-icon"><i class="bi bi-file-earmark-medical"></i></div>
-                <div>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb rv-breadcrumb">
-                            <li class="breadcrumb-item">Pharmacy</li>
-                            <li class="breadcrumb-item">Prescriptions</li>
-                            <li class="breadcrumb-item active" aria-current="page">Review</li>
-                        </ol>
-                    </nav>
-                    <h1 class="rv-title">Prescription Review</h1>
-                    <p class="rv-subtitle">Inspect the document, verify the order, then record your decision.</p>
+        <!-- Split View -->
+        <div class="rx-split-view">
+
+            <!-- LEFT: Interactive Image Viewer -->
+            <div class="rx-viewer-card">
+                <div class="rx-viewer-toolbar">
+                    <span class="toolbar-label"><i class="bi bi-zoom-in me-1"></i> Document Viewer</span>
+
+                    @if (!isPdf)
+                    {
+                        <button type="button" class="rx-tool-btn" id="btnZoomIn" title="Zoom In" aria-label="Zoom in">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button type="button" class="rx-tool-btn" id="btnZoomOut" title="Zoom Out" aria-label="Zoom out">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <button type="button" class="rx-tool-btn" id="btnRotate" title="Rotate" aria-label="Rotate image">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button type="button" class="rx-tool-btn" id="btnFullscreen" title="Fullscreen" aria-label="View fullscreen">
+                            <i class="bi bi-fullscreen"></i>
+                        </button>
+                    }
+                </div>
+
+                <div class="rx-viewer-body" id="rxViewerBody">
+                    @if (isPdf)
+                    {
+                        <iframe class="rx-pdf-viewer"
+                                src="@Model.FilePath"
+                                title="Prescription PDF"
+                                aria-label="Uploaded prescription PDF document">
+                        </iframe>
+                    }
+                    else
+                    {
+                        <img id="rxPrescriptionImg"
+                             src="@Model.FilePath"
+                             alt="Uploaded prescription"
+                             loading="eager" />
+                    }
                 </div>
             </div>
 
-            <div class="rv-chips">
-                <span class="rv-chip rv-chip-strong"><i class="bi bi-receipt"></i>Order #@Model.OrderNumber</span>
-                <span class="rv-chip"><i class="bi bi-calendar2-check"></i>@Model.SubmittedAt.ToString("dd MMM yyyy, hh:mm tt")</span>
-                <span class="rv-chip">
-                    <i class="bi @(Model.IsPdf ? "bi-filetype-pdf" : "bi-image")"></i>@(Model.IsPdf ? "PDF document" : "Image file")
-                </span>
-            </div>
-        </div>
-    </div>
+            <!-- RIGHT: Order Info + Verification -->
+            <div class="rx-right-panel">
 
-    <div id="reviewAlert" class="alert d-none shadow-sm" role="alert"></div>
-
-    <div class="row g-4">
-        <!-- Document examination region -->
-        <div class="col-lg-7">
-            <div class="rv-sticky">
-                <div class="rv-panel">
-                    <div class="rv-panel-head">
-                        <h2 class="rv-panel-title">
-                            <span class="rv-title-icon"><i class="bi bi-file-earmark-text"></i></span>Prescription Document
-                        </h2>
-
-                        <div class="rv-toolbar" role="group" aria-label="Viewer controls">
-                            <button type="button" class="rv-tool" id="btnZoomOut" title="Zoom out">
-                                <i class="bi bi-zoom-out"></i><span class="d-none d-xl-inline">Zoom out</span>
-                            </button>
-                            <button type="button" class="rv-tool" id="btnZoomIn" title="Zoom in">
-                                <i class="bi bi-zoom-in"></i><span class="d-none d-xl-inline">Zoom in</span>
-                            </button>
-                            <span class="rv-tool-sep" aria-hidden="true"></span>
-                            <button type="button" class="rv-tool" id="btnRotate" title="Rotate">
-                                <i class="bi bi-arrow-clockwise"></i><span class="d-none d-xl-inline">Rotate</span>
-                            </button>
-                            <button type="button" class="rv-tool" id="btnReset" title="Reset view">
-                                <i class="bi bi-arrow-counterclockwise"></i><span class="d-none d-xl-inline">Reset</span>
-                            </button>
-                            <span class="rv-tool-sep" aria-hidden="true"></span>
-                            <button type="button" class="rv-tool" id="btnFullscreen" title="Full screen">
-                                <i class="bi bi-arrows-fullscreen"></i><span class="d-none d-xl-inline">Full screen</span>
-                            </button>
-                            @if (hasFile)
-                            {
-                                <a class="rv-tool" href="@Model.FileUrl" target="_blank" rel="noopener" title="Open original in a new tab">
-                                    <i class="bi bi-box-arrow-up-right"></i>
-                                </a>
-                            }
-                        </div>
-                    </div>
-
-                    <div id="viewerContainer" class="rx-viewer-container">
-                        <div id="viewerStage" class="rx-viewer-stage">
-                            @if (!hasFile)
-                            {
-                                <div class="rx-empty text-center text-muted p-5">
-                                    <i class="bi bi-file-earmark-x display-4 d-block mb-2"></i>
-                                    No prescription file was found for this order.
-                                </div>
-                            }
-                            else if (Model.IsPdf)
-                            {
-                                <embed id="rxDocument" src="@Model.FileUrl" type="application/pdf" class="rx-document" />
-                            }
-                            else
-                            {
-                                <img id="rxDocument" src="@Model.FileUrl" alt="Submitted prescription" class="rx-document" />
-                            }
-                        </div>
-                    </div>
-
-                    <div class="rv-panel-foot">
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="rv-stat"><i class="bi bi-search"></i>Zoom <strong id="zoomLabel">100%</strong></span>
-                            <span class="rv-stat"><i class="bi bi-arrow-repeat"></i>Rotation <strong id="rotationLabel">0°</strong></span>
-                        </div>
-                        <span class="rv-tip d-none d-md-inline">
-                            <i class="bi bi-lightbulb me-1"></i>Zoom in to check the doctor name, date and dosage.
-                        </span>
-                    </div>
+                <!-- Prescription Details -->
+                <div class="rx-panel-card">
+                    <h3><i class="bi bi-info-circle"></i> Prescription Details</h3>
+                    @await Html.PartialAsync("_PrescriptionDetails", Model)
                 </div>
-            </div>
-        </div>
 
-        <!-- Order assessment region -->
-        <div class="col-lg-5">
-            @await Html.PartialAsync("_PrescriptionDetails", Model)
+                <!-- Order Line Items -->
+                @if (Model.Order?.OrderItems != null && Model.Order.OrderItems.Any())
+                {
+                    <div class="rx-panel-card">
+                        <h3><i class="bi bi-cart3"></i> Order Items</h3>
+                        @foreach (var item in Model.Order.OrderItems)
+                        {
+                            <div class="rx-order-item">
+                                <span>@(item.Medicine?.BrandName ?? item.MedicineId.ToString().Substring(0, 8))</span>
+                                <span class="fw-semibold">Qty: @item.Quantity &nbsp;&bull;&nbsp; ৳@item.UnitPrice.ToString("N2")</span>
+                            </div>
+                        }
+                        <div class="rx-order-item">
+                            <span class="fw-bold">Order Total</span>
+                            <span class="fw-bold text-success">৳@Model.Order.TotalAmount.ToString("N2")</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Customer Info -->
+                @if (Model.Customer != null)
+                {
+                    <div class="rx-panel-card">
+                        <h3><i class="bi bi-person-circle"></i> Customer</h3>
+                        <div class="rx-detail-row">
+                            <span class="rx-detail-label">Name</span>
+                            <span class="rx-detail-value">@(Model.Customer.FullName ?? Model.Customer.UserName)</span>
+                        </div>
+                        <div class="rx-detail-row">
+                            <span class="rx-detail-label">Email</span>
+                            <span class="rx-detail-value">@Model.Customer.Email</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Verification Action Box -->
+                @if (Model.Status == "PENDING")
+                {
+                    <div class="rx-panel-card" id="rxActionBox">
+                        <h3><i class="bi bi-shield-check"></i> Verification Decision</h3>
+
+                        <div id="rxActionResult" class="rx-action-result" role="alert" aria-live="assertive"></div>
+
+                        <button type="button"
+                                id="btnApprove"
+                                class="btn-rx-approve"
+                                data-prescription-id="@Model.Id">
+                            <i class="bi bi-check2-circle"></i>
+                            Approve Prescription
+                        </button>
+
+                        <button type="button"
+                                id="btnReject"
+                                class="btn-rx-reject"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectModal"
+                                data-prescription-id="@Model.Id">
+                            <i class="bi bi-x-circle"></i>
+                            Reject Prescription
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="rx-panel-card text-center py-3">
+                        <i class="bi @(Model.Status == "APPROVED" ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-danger") fs-2"></i>
+                        <div class="mt-2 fw-semibold">This prescription has already been @Model.Status.ToLower().</div>
+                    </div>
+                }
+
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Rejection modal (the only one on the page) -->
-<div class="modal fade rx-modal" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rv-modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                    <div>
-                        <h5 class="modal-title mb-0" id="rejectModalLabel">Reject Prescription</h5>
-                        <small class="text-muted">This decision cannot be undone.</small>
-                    </div>
-                </div>
+        <div class="modal-content" style="border-radius:16px; overflow:hidden;">
+            <div class="modal-header border-0 pb-0" style="background:#fff5f5;">
+                <h5 class="modal-title fw-bold text-danger" id="rejectModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Reject Prescription
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="rv-modal-note">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <div>A reason is required. It is saved with the rejection and sent to the customer.</div>
-                </div>
+            <div class="modal-body pt-2" style="background:#fff5f5;">
+                <p class="text-muted small mb-3">
+                    Please provide a reason for rejection. This message will be sent to the customer.
+                </p>
+                <label for="rejectReasonInput" class="form-label fw-semibold">Rejection Reason <span class="text-danger">*</span></label>
+                <textarea id="rejectReasonInput"
+                          class="form-control"
+                          rows="4"
+                          maxlength="500"
+                          placeholder="e.g. Illegible Document, Expired Prescription Date, Mismatched Doctor Name..."
+                          style="border-radius:10px;"></textarea>
+                <div id="rejectReasonError" class="text-danger small mt-1" hidden>A rejection reason is required.</div>
 
-                <div class="mb-3">
-                    <label for="rejectPreset" class="form-label fw-semibold">Common reasons</label>
-                    <select id="rejectPreset" class="form-select">
-                        <option value="">-- Select a reason (optional) --</option>
-                        <option>Illegible Document</option>
-                        <option>Expired Prescription Date</option>
-                        <option>Mismatched Doctor Name</option>
-                    </select>
-                </div>
-
-                <div class="mb-1">
-                    <label for="rejectReason" class="form-label fw-semibold">
-                        Rejection reason <span class="text-danger">*</span>
-                    </label>
-                    <textarea id="rejectReason" class="form-control" rows="4" maxlength="500"
-                              placeholder="Describe the issue with this prescription"></textarea>
-                    <div class="invalid-feedback">A rejection reason is required.</div>
+                <!-- Quick-pick suggestions -->
+                <div class="mt-2 d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rx-reason-chip" data-reason="Illegible Document">Illegible Document</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rx-reason-chip" data-reason="Expired Prescription Date">Expired Prescription Date</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rx-reason-chip" data-reason="Mismatched Doctor Name">Mismatched Doctor Name</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmReject">
-                    <i class="bi bi-x-circle me-1"></i>Confirm Rejection
+            <div class="modal-footer border-0 bg-white">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="btnConfirmReject" class="btn btn-danger fw-bold px-4"
+                        data-prescription-id="@Model.Id">
+                    <i class="bi bi-x-circle me-1"></i> Confirm Rejection
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<script src="@Url.Content("~/js/prescription-review.js")"></script>
+@section Scripts {
+    <script src="~/js/prescription-review.js" asp-append-version="true"></script>
+}

@@ -1,4 +1,4 @@
-﻿@model MediGuard.Models.ViewModels.StorefrontViewModel
+@model MediGuard.Models.ViewModels.StorefrontViewModel
 
 @{
     ViewData["Title"] = "Find Medicines";
@@ -130,52 +130,68 @@
             </span>
         </div>
 
-        <!-- 3 Search Options Panel -->
+        <!-- 3 Search Options Panel (Medicine Name, Pharmacy Name, Pharmacy Location) -->
         <div class="mg-search-container mb-4">
-            <form id="storefrontSearchForm" onsubmit="return false;">
+            <form id="storefrontSearchForm" method="get" asp-action="Index">
                 <div class="row g-3 align-items-end">
 
-                    <!-- Search Option 1: Medicine / Item Name -->
+                    <!-- Search Bar 1: Medicine Name (Brand or Generic chemical name) -->
                     <div class="col-12 col-md-4">
                         <label for="search" class="mg-input-label">
-                            <i class="bi bi-capsule text-teal"></i> Medicine / Item Name
+                            <i class="bi bi-capsule text-teal"></i> 1. Medicine Name
                         </label>
                         <input id="search"
                                name="search"
                                value="@Model.SearchTerm"
                                class="form-control mg-input-field"
-                               placeholder="e.g. Clindacin, Napa, Syringe..."
+                               placeholder="e.g. Napa, Paracetamol, Amoxicillin..."
                                maxlength="200" />
                     </div>
 
-                    <!-- Search Option 2: Location / Area -->
-                    <div class="col-12 col-md-3">
-                        <label for="location" class="mg-input-label">
-                            <i class="bi bi-geo-alt text-teal"></i> Location / Area
-                        </label>
-                        <input id="location"
-                               name="location"
-                               class="form-control mg-input-field"
-                               placeholder="e.g. Dhanmondi, Gulshan..."
-                               maxlength="100" />
-                    </div>
-
-                    <!-- Search Option 3: Pharmacy / Hospital -->
+                    <!-- Search Bar 2: Pharmacy Name (Branch) -->
                     <div class="col-12 col-md-3">
                         <label for="pharmacy" class="mg-input-label">
-                            <i class="bi bi-hospital text-teal"></i> Pharmacy / Hospital
+                            <i class="bi bi-hospital text-teal"></i> 2. Pharmacy Branch
                         </label>
                         <input id="pharmacy"
                                name="pharmacy"
+                               value="@Model.PharmacyTerm"
+                               list="pharmacySuggestions"
                                class="form-control mg-input-field"
-                               placeholder="e.g. Lazz Pharma, Square Hospital..."
+                               placeholder="e.g. Lazz Pharma, Central Hub..."
                                maxlength="100" />
+                        <datalist id="pharmacySuggestions">
+                            @foreach (var p in Model.Pharmacies)
+                            {
+                                <option value="@p"></option>
+                            }
+                        </datalist>
+                    </div>
+
+                    <!-- Search Bar 3: Pharmacy Location (District, Area, or City) -->
+                    <div class="col-12 col-md-3">
+                        <label for="location" class="mg-input-label">
+                            <i class="bi bi-geo-alt text-teal"></i> 3. Pharmacy Location
+                        </label>
+                        <input id="location"
+                               name="location"
+                               value="@Model.LocationTerm"
+                               list="locationSuggestions"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Dhanmondi, Gulshan, Mirpur..."
+                               maxlength="100" />
+                        <datalist id="locationSuggestions">
+                            @foreach (var loc in Model.Locations)
+                            {
+                                <option value="@loc"></option>
+                            }
+                        </datalist>
                     </div>
 
                     <!-- Action Button -->
                     <div class="col-12 col-md-2">
-                        <button type="button" id="btnFilter" class="btn btn-mg-search w-100">
-                            <i class="bi bi-search"></i> Find Items
+                        <button type="submit" id="btnFilter" class="btn btn-mg-search w-100">
+                            <i class="bi bi-search"></i> Search Stock
                         </button>
                     </div>
 
@@ -185,14 +201,14 @@
 
         <!-- Category Navigational Pills -->
         <div class="mg-pills-row mb-4" id="categoryPillContainer">
-            <button class="btn mg-pill-btn active" data-category="All">
+            <button class="btn mg-pill-btn @(string.IsNullOrEmpty(Model.SelectedCategory) || Model.SelectedCategory == "All" ? "active" : "")" data-category="All">
                 <i class="bi bi-grid-fill"></i> All
             </button>
             @if (Model.Categories != null && Model.Categories.Any())
             {
                 foreach (var item in Model.Categories)
                 {
-                    <button class="btn mg-pill-btn" data-category="@item">
+                    <button class="btn mg-pill-btn @(Model.SelectedCategory == item ? "active" : "")" data-category="@item">
                         <i class="bi bi-capsule"></i> @item
                     </button>
                 }
@@ -229,7 +245,9 @@
                     <div class="col-12 col-sm-6 col-lg-4 col-xl-3 product-item-col"
                          data-brand="@(product.BrandName?.ToLower() ?? "")"
                          data-generic="@(product.GenericName?.ToLower() ?? "")"
-                         data-category="@(product.Category?.Name ?? "")">
+                         data-category="@(product.Category?.Name ?? "")"
+                         data-pharmacy="@(product.Pharmacy?.Name?.ToLower() ?? "")"
+                         data-location="@(product.Pharmacy?.City?.ToLower() ?? "") @(product.Pharmacy?.Address?.ToLower() ?? "")">
                         @await Html.PartialAsync("_ProductCard", product)
                     </div>
                 }
@@ -239,7 +257,7 @@
                 <div class="col-12 text-center py-5" id="emptyState">
                     <i class="bi bi-search fs-1 text-muted"></i>
                     <h5 class="mt-3 text-secondary">No products available</h5>
-                    <p class="text-muted small">There are currently no products matching the storefront criteria.</p>
+                    <p class="text-muted small">There are currently no products matching your multi-bar search criteria.</p>
                 </div>
             }
         </div>
@@ -254,21 +272,22 @@
     </div>
 </div>
 
-<!-- Prescription Warning Toast Notification -->
-<div id="mg-cart-notice"
-     class="mg-cart-notice position-fixed bottom-0 end-0 p-3"
-     style="z-index: 1090;"
-     role="status"
-     aria-live="polite"
-     hidden>
-    <div class="toast align-items-center text-white bg-dark border-0 shadow-lg show" role="alert">
-        <div class="d-flex">
-            <div class="toast-body d-flex align-items-center gap-2">
-                <i class="bi bi-exclamation-triangle-fill text-warning fs-5 flex-shrink-0"></i>
-                <span id="mg-cart-notice-text" class="small fw-normal"></span>
+<!-- Floating Bottom Cart Bar -->
+<div id="mg-floating-cart-bar" class="position-fixed bottom-0 start-50 translate-middle-x mb-4 p-3 rounded-4 shadow-lg border d-none"
+     style="z-index: 1080; background: rgba(11, 37, 69, 0.95); backdrop-filter: blur(10px); color: #fff; min-width: 320px; max-width: 90vw;">
+    <div class="d-flex align-items-center justify-content-between gap-4">
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-teal p-2 rounded-circle fs-6" style="background-color: var(--mg-teal);">
+                <i class="bi bi-cart3"></i>
+            </span>
+            <div>
+                <span class="fw-bold d-block text-white" id="floatingCartCount">0 items in cart</span>
+                <small class="text-light opacity-75" id="floatingCartTotal">Total: ৳0.00</small>
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" id="mg-cart-notice-close" aria-label="Close"></button>
         </div>
+        <button type="button" id="btnFloatingCheckout" class="btn btn-light fw-bold rounded-pill px-4 py-2 d-flex align-items-center gap-2 text-primary shadow-sm">
+            <span>Checkout</span> <i class="bi bi-arrow-right"></i>
+        </button>
     </div>
 </div>
 

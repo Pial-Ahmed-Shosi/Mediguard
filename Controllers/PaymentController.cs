@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediGuard.Data;
 using MediGuard.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediGuard.Controllers
 {
@@ -14,12 +15,12 @@ namespace MediGuard.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly ILogger<PaymentController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public PaymentController(IPaymentService paymentService, ILogger<PaymentController> logger)
+        public PaymentController(IPaymentService paymentService, ApplicationDbContext context)
         {
             _paymentService = paymentService;
-            _logger = logger;
+            _context = context;
         }
 
         private Guid GetCurrentPharmacyId()
@@ -40,10 +41,22 @@ namespace MediGuard.Controllers
                 return BadRequest(new { message = "Invalid order ID provided." });
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var pharmacyId = GetCurrentPharmacyId();
+
+            // If Customer user without PharmacyId claim, look up the order to resolve its pharmacy context
             if (pharmacyId == Guid.Empty)
             {
-                return Unauthorized(new { message = "Invalid pharmacy context." });
+                var order = await _context.Orders
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(o => o.Id == request.OrderId && (o.CustomerId == userId || o.UserId == userId));
+
+                if (order == null)
+                {
+                    return NotFound(new { message = "Order not found or access denied." });
+                }
+
+                pharmacyId = order.PharmacyId;
             }
 
             try

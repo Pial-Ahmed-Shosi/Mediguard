@@ -429,22 +429,31 @@
             <form id="authForm" asp-action="Login" method="post">
                 @Html.AntiForgeryToken()
 
-
-
-                <div class="form-floating mb-3">
-                    <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
-                    <label asp-for="Email"></label>
-                    <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
+                <div asp-validation-summary="All" class="alert alert-danger rounded-3 mb-3 p-3 text-start shadow-sm" style="display: @(ViewData.ModelState.IsValid ? "none" : "block");">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Unable to sign in:</strong>
                 </div>
 
-                <div class="input-group mb-4">
-                    <div class="form-floating flex-grow-1">
-                        <input asp-for="Password" class="form-control border-end-0" placeholder="Password" id="loginPassword" required />
-                        <label asp-for="Password"></label>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input asp-for="Email" class="form-control" placeholder="name@example.com" required />
+                        <label asp-for="Email"></label>
+                        <div id="emailDomainFeedback" class="invalid-feedback fw-bold"></div>
                     </div>
-                    <button type="button" class="input-group-text toggle-password" data-target="loginPassword">
-                        <i class="bi bi-eye"></i>
-                    </button>
+                    <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="mb-4">
+                    <div class="input-group">
+                        <div class="form-floating flex-grow-1">
+                            <input asp-for="Password" class="form-control border-end-0" placeholder="Password" id="loginPassword" required />
+                            <label asp-for="Password"></label>
+                        </div>
+                        <button type="button" class="input-group-text toggle-password" data-target="loginPassword" title="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -469,4 +478,31 @@
 
 @section Scripts {
     <script src="~/js/auth-validation.js"></script>
+    <script>
+        (function () {
+            // Password eye toggle
+            document.querySelectorAll('.toggle-password').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var targetId = this.getAttribute('data-target');
+                    var input = document.getElementById(targetId);
+                    if (input) {
+                        var icon = this.querySelector('i');
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            if (icon) {
+                                icon.classList.remove('bi-eye');
+                                icon.classList.add('bi-eye-slash');
+                            }
+                        } else {
+                            input.type = 'password';
+                            if (icon) {
+                                icon.classList.remove('bi-eye-slash');
+                                icon.classList.add('bi-eye');
+                            }
+                        }
+                    }
+                });
+            });
+        })();
+    </script>
 }

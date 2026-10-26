@@ -1,0 +1,127 @@
+@model IEnumerable<MediGuard.Models.ViewModels.DeliveryDetailsDto>
+
+@if (!Model.Any())
+{
+    <div class="dv-empty">
+        <i class="bi bi-inbox"></i>
+        <p class="fw-semibold">No deliveries here</p>
+        <p class="small">There are no deliveries in this category right now.</p>
+    </div>
+}
+else
+{
+    foreach (var delivery in Model)
+    {
+        var isBtB = delivery.OrderType == "B2B";
+        var mapsUrl = $"https://maps.google.com/?q={Uri.EscapeDataString(delivery.ShippingAddress ?? "")}";
+
+        <article class="dv-card"
+                 data-delivery-id="@delivery.DeliveryId"
+                 data-status="@delivery.Status"
+                 id="dv-card-@delivery.DeliveryId">
+
+            <!-- Card Header -->
+            <div class="dv-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="dv-order-type @(isBtB ? "dv-type-b2b" : "dv-type-b2c")">
+                        @(isBtB ? "B2B Wholesale Delivery" : "B2C Customer Delivery")
+                    </span>
+                </div>
+                <span class="dv-order-id">
+                    #@delivery.OrderId.ToString().Substring(0, 8).ToUpper()
+                </span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="dv-card-body">
+
+                <!-- Recipient Name -->
+                <div class="dv-recipient-name">
+                    <i class="bi bi-person-fill me-1" style="color: var(--dv-teal);"></i>
+                    @(isBtB ? (delivery.PharmacyName ?? delivery.RecipientName) : delivery.RecipientName)
+                </div>
+
+                <!-- Phone (tel: link) -->
+                @if (!string.IsNullOrWhiteSpace(delivery.RecipientPhone))
+                {
+                    <div class="dv-meta">
+                        <i class="bi bi-telephone-fill"></i>
+                        <a href="tel:@delivery.RecipientPhone">@delivery.RecipientPhone</a>
+                    </div>
+                }
+
+                <!-- Address (Google Maps link) -->
+                @if (!string.IsNullOrWhiteSpace(delivery.ShippingAddress))
+                {
+                    <div class="dv-meta">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <a href="@mapsUrl" target="_blank" rel="noopener noreferrer">
+                            @delivery.ShippingAddress
+                        </a>
+                    </div>
+                }
+
+                <!-- Order Amount -->
+                <div class="dv-meta">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>৳ @delivery.TotalAmount.ToString("N2")</span>
+                </div>
+
+                <!-- Items Summary Checklist -->
+                @if (delivery.Items?.Any() == true)
+                {
+                    <ul class="dv-items-list">
+                        @foreach (var item in delivery.Items)
+                        {
+                            <li>
+                                <i class="bi bi-check2-square"></i>
+                                @item.MedicineName &times; @item.Quantity
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <!-- Completion Timestamp (Done tab) -->
+                @if (delivery.Status == "DONE" && delivery.CompletedAt.HasValue)
+                {
+                    <div class="dv-completion-info text-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Delivered: @delivery.CompletedAt.Value.ToString("dd MMM yyyy, HH:mm")
+                    </div>
+                }
+
+                <!-- Cancellation Reason (Cancelled tab) -->
+                @if (delivery.Status == "CANCELLED" && !string.IsNullOrWhiteSpace(delivery.CancellationReason))
+                {
+                    <div class="dv-completion-info text-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Reason: @delivery.CancellationReason
+                    </div>
+                }
+
+            </div>
+
+            <!-- Action Buttons (only for PENDING) -->
+            @if (delivery.Status == "PENDING")
+            {
+                <div class="dv-card-actions">
+                    <button type="button"
+                            class="btn-dv-done js-mark-done"
+                            data-delivery-id="@delivery.DeliveryId">
+                        <i class="bi bi-check2-circle"></i>
+                        Mark as Delivered
+                    </button>
+                    <button type="button"
+                            class="btn-dv-cancel js-cancel-delivery"
+                            data-delivery-id="@delivery.DeliveryId"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cancelModal">
+                        <i class="bi bi-x-circle"></i>
+                        Cancel
+                    </button>
+                </div>
+            }
+
+        </article>
+    }
+}

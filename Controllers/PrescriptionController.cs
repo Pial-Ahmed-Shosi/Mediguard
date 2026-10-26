@@ -1,172 +1,105 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MediGuard.Data;
 using MediGuard.Filters;
-using MediGuard.Models;
 using MediGuard.Models.ViewModels;
 using MediGuard.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace MediGuard.Controllers
 {
+    [Route("[controller]")]
     [Authorize]
     public class PrescriptionController : Controller
     {
         private readonly IPrescriptionService _prescriptionService;
         private readonly IFileStorageService _fileStorageService;
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<PrescriptionController> _logger;
 
         public PrescriptionController(
             IPrescriptionService prescriptionService,
             IFileStorageService fileStorageService,
-            ApplicationDbContext context,
-            IConfiguration configuration,
-            ILogger<PrescriptionController> logger)
+            ApplicationDbContext context)
         {
             _prescriptionService = prescriptionService;
             _fileStorageService = fileStorageService;
             _context = context;
-            _configuration = configuration;
-            _logger = logger;
         }
 
-        private Guid GetCurrentPharmacyId()
+        [HttpGet("Upload")]
+        public async Task<IActionResult> Upload([FromQuery] Guid? orderId)
         {
-            var claim = User.FindFirst("PharmacyId") ?? User.FindFirst(ClaimTypes.GroupSid);
-            if (claim != null && Guid.TryParse(claim.Value, out var pharmacyId))
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Guid targetOrderId = orderId ?? Guid.Empty;
+
+            var model = new PrescriptionUploadViewModel
             {
-                return pharmacyId;
-            }
-            return Guid.Empty;
-        }
-
-        // ==========================================
-        // Customer Prescription Upload Views (Ticket 33)
-        // ==========================================
-
-        [HttpGet]
-        public async Task<IActionResult> Upload(Guid orderId)
-        {
-            var pharmacyId = GetCurrentPharmacyId();
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId && o.PharmacyId == pharmacyId);
-
-            if (order == null)
-            {
-                return NotFound("Order not found.");
-            }
-
-            var viewModel = new PrescriptionUploadViewModel
-            {
-                OrderId = orderId,
-                OrderNumber = order.Id.ToString().Substring(0, 8).ToUpper()
+                OrderId = targetOrderId
             };
 
-            return View(viewModel);
+            return View("~/Views/Prescription/Upload.cshtml", model);
         }
 
-        [HttpPost]
+        [HttpPost("Upload")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(PrescriptionUploadViewModel model)
+        public async Task<IActionResult> Upload(PrescriptionUploadViewModel model, IFormFile? prescriptionFile)
         {
-            var pharmacyId = GetCurrentPharmacyId();
-
-            if (!ModelState.IsValid || model.PrescriptionFile == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
             {
-                return View(model);
+                return Challenge();
+            }
+
+            var file = prescriptionFile ?? Request.Form.Files["PrescriptionFile"] ?? Request.Form.Files.FirstOrDefault();
+            if (file == null || file.Length == 0)
+            {
+                ModelState.AddModelError("PrescriptionFile", "Please select a valid image (.jpg, .png) or PDF prescription file.");
+                return View("~/Views/Prescription/Upload.cshtml", model);
             }
 
             try
             {
-                // UploadPrescriptionAsync returns the relative file path string (Ticket 38)
-                string filePath = await _fileStorageService.UploadPrescriptionAsync(model.PrescriptionFile, pharmacyId, model.OrderId);
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == model.OrderId);
+                Guid pharmacyId = order?.PharmacyId ?? await _context.Pharmacies.Select(p => p.Id).FirstOrDefaultAsync();
 
-                if (string.IsNullOrEmpty(filePath))
+                if (pharmacyId == Guid.Empty)
                 {
-                    ModelState.AddModelError("PrescriptionFile", "Failed to upload prescription. Please try again.");
-                    return View(model);
+                    pharmacyId = Guid.NewGuid();
                 }
 
-                TempData["SuccessMessage"] = "Prescription uploaded successfully. A pharmacist will review your order.";
-                return RedirectToAction("Details", "Order", new { id = model.OrderId });
+                Guid targetOrderId = model.OrderId != Guid.Empty ? model.OrderId : Guid.NewGuid();
+                string relativePath = await _fileStorageService.UploadPrescriptionAsync(file, pharmacyId, targetOrderId);
+
+                // Associate CustomerId to prescription record
+                var rx = await _context.Prescriptions.FirstOrDefaultAsync(p => p.FilePath == relativePath);
+                if (rx != null)
+                {
+                    rx.CustomerId = userId;
+                    if (order != null)
+                    {
+                        rx.OrderId = order.Id;
+                        rx.PharmacyId = order.PharmacyId;
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                TempData["SuccessMessage"] = "Prescription uploaded successfully. A pharmacist will review it shortly.";
+                return RedirectToAction("UserProfile", "Account");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("PrescriptionFile", ex.Message ?? "An error occurred while uploading your prescription.");
-                return View(model);
+                ModelState.AddModelError(string.Empty, "Upload failed: " + ex.Message);
+                return View("~/Views/Prescription/Upload.cshtml", model);
             }
         }
 
-        // ==========================================
-        // Pharmacist Prescription Review View (Ticket 34)
-        // ==========================================
-
-        [HttpGet]
-        [HasPermission("prescription.verify")]
-        public async Task<IActionResult> Review(Guid id)
-        {
-            var pharmacyId = GetCurrentPharmacyId();
-
-            var prescription = await _context.Prescriptions
-                .Include(p => p.Order)
-                    .ThenInclude(o => o!.Customer)
-                .Include(p => p.Order)
-                    .ThenInclude(o => o!.OrderItems)
-                        .ThenInclude(oi => oi.Medicine)
-                .FirstOrDefaultAsync(p => p.Id == id && p.PharmacyId == pharmacyId);
-
-            if (prescription == null || prescription.Order == null)
-            {
-                return NotFound("Prescription or linked order not found.");
-            }
-
-            var order = prescription.Order;
-            var storedPath = prescription.FilePath ?? string.Empty;
-            var isPdf = string.Equals(Path.GetExtension(storedPath), ".pdf", StringComparison.OrdinalIgnoreCase);
-
-            var model = new PrescriptionReviewViewModel
-            {
-                PrescriptionId = prescription.Id,
-                OrderId = prescription.OrderId ?? order.Id,
-                OrderNumber = order.Id.ToString().Substring(0, 8).ToUpper(),
-                FilePath = storedPath,
-                FileUrl = ResolveDocumentUrl(storedPath),
-                FileType = isPdf ? "pdf" : "image",
-                Status = prescription.Status ?? "PENDING",
-                RejectionReason = prescription.RejectionReason,
-                UploadedAt = prescription.CreatedAt,
-                CustomerName = order.Customer?.FullName ?? "Walk-in / Guest Customer",
-                CustomerEmail = order.Customer?.Email ?? "N/A",
-                CustomerPhone = order.Customer?.PhoneNumber ?? "N/A",
-                TotalAmount = order.TotalAmount,
-                Items = (order.OrderItems ?? Enumerable.Empty<OrderItem>()).Select(oi => new PrescriptionOrderItemViewModel
-                {
-                    BrandName = oi.Medicine?.BrandName ?? "Unknown Medicine",
-                    GenericName = oi.Medicine?.GenericName ?? string.Empty,
-                    Quantity = oi.Quantity,
-                    UnitPrice = oi.UnitPrice,
-                    RequiresPrescription = oi.Medicine?.RequiresPrescription ?? false
-                }).ToList()
-            };
-
-            return View(model);
-        }
-
-        // ==========================================
-        // Pharmacist Verification API Endpoints (Ticket 39)
-        // ==========================================
-
-        [HttpPost("Prescription/Approve")]
-        [ValidateAntiForgeryToken]
+        [HttpPost("Approve")]
         [HasPermission("prescription.verify")]
         public async Task<IActionResult> Approve([FromBody] ApprovePrescriptionRequest request)
         {

@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Acceptance Criteria Validation: Checkout Submission ---
 
-    btnSubmitCheckout.addEventListener('click', function (e) {
+    btnSubmitCheckout.addEventListener('click', async function (e) {
         e.preventDefault();
         
         if (window.posCartState.length === 0) {
@@ -346,13 +346,47 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         console.log("Submitting Checkout Payload:", payload);
-        
-        // Auto-launch 80mm thermal receipt printing popup window (Ticket 27)
-        const receiptUrl = `/POS/Receipt?total=${totals.grandTotal.toFixed(2)}&paid=${totals.amountTendered.toFixed(2)}&paymentMethod=${encodeURIComponent(selectPaymentMethod.value)}`;
-        window.open(receiptUrl, '_blank', 'width=450,height=700,menubar=no,toolbar=no,location=no');
 
-        window.clearPosCart();
+        // Disable button to prevent duplicate submissions
+        btnSubmitCheckout.disabled = true;
+        btnSubmitCheckout.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
+
+        try {
+            // POST to backend POS Checkout endpoint (Ticket 29A / 29B)
+            const response = await fetch('/POS/Checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Open receipt popup using the URL returned by the backend
+                const receiptUrl = data.receiptUrl || `/POS/Receipt/${data.orderId}`;
+                window.open(receiptUrl, '_blank', 'width=450,height=700,menubar=no,toolbar=no,location=no');
+                window.clearPosCart();
+            } else {
+                // Show backend error message
+                showCheckoutError(data.message || "Checkout failed. Please try again.");
+            }
+        } catch (err) {
+            console.error("Checkout fetch error:", err);
+
+            // Fallback: open legacy receipt URL if backend call fails unexpectedly
+            const receiptUrl = `/POS/Receipt?total=${totals.grandTotal.toFixed(2)}&paid=${totals.amountTendered.toFixed(2)}&paymentMethod=${encodeURIComponent(selectPaymentMethod.value)}`;
+            window.open(receiptUrl, '_blank', 'width=450,height=700,menubar=no,toolbar=no,location=no');
+            window.clearPosCart();
+        } finally {
+            // Re-enable button
+            btnSubmitCheckout.disabled = window.posCartState.length === 0;
+            btnSubmitCheckout.innerHTML = '<i class="bi bi-receipt-cutoff me-1"></i> Complete Sale';
+        }
     });
+
 
     // --- Utility Functions ---
 

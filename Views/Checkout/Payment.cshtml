@@ -1,4 +1,4 @@
-﻿@model MediGuard.Models.ViewModels.PaymentCheckoutViewModel
+@model MediGuard.Models.ViewModels.PaymentCheckoutViewModel
 
 @{
     ViewData["Title"] = "Checkout";
@@ -140,28 +140,87 @@
                             </div>
                         </section>
 
-                        <h3 class="mg-h">Payment Method</h3>
-                        <div class="mg-options three" role="radiogroup" aria-label="Payment method">
+                        <h3 class="mg-h">Payment Options</h3>
+                        <div class="mg-options three mb-3" role="radiogroup" aria-label="Payment method">
                             <label class="mg-option center" data-group="method">
                                 <input type="radio" name="method" value="cod" />
-                                <i class="bi bi-cash-coin"></i><span>Cash on Delivery</span>
+                                <i class="bi bi-cash-coin fs-4 text-success"></i><span>Cash on Delivery</span>
                             </label>
                             <label class="mg-option center" data-group="method">
-                                <input type="radio" name="method" value="bkash" />
-                                <i class="bi bi-phone"></i><span>bKash</span>
+                                <input type="radio" name="method" value="mfs" />
+                                <i class="bi bi-phone fs-4 text-danger"></i><span>bKash / Nagad / Rocket</span>
                             </label>
                             <label class="mg-option center selected" data-group="method">
                                 <input type="radio" name="method" value="card" checked />
-                                <i class="bi bi-credit-card"></i><span>Card</span>
+                                <i class="bi bi-credit-card fs-4 text-primary"></i><span>Credit / Debit Card</span>
                             </label>
                         </div>
 
-                        <!-- Secure payment container: Stripe Payment Element mounts here -->
-                        <section id="card-section" class="mg-card-section">
-                            <div id="payment-element" class="mg-payment-element">
-                                <p class="mg-meta mb-0">Loading secure payment form...</p>
+                        <!-- COD Details Section -->
+                        <section id="cod-section" class="p-3 rounded-3 border bg-light mb-3" hidden>
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-wallet2 fs-2 text-success"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Cash on Delivery (COD) Selected</h6>
+                                    <p class="text-muted small mb-0">Pay directly to our certified delivery rider when your package arrives at your doorstep. Exact change is appreciated.</p>
+                                </div>
                             </div>
                         </section>
+
+                        <!-- MFS (bKash, Nagad, Rocket) Section -->
+                        <section id="mfs-section" class="p-3 rounded-3 border mb-3" style="background-color: #fafbfc;" hidden>
+                            <h6 class="fw-bold mb-2">Select Mobile Financial Service (MFS)</h6>
+                            <div class="d-flex gap-3 mb-3">
+                                <label class="btn btn-outline-danger btn-sm active d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold" id="lbl-bkash">
+                                    <input type="radio" name="mfs_provider" value="BKASH" checked class="d-none" />
+                                    <span>bKash</span>
+                                </label>
+                                <label class="btn btn-outline-warning text-dark btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold" id="lbl-nagad">
+                                    <input type="radio" name="mfs_provider" value="NAGAD" class="d-none" />
+                                    <span>Nagad</span>
+                                </label>
+                                <label class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2 rounded-pill px-3 py-2 fw-semibold" id="lbl-rocket">
+                                    <input type="radio" name="mfs_provider" value="ROCKET" class="d-none" />
+                                    <span>Rocket</span>
+                                </label>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-muted">MFS WALLET / MOBILE NUMBER</label>
+                                <input type="tel" id="mfs-phone" class="form-control" placeholder="017XXXXXXXX" value="@Model.CustomerPhone" maxlength="14" />
+                            </div>
+                            <small class="text-muted"><i class="bi bi-shield-lock me-1"></i> Instant payment simulation with 100% verified receipt generation.</small>
+                        </section>
+
+                        <!-- Card payment container: Stripe or Direct Card -->
+                        <section id="card-section" class="mg-card-section mb-3">
+                            <div id="payment-element" class="mg-payment-element mb-3">
+                                <p class="mg-meta mb-0">Loading secure payment form...</p>
+                            </div>
+                            <div id="direct-card-fallback" class="p-3 border rounded-3 bg-light" hidden>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">CARD NUMBER</label>
+                                    <input type="text" id="card-number-input" class="form-control" placeholder="4242 •••• •••• 4242" />
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">EXPIRY</label>
+                                        <input type="text" id="card-expiry-input" class="form-control" placeholder="MM/YY" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">CVC / CVV</label>
+                                        <input type="password" id="card-cvc-input" class="form-control" placeholder="123" maxlength="4" />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Save Payment Method Checkbox -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="save-payment-method" />
+                            <label class="form-check-label small text-muted" for="save-payment-method">
+                                Save this payment method to my account for faster checkout next time.
+                            </label>
+                        </div>
 
                         <div id="payment-message" class="mg-alert" role="alert" aria-live="assertive" hidden></div>
                     </div>

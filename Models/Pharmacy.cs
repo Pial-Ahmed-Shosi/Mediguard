@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -33,5 +33,27 @@ namespace MediGuard.Models
         // Ticket 19 Navigation Properties (Inventory Classification)
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<Manufacturer> Manufacturers { get; set; } = new List<Manufacturer>();
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public bool IsOpen
+        {
+            get => PharmacyOperatingStatusStore.IsBranchOpen(Id);
+            set => PharmacyOperatingStatusStore.SetBranchOpen(Id, value);
+        }
+    }
+
+    public static class PharmacyOperatingStatusStore
+    {
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, bool> _branchStatus = new();
+
+        public static bool IsBranchOpen(Guid pharmacyId)
+        {
+            return _branchStatus.GetOrAdd(pharmacyId, true);
+        }
+
+        public static void SetBranchOpen(Guid pharmacyId, bool isOpen)
+        {
+            _branchStatus[pharmacyId] = isOpen;
+        }
     }
 }

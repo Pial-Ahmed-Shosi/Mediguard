@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+// Enable Npgsql legacy timestamp behavior to allow DateTime with Unspecified Kind
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MVC View Engine Services with Global Audit Logging Filter (Ticket 48)
@@ -39,10 +42,14 @@ builder.Services.AddHostedService<ExpiryScannerHostedService>();
 // Configure ASP.NET Core Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.Password.RequireDigit = true;
+    options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
     options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -65,6 +72,9 @@ builder.Services.AddScoped<IBatchService, BatchService>();
 
 // Inventory Deduction Service (Ticket 30)
 builder.Services.AddScoped<IInventoryDeductionService, InventoryDeductionService>();
+
+// POS Checkout Processing Service (Ticket 29A)
+builder.Services.AddScoped<IPOSService, POSService>();
 
 // File Storage Service (Supabase Storage) Registration (Ticket 38)
 builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
@@ -95,8 +105,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = "MediGuard.AuthCookie";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.IsEssential = true;
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);

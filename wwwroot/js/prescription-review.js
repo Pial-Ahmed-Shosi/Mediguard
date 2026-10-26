@@ -1,328 +1,200 @@
-document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
+(() => {
+    "use strict";
 
-    const root = document.getElementById('reviewRoot');
-    if (!root) return;
+    // ─── Image Viewer Controls ────────────────────────────────────────
+    const img         = document.getElementById("rxPrescriptionImg");
+    const btnZoomIn   = document.getElementById("btnZoomIn");
+    const btnZoomOut  = document.getElementById("btnZoomOut");
+    const btnRotate   = document.getElementById("btnRotate");
+    const btnFull     = document.getElementById("btnFullscreen");
+    const viewerBody  = document.getElementById("rxViewerBody");
 
-    const prescriptionId = root.dataset.prescriptionId;
-    const approveUrl = root.dataset.approveUrl || '/Prescription/Approve';
-    const rejectUrl = root.dataset.rejectUrl || '/Prescription/Reject';
-    const isPdf = root.dataset.isPdf === 'true';
-
-    // ---------- Element references ----------
-    const container = document.getElementById('viewerContainer');
-    const stage = document.getElementById('viewerStage');
-    const doc = document.getElementById('rxDocument');
-    const zoomLabel = document.getElementById('zoomLabel');
-    const rotationLabel = document.getElementById('rotationLabel');
-    const alertBox = document.getElementById('reviewAlert');
-
-    const btnApprove = document.getElementById('btnApprove');
-    const btnReject = document.getElementById('btnReject');
-    const btnConfirmReject = document.getElementById('btnConfirmReject');
-    const rejectReason = document.getElementById('rejectReason');
-    const rejectPreset = document.getElementById('rejectPreset');
-    const rejectModalEl = document.getElementById('rejectModal');
-    const statusBadge = document.getElementById('rxStatusBadge');
-    const rejectionBox = document.getElementById('rxRejectionBox');
-    const rejectionText = document.getElementById('rxRejectionText');
-
-    // ---------- Document viewer (presentation only; the file is never modified) ----------
-    const MIN_ZOOM = 0.25;
-    const MAX_ZOOM = 4;
-    const ZOOM_STEP = 0.25;
-
-    let zoom = 1;
-    let rotation = 0; // cumulative degrees, so the animation never spins backwards
-    let baseW = 0;
-    let baseH = 0;
-
-    function normalizedRotation() {
-        return ((rotation % 360) + 360) % 360;
-    }
-
-    function updateLabels() {
-        if (zoomLabel) zoomLabel.textContent = Math.round(zoom * 100) + '%';
-        if (rotationLabel) rotationLabel.textContent = normalizedRotation() + '\u00B0';
-    }
+    let scale  = 1.0;
+    let rotate = 0;
 
     function applyTransform() {
-        updateLabels();
-        if (!doc || !stage || !baseW || !baseH) return;
-
-        const swapped = normalizedRotation() % 180 !== 0;
-        stage.style.width = (swapped ? baseH : baseW) * zoom + 'px';
-        stage.style.height = (swapped ? baseW : baseH) * zoom + 'px';
-        doc.style.transform = 'translate(-50%, -50%) rotate(' + rotation + 'deg) scale(' + zoom + ')';
+        if (!img) return;
+        img.style.transform = `scale(${scale}) rotate(${rotate}deg)`;
     }
 
-    function computeBaseSize() {
-        if (!doc || !container) return;
+    btnZoomIn?.addEventListener("click", () => {
+        scale = Math.min(scale + 0.25, 4);
+        applyTransform();
+    });
 
-        const availableWidth = Math.max(200, container.clientWidth - 48);
+    btnZoomOut?.addEventListener("click", () => {
+        scale = Math.max(scale - 0.25, 0.25);
+        applyTransform();
+    });
 
-        if (isPdf) {
-            baseW = Math.min(760, availableWidth);
-            baseH = Math.max(300, container.clientHeight - 48);
-        } else if (doc.naturalWidth > 0) {
-            baseW = Math.min(doc.naturalWidth, availableWidth);
-            baseH = baseW * (doc.naturalHeight / doc.naturalWidth);
+    btnRotate?.addEventListener("click", () => {
+        rotate = (rotate + 90) % 360;
+        applyTransform();
+    });
+
+    btnFull?.addEventListener("click", () => {
+        if (!viewerBody) return;
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
         } else {
+            viewerBody.requestFullscreen?.();
+        }
+    });
+
+    // Reset on fullscreen exit
+    document.addEventListener("fullscreenchange", () => {
+        if (btnFull) {
+            const icon = btnFull.querySelector("i");
+            if (icon) {
+                icon.className = document.fullscreenElement
+                    ? "bi bi-fullscreen-exit"
+                    : "bi bi-fullscreen";
+            }
+        }
+    });
+
+    // ─── CSRF Token Helper ────────────────────────────────────────────
+    function getCsrfToken() {
+        return document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? "";
+    }
+
+    // ─── Result Banner ────────────────────────────────────────────────
+    function showResult(message, isSuccess) {
+        const box = document.getElementById("rxActionResult");
+        if (!box) return;
+        box.textContent = message;
+        box.style.display = "block";
+        box.style.background = isSuccess ? "#d1fae5" : "#fee2e2";
+        box.style.color      = isSuccess ? "#065f46" : "#991b1b";
+        box.style.border     = `1px solid ${isSuccess ? "#6ee7b7" : "#fca5a5"}`;
+    }
+
+    function lockActionBox() {
+        document.getElementById("btnApprove")?.setAttribute("disabled", "");
+        document.getElementById("btnReject")?.setAttribute("disabled", "");
+    }
+
+    // ─── Approve ──────────────────────────────────────────────────────
+    const btnApprove = document.getElementById("btnApprove");
+    btnApprove?.addEventListener("click", async () => {
+        const prescriptionId = btnApprove.dataset.prescriptionId;
+        if (!prescriptionId) return;
+
+        lockActionBox();
+
+        try {
+            const resp = await fetch("/Prescription/Approve", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": getCsrfToken()
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({ prescriptionId })
+            });
+
+            const data = await resp.json().catch(() => ({}));
+
+            if (resp.ok) {
+                showResult(
+                    data.message || "Prescription approved. Order status advanced to PROCESSING.",
+                    true
+                );
+                // Update header badge
+                const pill = document.querySelector(".rx-status-pill");
+                if (pill) {
+                    pill.textContent = "APPROVED";
+                    pill.className = "rx-status-pill bg-success text-white";
+                }
+            } else {
+                showResult(data.message || "Failed to approve prescription.", false);
+                // Re-enable on failure
+                btnApprove?.removeAttribute("disabled");
+                document.getElementById("btnReject")?.removeAttribute("disabled");
+            }
+        } catch (err) {
+            console.error("Approve error:", err);
+            showResult("A network error occurred. Please try again.", false);
+            btnApprove?.removeAttribute("disabled");
+            document.getElementById("btnReject")?.removeAttribute("disabled");
+        }
+    });
+
+    // ─── Reject Modal ─────────────────────────────────────────────────
+    // Quick-pick chips
+    document.querySelectorAll(".rx-reason-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+            const input = document.getElementById("rejectReasonInput");
+            if (input) input.value = chip.dataset.reason ?? "";
+        });
+    });
+
+    // Confirm rejection
+    const btnConfirmReject = document.getElementById("btnConfirmReject");
+    btnConfirmReject?.addEventListener("click", async () => {
+        const prescriptionId = btnConfirmReject.dataset.prescriptionId;
+        const reasonInput    = document.getElementById("rejectReasonInput");
+        const reasonError    = document.getElementById("rejectReasonError");
+        const reason         = reasonInput?.value.trim() ?? "";
+
+        if (!reason) {
+            if (reasonError) reasonError.hidden = false;
+            reasonInput?.focus();
             return;
         }
 
-        doc.style.width = baseW + 'px';
-        doc.style.height = baseH + 'px';
-        applyTransform();
-    }
+        if (reasonError) reasonError.hidden = true;
+        btnConfirmReject.disabled = true;
 
-    function showLoadError() {
-        if (!stage) return;
-        stage.style.width = '';
-        stage.style.height = '';
-        stage.innerHTML =
-            '<div class="rx-load-error">' +
-            '<i class="bi bi-exclamation-triangle display-5 d-block mb-2 text-danger"></i>' +
-            'The prescription file could not be loaded.<br>' +
-            '<small>Check that the file exists and that the storage bucket is accessible.</small>' +
-            '</div>';
-    }
-
-    if (doc) {
-        if (isPdf) {
-            computeBaseSize();
-        } else {
-            if (doc.complete && doc.naturalWidth > 0) {
-                computeBaseSize();
-            } else if (doc.complete) {
-                showLoadError();
-            }
-            doc.addEventListener('load', computeBaseSize);
-            doc.addEventListener('error', showLoadError);
-        }
-    }
-
-    const btnZoomIn = document.getElementById('btnZoomIn');
-    const btnZoomOut = document.getElementById('btnZoomOut');
-    const btnRotate = document.getElementById('btnRotate');
-    const btnReset = document.getElementById('btnReset');
-    const btnFullscreen = document.getElementById('btnFullscreen');
-
-    if (btnZoomIn) {
-        btnZoomIn.addEventListener('click', function () {
-            zoom = Math.min(MAX_ZOOM, +(zoom + ZOOM_STEP).toFixed(2));
-            applyTransform();
-        });
-    }
-
-    if (btnZoomOut) {
-        btnZoomOut.addEventListener('click', function () {
-            zoom = Math.max(MIN_ZOOM, +(zoom - ZOOM_STEP).toFixed(2));
-            applyTransform();
-        });
-    }
-
-    if (btnRotate) {
-        btnRotate.addEventListener('click', function () {
-            rotation += 90;
-            applyTransform();
-        });
-    }
-
-    if (btnReset) {
-        btnReset.addEventListener('click', function () {
-            zoom = 1;
-            rotation = 0;
-            applyTransform();
-            if (container) container.scrollTo(0, 0);
-        });
-    }
-
-    if (btnFullscreen && container) {
-        btnFullscreen.addEventListener('click', function () {
-            if (!document.fullscreenElement) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen().catch(function () {
-                        showAlert('danger', 'Unable to enter full-screen mode.');
-                    });
-                }
-            } else {
-                document.exitFullscreen();
-            }
-        });
-    }
-
-    document.addEventListener('fullscreenchange', computeBaseSize);
-    updateLabels();
-
-    // ---------- Helpers ----------
-    function getToken() {
-        const el = document.querySelector('input[name="__RequestVerificationToken"]');
-        return el ? el.value : '';
-    }
-
-    function showAlert(type, message) {
-        if (!alertBox) return;
-        alertBox.className = 'alert alert-' + type + ' shadow-sm';
-        alertBox.textContent = message;
-        alertBox.classList.remove('d-none');
-        alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function setBusy(busy) {
-        [btnApprove, btnReject, btnConfirmReject].forEach(function (b) {
-            if (b) b.disabled = busy;
-        });
-    }
-
-    function lockDecision(statusText, badgeClass) {
-        if (btnApprove) btnApprove.disabled = true;
-        if (btnReject) btnReject.disabled = true;
-        if (btnConfirmReject) btnConfirmReject.disabled = true;
-        if (statusBadge) {
-            statusBadge.textContent = statusText;
-            statusBadge.className = 'badge ' + badgeClass;
-        }
-    }
-
-    function getRejectModal() {
-        if (typeof bootstrap === 'undefined' || !bootstrap.Modal || !rejectModalEl) return null;
-        return bootstrap.Modal.getOrCreateInstance(rejectModalEl);
-    }
-
-    async function postJson(url, payload) {
-        let response;
         try {
-            response = await fetch(url, {
-                method: 'POST',
-                credentials: 'same-origin',
+            const resp = await fetch("/Prescription/Reject", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': getToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": getCsrfToken()
                 },
-                body: JSON.stringify(payload)
+                credentials: "same-origin",
+                body: JSON.stringify({ prescriptionId, reason })
             });
-        } catch (e) {
-            throw new Error('Network error. Please check your connection and try again.');
-        }
 
-        // A redirect means the session expired or access was denied (login / access-denied page)
-        if (response.redirected) {
-            throw new Error('Your session has expired or you do not have permission. Please sign in again.');
-        }
+            const data = await resp.json().catch(() => ({}));
 
-        const contentType = response.headers.get('content-type') || '';
-        let data = null;
-        if (contentType.indexOf('application/json') !== -1) {
-            try { data = await response.json(); } catch (e) { data = null; }
-        }
+            // Close modal
+            const modalEl = document.getElementById("rejectModal");
+            const modalInstance = modalEl
+                ? bootstrap.Modal.getInstance(modalEl) ?? new bootstrap.Modal(modalEl)
+                : null;
+            modalInstance?.hide();
 
-        if (!response.ok || (data && data.success === false)) {
-            const message = (data && (data.message || data.title)) ||
-                ('The request could not be completed (HTTP ' + response.status + ').');
-            throw new Error(message);
-        }
-
-        // 200 without a JSON body is not a confirmed success
-        if (!data) {
-            throw new Error('The server returned an unexpected response. Please refresh and check the prescription status.');
-        }
-
-        return data;
-    }
-
-    // ---------- Approve ----------
-    if (btnApprove) {
-        btnApprove.addEventListener('click', async function () {
-            if (!prescriptionId) return;
-            if (!confirm('Approve this prescription and move the order to PROCESSING?')) return;
-
-            setBusy(true);
-            try {
-                const data = await postJson(approveUrl, { prescriptionId: prescriptionId });
-                lockDecision('APPROVED', 'bg-success');
-                showAlert('success', (data.message || 'Prescription approved successfully.') +
-                    ' The order is moving to PROCESSING.');
-            } catch (err) {
-                showAlert('danger', err.message);
-                setBusy(false);
-            }
-        });
-    }
-
-    // ---------- Reject ----------
-    if (btnReject) {
-        btnReject.addEventListener('click', function () {
-            if (rejectReason) {
-                rejectReason.value = '';
-                rejectReason.classList.remove('is-invalid');
-            }
-            if (rejectPreset) rejectPreset.value = '';
-
-            const modal = getRejectModal();
-            if (modal) {
-                modal.show();
+            if (resp.ok) {
+                lockActionBox();
+                showResult(
+                    data.message || "Prescription rejected. The customer has been notified.",
+                    true
+                );
+                const pill = document.querySelector(".rx-status-pill");
+                if (pill) {
+                    pill.textContent = "REJECTED";
+                    pill.className = "rx-status-pill bg-danger text-white";
+                }
             } else {
-                showAlert('danger', 'The rejection dialog could not be opened. Please refresh the page.');
+                showResult(data.message || "Failed to reject prescription.", false);
+                btnConfirmReject.disabled = false;
             }
-        });
-    }
+        } catch (err) {
+            console.error("Reject error:", err);
+            showResult("A network error occurred. Please try again.", false);
+            btnConfirmReject.disabled = false;
+        }
+    });
 
-    if (rejectModalEl) {
-        rejectModalEl.addEventListener('shown.bs.modal', function () {
-            if (rejectReason) rejectReason.focus();
-        });
-    }
-
-    if (rejectPreset) {
-        rejectPreset.addEventListener('change', function () {
-            if (rejectPreset.value && rejectReason) {
-                rejectReason.value = rejectPreset.value;
-                rejectReason.classList.remove('is-invalid');
-            }
-        });
-    }
-
-    if (rejectReason) {
-        rejectReason.addEventListener('input', function () {
-            if (rejectReason.value.trim()) rejectReason.classList.remove('is-invalid');
-        });
-    }
-
-    if (btnConfirmReject) {
-        btnConfirmReject.addEventListener('click', async function () {
-            const reason = rejectReason ? rejectReason.value.trim() : '';
-
-            // Mandatory reason: nothing is sent while it is empty
-            if (!reason) {
-                if (rejectReason) {
-                    rejectReason.classList.add('is-invalid');
-                    rejectReason.focus();
-                }
-                return;
-            }
-
-            setBusy(true);
-            try {
-                const data = await postJson(rejectUrl, { prescriptionId: prescriptionId, reason: reason });
-
-                const modal = getRejectModal();
-                if (modal) modal.hide();
-
-                lockDecision('REJECTED', 'bg-danger');
-
-                if (rejectionBox && rejectionText) {
-                    rejectionText.textContent = reason;
-                    rejectionBox.classList.remove('d-none');
-                }
-
-                showAlert('success', data.message || 'Prescription rejected successfully.');
-            } catch (err) {
-                // Keep the modal open so the pharmacist can retry
-                showAlert('danger', err.message);
-                setBusy(false);
-            }
-        });
-    }
-});
+    // Clear reason input on modal close
+    document.getElementById("rejectModal")?.addEventListener("hidden.bs.modal", () => {
+        const inp = document.getElementById("rejectReasonInput");
+        if (inp) inp.value = "";
+        const err = document.getElementById("rejectReasonError");
+        if (err) err.hidden = true;
+        const btn = document.getElementById("btnConfirmReject");
+        if (btn) btn.disabled = false;
+    });
+})();
