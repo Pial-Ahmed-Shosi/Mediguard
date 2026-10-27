@@ -129,7 +129,9 @@
     }
 
     function applyFilters() {
-        const searchTerm = (searchInput?.value ?? "").trim().toLowerCase();
+        const searchTerm   = (searchInput?.value ?? "").trim().toLowerCase();
+        const pharmacyTerm = (pharmacyInput?.value ?? "").trim().toLowerCase();
+        const locationTerm = (locationInput?.value ?? "").trim().toLowerCase();
         const cols = getProductCols();
         let visible = 0;
 
@@ -137,17 +139,27 @@
             const brand    = (col.dataset.brand    ?? "");
             const generic  = (col.dataset.generic  ?? "");
             const category = (col.dataset.category ?? "");
+            const pharmacy = (col.dataset.pharmacy ?? "");
+            const location = (col.dataset.location ?? "");
 
             const matchesSearch =
                 !searchTerm ||
                 brand.includes(searchTerm) ||
                 generic.includes(searchTerm);
 
+            const matchesPharmacy =
+                !pharmacyTerm ||
+                pharmacy.includes(pharmacyTerm);
+
+            const matchesLocation =
+                !locationTerm ||
+                location.includes(locationTerm);
+
             const matchesCategory =
                 activeCategory === "All" ||
                 category === activeCategory;
 
-            const show = matchesSearch && matchesCategory;
+            const show = matchesSearch && matchesPharmacy && matchesLocation && matchesCategory;
             col.style.display = show ? "" : "none";
             if (show) visible++;
         });
@@ -156,8 +168,11 @@
         if (countBadge) countBadge.textContent = `${visible} ${visible === 1 ? "item" : "items"} found`;
     }
 
+    [searchInput, pharmacyInput, locationInput].forEach(inp => {
+        inp?.addEventListener("input", applyFilters);
+        inp?.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+    });
     filterBtn?.addEventListener("click", applyFilters);
-    searchInput?.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
 
     // ─── Category pill navigation ─────────────────────────────────────
     catContainer?.addEventListener("click", e => {
@@ -170,7 +185,7 @@
         applyFilters();
     });
 
-    // ─── Add-to-Cart delegation ───────────────────────────────────────
+    // ─── Add-to-Cart delegation with quantity selector ────────────────
     productGrid?.addEventListener("click", e => {
         const btn = e.target.closest(".mg-add-to-cart");
         if (!btn || btn.disabled) return;
@@ -179,6 +194,11 @@
         const brandName          = btn.dataset.brandName;
         const unitPrice          = parseFloat(btn.dataset.unitPrice) || 0;
         const requiresPrescription = btn.dataset.requiresPrescription === "true";
+        const pharmacyName       = btn.dataset.pharmacyName || "Partner Pharmacy";
+        const pharmacyCity       = btn.dataset.pharmacyCity || "Dhaka";
+
+        const qtyInput = document.getElementById(`qty-${productId}`);
+        const quantity = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
 
         if (requiresPrescription) {
             showNotice(
@@ -186,7 +206,15 @@
             );
         }
 
-        addToCart({ productId, brandName, unitPrice, requiresPrescription });
+        const cart = loadCart();
+        const existing = cart.find(c => c.productId === productId);
+        if (existing) {
+            existing.quantity = (existing.quantity || 1) + quantity;
+        } else {
+            cart.push({ productId, brandName, unitPrice, requiresPrescription, quantity, pharmacyName, pharmacyCity });
+        }
+        saveCart(cart);
+        updateCartBadge();
 
         // Micro-animation feedback
         const icon = btn.querySelector("i");

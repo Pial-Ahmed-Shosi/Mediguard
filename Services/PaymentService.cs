@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using MediGuard.Data;
 using MediGuard.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace MediGuard.Services
 {
@@ -26,32 +26,44 @@ namespace MediGuard.Services
 
         public async Task<PaymentIntentResult> CreatePaymentIntentAsync(Guid orderId, Guid pharmacyId)
         {
-            // 1. Fetch order details from database
+            // 1. Fetch order details from database with tenant isolation
             var order = await _context.Orders
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.PharmacyId == pharmacyId);
 
             if (order == null)
             {
+                _logger.LogWarning("Payment intent creation failed. OrderId {OrderId} not found for PharmacyId {PharmacyId}.", orderId, pharmacyId);
                 return new PaymentIntentResult
                 {
                     Success = false,
-                    ErrorMessage = "Order not found or access denied."
+                    ErrorMessage = "Order not found or access denied.",
+                    IsGatewayError = false
+                };
+            }
+
+            if (order.TotalAmount <= 0)
+            {
+                return new PaymentIntentResult
+                {
+                    Success = false,
+                    ErrorMessage = "Order total amount must be greater than zero to process payment.",
+                    IsGatewayError = false
                 };
             }
 
             try
             {
                 // 2. Call Payment Gateway SDK/API to initialize payment session
-                string transactionId = $"tx_{Guid.NewGuid().ToString("N")[..16]}";
-                string clientSecret = $"pi_secret_{Guid.NewGuid().ToString("N")}";
-
                 bool isGatewayAvailable = CheckGatewayConnectivity();
                 if (!isGatewayAvailable)
                 {
                     throw new Exception("Gateway service unreachable.");
                 }
 
-                // 3. Create PENDING ledger record in database
+                string transactionId = $"tx_{Guid.NewGuid().ToString("N")[..16]}";
+                string clientSecret = $"pi_secret_{Guid.NewGuid().ToString("N")}";
+
+                // 3. Create PENDING ledger record in database using GatewayTransactionId
                 var paymentLedger = new Payment
                 {
                     Id = Guid.NewGuid(),

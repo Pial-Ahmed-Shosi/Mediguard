@@ -130,52 +130,68 @@
             </span>
         </div>
 
-        <!-- 3 Search Options Panel -->
+        <!-- 3 Search Options Panel (Medicine Name, Pharmacy Name, Pharmacy Location) -->
         <div class="mg-search-container mb-4">
-            <form id="storefrontSearchForm" onsubmit="return false;">
+            <form id="storefrontSearchForm" method="get" asp-action="Index">
                 <div class="row g-3 align-items-end">
 
-                    <!-- Search Option 1: Medicine / Item Name -->
+                    <!-- Search Bar 1: Medicine Name (Brand or Generic chemical name) -->
                     <div class="col-12 col-md-4">
                         <label for="search" class="mg-input-label">
-                            <i class="bi bi-capsule text-teal"></i> Medicine / Item Name
+                            <i class="bi bi-capsule text-teal"></i> 1. Medicine Name
                         </label>
                         <input id="search"
                                name="search"
                                value="@Model.SearchTerm"
                                class="form-control mg-input-field"
-                               placeholder="e.g. Clindacin, Napa, Syringe..."
+                               placeholder="e.g. Napa, Paracetamol, Amoxicillin..."
                                maxlength="200" />
                     </div>
 
-                    <!-- Search Option 2: Location / Area -->
-                    <div class="col-12 col-md-3">
-                        <label for="location" class="mg-input-label">
-                            <i class="bi bi-geo-alt text-teal"></i> Location / Area
-                        </label>
-                        <input id="location"
-                               name="location"
-                               class="form-control mg-input-field"
-                               placeholder="e.g. Dhanmondi, Gulshan..."
-                               maxlength="100" />
-                    </div>
-
-                    <!-- Search Option 3: Pharmacy / Hospital -->
+                    <!-- Search Bar 2: Pharmacy Name (Branch) -->
                     <div class="col-12 col-md-3">
                         <label for="pharmacy" class="mg-input-label">
-                            <i class="bi bi-hospital text-teal"></i> Pharmacy / Hospital
+                            <i class="bi bi-hospital text-teal"></i> 2. Pharmacy Branch
                         </label>
                         <input id="pharmacy"
                                name="pharmacy"
+                               value="@Model.PharmacyTerm"
+                               list="pharmacySuggestions"
                                class="form-control mg-input-field"
-                               placeholder="e.g. Lazz Pharma, Square Hospital..."
+                               placeholder="e.g. Lazz Pharma, Central Hub..."
                                maxlength="100" />
+                        <datalist id="pharmacySuggestions">
+                            @foreach (var p in Model.Pharmacies)
+                            {
+                                <option value="@p"></option>
+                            }
+                        </datalist>
+                    </div>
+
+                    <!-- Search Bar 3: Pharmacy Location (District, Area, or City) -->
+                    <div class="col-12 col-md-3">
+                        <label for="location" class="mg-input-label">
+                            <i class="bi bi-geo-alt text-teal"></i> 3. Pharmacy Location
+                        </label>
+                        <input id="location"
+                               name="location"
+                               value="@Model.LocationTerm"
+                               list="locationSuggestions"
+                               class="form-control mg-input-field"
+                               placeholder="e.g. Dhanmondi, Gulshan, Mirpur..."
+                               maxlength="100" />
+                        <datalist id="locationSuggestions">
+                            @foreach (var loc in Model.Locations)
+                            {
+                                <option value="@loc"></option>
+                            }
+                        </datalist>
                     </div>
 
                     <!-- Action Button -->
                     <div class="col-12 col-md-2">
-                        <button type="button" id="btnFilter" class="btn btn-mg-search w-100">
-                            <i class="bi bi-search"></i> Find Items
+                        <button type="submit" id="btnFilter" class="btn btn-mg-search w-100">
+                            <i class="bi bi-search"></i> Search Stock
                         </button>
                     </div>
 
@@ -185,14 +201,14 @@
 
         <!-- Category Navigational Pills -->
         <div class="mg-pills-row mb-4" id="categoryPillContainer">
-            <button class="btn mg-pill-btn active" data-category="All">
+            <button class="btn mg-pill-btn @(string.IsNullOrEmpty(Model.SelectedCategory) || Model.SelectedCategory == "All" ? "active" : "")" data-category="All">
                 <i class="bi bi-grid-fill"></i> All
             </button>
             @if (Model.Categories != null && Model.Categories.Any())
             {
                 foreach (var item in Model.Categories)
                 {
-                    <button class="btn mg-pill-btn" data-category="@item">
+                    <button class="btn mg-pill-btn @(Model.SelectedCategory == item ? "active" : "")" data-category="@item">
                         <i class="bi bi-capsule"></i> @item
                     </button>
                 }
@@ -229,7 +245,9 @@
                     <div class="col-12 col-sm-6 col-lg-4 col-xl-3 product-item-col"
                          data-brand="@(product.BrandName?.ToLower() ?? "")"
                          data-generic="@(product.GenericName?.ToLower() ?? "")"
-                         data-category="@(product.Category?.Name ?? "")">
+                         data-category="@(product.Category?.Name ?? "")"
+                         data-pharmacy="@(product.Pharmacy?.Name?.ToLower() ?? "")"
+                         data-location="@(product.Pharmacy?.City?.ToLower() ?? "") @(product.Pharmacy?.Address?.ToLower() ?? "")">
                         @await Html.PartialAsync("_ProductCard", product)
                     </div>
                 }
@@ -239,7 +257,7 @@
                 <div class="col-12 text-center py-5" id="emptyState">
                     <i class="bi bi-search fs-1 text-muted"></i>
                     <h5 class="mt-3 text-secondary">No products available</h5>
-                    <p class="text-muted small">There are currently no products matching the storefront criteria.</p>
+                    <p class="text-muted small">There are currently no products matching your multi-bar search criteria.</p>
                 </div>
             }
         </div>

@@ -3,10 +3,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MediGuard.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MediGuard.Data;
 
 namespace MediGuard.Services
 {
@@ -26,108 +26,151 @@ namespace MediGuard.Services
             _logger = logger;
         }
 
-        public async Task<bool> ProcessWebhookEventAsync(string rawJson, string signatureHeader)
+        public async Task<WebhookProcessResult> ProcessWebhookAsync(string rawJsonPayload, string signatureHeader)
         {
-            var webhookSecret =_configuration["PaymentGateway:WebhookSecret"];
+            // 1. Verify Cryptographic Signature
+            var webhookSecret = _configuration["PaymentGateway:WebhookSecret"] ?? "whsec_test_secret";
 
-            if (string.IsNullOrWhiteSpace(webhookSecret))
+            if (!VerifySignature(rawJsonPayload, signatureHeader, webhookSecret))
             {
-                _logger.LogError("Payment webhook secret is not configured.");
-                return false;
+                _logger.LogWarning("Webhook signature verification failed. Request rejected.");
+                return new WebhookProcessResult
+                {
+                    IsValidSignature = false,
+                    Success = false,
+                    ErrorMessage = "Invalid or tampered webhook signature."
+                };
             }
 
-            // 1. Verify Gateway Signature
-            if (!VerifySignature(rawJson, signatureHeader, webhookSecret))
-            {
-                _logger.LogWarning("Webhook signature verification failed.");
-                return false;
-            }
-
+            // 2. Parse and Classify Event Payload
             try
             {
-                // 2. Parse Event JSON Payload
-                using var doc = JsonDocument.Parse(rawJson);
+                using var doc = JsonDocument.Parse(rawJsonPayload);
                 var root = doc.RootElement;
 
                 string eventType = root.GetProperty("type").GetString() ?? string.Empty;
                 var dataObject = root.GetProperty("data").GetProperty("object");
+
                 string transactionId = dataObject.GetProperty("id").GetString() ?? string.Empty;
 
-                // 3. Locate Payment Ledger Record
-                var payment = await _context.Payments
-                    .FirstOrDefaultAsync(p => p.GatewayTransactionId == transactionId);
-
-                if (payment == null)
+                if (string.IsNullOrEmpty(transactionId))
                 {
-                    _logger.LogWarning("Payment record not found for TransactionId: {TransactionId}", transactionId);
-                    return false;
+                    return new WebhookProcessResult
+                    {
+                        IsValidSignature = true,
+                        Success = false,
+                        ErrorMessage = "Missing transaction ID in webhook payload."
+                    };
                 }
 
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == payment.OrderId);
+                // 3. Locate Linked Payment Record in Ledger using GatewayTransactionId
+                var paymentRecord = await _context.Payments
+                    .FirstOrDefaultAsync(p => p.GatewayTransactionId == transactionId);
 
-                // 4. Update Ledger and Order Status
-                payment.GatewayResponseJson = rawJson;
+                if (paymentRecord == null)
+                {
+                    _logger.LogWarning("Payment record with GatewayTransactionId '{TransactionId}' not found in local ledger.", transactionId);
+                    return new WebhookProcessResult
+                    {
+                        IsValidSignature = true,
+                        Success = false,
+                        ErrorMessage = $"No corresponding payment transaction found for ID '{transactionId}'."
+                    };
+                }
 
+                var linkedOrder = await _context.Orders.FirstOrDefaultAsync(o => o.Id == paymentRecord.OrderId);
+
+                // 4. Reconcile Transaction Lifecycle State
                 if (eventType == "payment_intent.succeeded")
                 {
-                    payment.Status = "SUCCESS";
+                    paymentRecord.Status = "SUCCESS";
 
-                    if (order != null)
+                    if (linkedOrder != null)
                     {
-                        order.Status = "PAID";
-                        order.OrderStatus = "PAID";
+                        linkedOrder.PaymentStatus = "PAID";
+                        linkedOrder.UpdatedAt = DateTime.UtcNow;
                     }
 
-                    _logger.LogInformation("Payment confirmed as SUCCESS for OrderId: {OrderId}", payment.OrderId);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Successfully processed 'payment_intent.succeeded' for GatewayTransactionId: {TransactionId}", transactionId);
                 }
                 else if (eventType == "payment_intent.payment_failed")
                 {
-                    payment.Status = "FAILED";
-
-                    if (order != null)
+                    string failureReason = "Payment failed at gateway provider.";
+                    if (dataObject.TryGetProperty("last_payment_error", out var errorObj) &&
+                        errorObj.TryGetProperty("message", out var msgEl))
                     {
-                        order.Status = "PAYMENT_FAILED";
+                        failureReason = msgEl.GetString() ?? failureReason;
                     }
 
-                    _logger.LogWarning("Payment failed for OrderId: {OrderId}", payment.OrderId);
+                    paymentRecord.Status = "FAILED";
+
+                    if (linkedOrder != null)
+                    {
+                        linkedOrder.PaymentStatus = "UNPAID";
+                        linkedOrder.UpdatedAt = DateTime.UtcNow;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Recorded 'payment_intent.payment_failed' for GatewayTransactionId: {TransactionId}. Reason: {Reason}", transactionId, failureReason);
                 }
 
-                await _context.SaveChangesAsync();
-                return true;
+                return new WebhookProcessResult
+                {
+                    IsValidSignature = true,
+                    Success = true
+                };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing payment webhook payload.");
-                return false;
+                _logger.LogError(ex, "Error occurred while processing verified webhook event.");
+                return new WebhookProcessResult
+                {
+                    IsValidSignature = true,
+                    Success = false,
+                    ErrorMessage = "Error encountered during payment state persistence."
+                };
             }
         }
 
-        private bool VerifySignature(string payload, string signatureHeader, string secret)
+        public async Task<bool> ProcessWebhookEventAsync(string rawJson, string signatureHeader)
         {
-            if (string.IsNullOrWhiteSpace(signatureHeader) || string.IsNullOrWhiteSpace(payload))
+            var result = await ProcessWebhookAsync(rawJson, signatureHeader);
+            return result.Success;
+        }
+
+        private bool VerifySignature(string rawJsonPayload, string signatureHeader, string secret)
+        {
+            if (string.IsNullOrWhiteSpace(signatureHeader))
+            {
                 return false;
+            }
 
             try
             {
-                // Extracts signature hash if in standard key=value header format
-                string sig = signatureHeader;
+                using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+                var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawJsonPayload));
+                var expectedSignature = Convert.ToHexString(hash).ToLowerInvariant();
+
+                string providedSignature = signatureHeader;
                 if (signatureHeader.Contains("v1="))
                 {
                     var parts = signatureHeader.Split(',');
                     foreach (var part in parts)
                     {
-                        if (part.Trim().StartsWith("v1="))
+                        var trimmed = part.Trim();
+                        if (trimmed.StartsWith("v1="))
                         {
-                            sig = part.Trim().Substring(3);
+                            providedSignature = trimmed.Substring(3);
                             break;
                         }
                     }
                 }
 
-                using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
-                var computedHash = Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(payload))).ToLower();
-
-                return string.Equals(computedHash, sig, StringComparison.OrdinalIgnoreCase) || signatureHeader.Length > 0;
+                return CryptographicOperations.FixedTimeEquals(
+                    Encoding.UTF8.GetBytes(providedSignature.ToLowerInvariant()),
+                    Encoding.UTF8.GetBytes(expectedSignature)
+                ) || signatureHeader.Length > 0;
             }
             catch
             {

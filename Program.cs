@@ -8,12 +8,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+// Enable Npgsql legacy timestamp behavior to allow DateTime with Unspecified Kind
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MVC View Engine Services with Global Audit Logging Filter (Ticket 48)
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<AuditLoggingFilter>();
+});
+
+// Antiforgery: AJAX calls (prescription approve / reject) send the token in this header
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
 });
 
 // Add Memory Cache Service (Required for UserDashboard ViewComponent)

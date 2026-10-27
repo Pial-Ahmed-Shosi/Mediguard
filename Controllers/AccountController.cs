@@ -85,6 +85,29 @@ namespace MediGuard.Controllers
                 }
             }
 
+            Guid? pharmacyId = null;
+            if (normalizedRole.Contains("Manager", StringComparison.OrdinalIgnoreCase))
+            {
+                var domain = cleanEmail.Split('@').LastOrDefault()?.ToLower() ?? "pharmacy.com";
+                var matchingPharmacy = await _context.Pharmacies.FirstOrDefaultAsync(p => p.Domain != null && p.Domain.ToLower() == domain);
+                if (matchingPharmacy == null)
+                {
+                    matchingPharmacy = new Pharmacy
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = (char.ToUpper(domain[0]) + domain.Substring(1).Replace(".com", "")) + " Pharmacy",
+                        LicenseNumber = "MG-" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                        Domain = domain,
+                        Address = model.DeliveryAddress ?? "12/A Medical District, Dhanmondi",
+                        City = "Dhaka",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Pharmacies.Add(matchingPharmacy);
+                    await _context.SaveChangesAsync();
+                }
+                pharmacyId = matchingPharmacy.Id;
+            }
+
             var user = new ApplicationUser
             {
                 UserName = cleanEmail,
@@ -92,6 +115,7 @@ namespace MediGuard.Controllers
                 FullName = (model.FullName ?? string.Empty).Trim(),
                 PhoneNumber = model.PhoneNumber?.Trim(),
                 PersonalInfoNote = model.DeliveryAddress?.Trim(),
+                PharmacyId = pharmacyId,
                 Role = normalizedRole,
                 IsActive = true,
                 EmailConfirmed = true,
@@ -117,6 +141,10 @@ namespace MediGuard.Controllers
                 await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, additionalClaims);
 
                 TempData["SuccessMessage"] = "Welcome to MediGuard! Your account has been created successfully.";
+                if (normalizedRole.Contains("Manager", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
                 return RedirectToAction("UserProfile", "Account");
             }
 
@@ -219,13 +247,28 @@ namespace MediGuard.Controllers
                 primaryRole = "Customer";
             }
 
-            // Server-Side Guard on Login: Manager Email Domain Check
-            if (primaryRole.Contains("Manager", StringComparison.OrdinalIgnoreCase) && user.Pharmacy != null)
+            // Server-Side Guard on Login: Manager Email Domain Check & Pharmacy Context
+            if (primaryRole.Contains("Manager", StringComparison.OrdinalIgnoreCase))
             {
-                string pharmacyDomain = user.Pharmacy.Domain ?? string.Empty;
-                if (!string.IsNullOrEmpty(pharmacyDomain))
+                var domain = cleanEmail.Split('@').LastOrDefault()?.ToLower();
+                if (user.PharmacyId == null || user.Pharmacy == null)
                 {
-                    string cleanDomain = pharmacyDomain.TrimStart('@').ToLower();
+                    var matchingPharmacy = await _context.Pharmacies.FirstOrDefaultAsync(p => p.Domain != null && p.Domain.ToLower() == domain);
+                    if (matchingPharmacy == null)
+                    {
+                        matchingPharmacy = await _context.Pharmacies.FirstOrDefaultAsync();
+                    }
+                    if (matchingPharmacy != null)
+                    {
+                        user.PharmacyId = matchingPharmacy.Id;
+                        user.Pharmacy = matchingPharmacy;
+                        await _userManager.UpdateAsync(user);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(user.Pharmacy.Domain) &&
+                         !string.Equals(user.Pharmacy.Domain, "mediguard.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    string cleanDomain = user.Pharmacy.Domain.TrimStart('@').ToLower();
                     if (!user.Email!.EndsWith("@" + cleanDomain, StringComparison.OrdinalIgnoreCase))
                     {
                         ModelState.AddModelError(string.Empty, $"Manager email domain does not match registered pharmacy domain (@{cleanDomain}).");
@@ -253,6 +296,12 @@ namespace MediGuard.Controllers
                 return RedirectToAction("UserProfile", "Account");
             }
 
+            if (string.Equals(primaryRole, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(primaryRole, "Manager", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -276,20 +325,88 @@ namespace MediGuard.Controllers
                 return RedirectToAction("Login");
             }
 
+            // If user is a Pharmacy Manager, redirect to Pharmacy Manager Dashboard
+            if (string.Equals(user.Role, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(user.Role, "Manager", StringComparison.OrdinalIgnoreCase) ||
+                User.IsInRole("Pharmacy Manager") || User.IsInRole("Manager"))
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+
             var orders = await _context.Orders
                 .Include(o => o.Pharmacy)
+                .Include(o => o.AssignedDeliveryman)
+                .Include(o => o.Deliveryman)
                 .Include(o => o.OrderItems)
                 .Where(o => o.CustomerId == userId || o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
-                .Take(15)
+                .Take(20)
                 .ToListAsync();
 
             var prescriptions = await _context.Prescriptions
                 .Include(p => p.Order)
                 .Where(p => p.CustomerId == userId)
                 .OrderByDescending(p => p.CreatedAt)
-                .Take(15)
+                .Take(20)
                 .ToListAsync();
+
+            // Build Live Notifications
+            var notifications = new List<CustomerNotificationItemDto>();
+
+            foreach (var order in orders.Take(3))
+            {
+                string statusText = order.DeliveryStatus switch
+                {
+                    "IN_TRANSIT" => "Your order is out for delivery with our courier.",
+                    "DONE" or "COMPLETED" => "Your order was successfully delivered. Thank you!",
+                    "PENDING" => "Your order has been received and is being prepared.",
+                    _ => $"Order status: {order.DeliveryStatus}"
+                };
+
+                notifications.Add(new CustomerNotificationItemDto
+                {
+                    Title = $"Order #{order.OrderNumber}",
+                    Message = statusText,
+                    Type = "ORDER",
+                    TimeAgo = (DateTime.UtcNow - order.CreatedAt).TotalHours < 1 ? "Recent" : $"{Math.Max(1, (int)(DateTime.UtcNow - order.CreatedAt).TotalHours)}h ago",
+                    IconClass = "bi-truck",
+                    BadgeClass = "bg-primary",
+                    ActionUrl = $"/Checkout/Confirmation?orderId={order.Id}"
+                });
+            }
+
+            foreach (var rx in prescriptions.Take(2))
+            {
+                string rxTitle = rx.Status switch
+                {
+                    "APPROVED" => "Prescription Verified",
+                    "REJECTED" => "Prescription Action Required",
+                    _ => "Prescription In Review"
+                };
+
+                notifications.Add(new CustomerNotificationItemDto
+                {
+                    Title = rxTitle,
+                    Message = rx.Status == "REJECTED" ? (rx.RejectionReason ?? "Prescription rejected by pharmacist.") : "Your uploaded prescription was reviewed.",
+                    Type = "PRESCRIPTION",
+                    TimeAgo = (DateTime.UtcNow - rx.CreatedAt).TotalHours < 1 ? "Recent" : $"{Math.Max(1, (int)(DateTime.UtcNow - rx.CreatedAt).TotalHours)}h ago",
+                    IconClass = "bi-file-medical",
+                    BadgeClass = rx.Status == "APPROVED" ? "bg-success" : (rx.Status == "REJECTED" ? "bg-danger" : "bg-warning text-dark"),
+                    ActionUrl = "#prescriptions"
+                });
+            }
+
+            // Promotional alert
+            notifications.Add(new CustomerNotificationItemDto
+            {
+                Title = "Special Offer: 10% Off Healthcare Essentials",
+                Message = "Use code HEALTHGUARD at checkout for instant discount on OTC medicines.",
+                Type = "PROMO",
+                TimeAgo = "Ongoing",
+                IconClass = "bi-tag-fill",
+                BadgeClass = "bg-info text-dark",
+                ActionUrl = "/Storefront"
+            });
 
             var model = new CustomerProfileViewModel
             {
@@ -299,7 +416,10 @@ namespace MediGuard.Controllers
                 ActiveOrdersCount = orders.Count(o => o.DeliveryStatus == "IN_TRANSIT" || o.DeliveryStatus == "PENDING" || o.Status == "IN_TRANSIT"),
                 TotalOrdersCount = orders.Count,
                 PendingPrescriptionsCount = prescriptions.Count(p => p.Status == "PENDING_VERIFICATION" || p.Status == "PENDING"),
-                DeliveryAddress = user.PersonalInfoNote
+                DeliveryAddress = user.DeliveryAddress,
+                EmergencyContact = user.EmergencyContact,
+                SavedPaymentMethods = user.SavedPaymentMethods,
+                Notifications = notifications
             };
 
             return View(model);
@@ -309,7 +429,7 @@ namespace MediGuard.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(string fullName, string phoneNumber, string deliveryAddress)
+        public async Task<IActionResult> UpdateProfile(string fullName, string phoneNumber, string deliveryAddress, string emergencyContact)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
@@ -326,10 +446,129 @@ namespace MediGuard.Controllers
                 }
 
                 user.PhoneNumber = phoneNumber?.Trim();
-                user.PersonalInfoNote = deliveryAddress?.Trim();
+                user.DeliveryAddress = deliveryAddress?.Trim();
+                user.EmergencyContact = emergencyContact?.Trim();
 
                 await _userManager.UpdateAsync(user);
                 TempData["SuccessMessage"] = "Your profile details have been updated successfully.";
+            }
+
+            return RedirectToAction("UserProfile");
+        }
+
+        // POST: /Account/UploadProfileImage
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadProfileImage(Microsoft.AspNetCore.Http.IFormFile? profilePhoto)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login");
+
+            if (profilePhoto == null || profilePhoto.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Please select an image file to upload.";
+                return RedirectToAction("UserProfile");
+            }
+
+            var allowedExts = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = System.IO.Path.GetExtension(profilePhoto.FileName).ToLowerInvariant();
+            if (!allowedExts.Contains(ext))
+            {
+                TempData["ErrorMessage"] = "Only JPG, PNG, or WEBP images are allowed.";
+                return RedirectToAction("UserProfile");
+            }
+
+            var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
+            if (!System.IO.Directory.Exists(uploadsFolder))
+            {
+                System.IO.Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var fileName = $"{userId}_{Guid.NewGuid():N}{ext}";
+            var filePath = System.IO.Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+            {
+                await profilePhoto.CopyToAsync(stream);
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null)
+            {
+                user.ProfileImageUrl = $"/uploads/avatars/{fileName}";
+                await _userManager.UpdateAsync(user);
+                TempData["SuccessMessage"] = "Profile image updated successfully.";
+            }
+
+            return RedirectToAction(string.Equals(user?.Role, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ? "Index" : "UserProfile", string.Equals(user?.Role, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ? "Dashboard" : "Account");
+        }
+
+        // POST: /Account/DeleteProfileImage
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProfileImage()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null)
+            {
+                user.ProfileImageUrl = null;
+                await _userManager.UpdateAsync(user);
+                TempData["SuccessMessage"] = "Profile photo removed.";
+            }
+
+            return RedirectToAction(string.Equals(user?.Role, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ? "Index" : "UserProfile", string.Equals(user?.Role, "Pharmacy Manager", StringComparison.OrdinalIgnoreCase) ? "Dashboard" : "Account");
+        }
+
+        // POST: /Account/SavePaymentMethod
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SavePaymentMethod(string type, string title, string accountNumber, string? expiry)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null && !string.IsNullOrWhiteSpace(accountNumber))
+            {
+                var methods = user.SavedPaymentMethods;
+                methods.Add(new SavedPaymentMethodDto
+                {
+                    Type = (type ?? "CARD").ToUpperInvariant(),
+                    Title = string.IsNullOrWhiteSpace(title) ? (type ?? "Payment Method") : title.Trim(),
+                    AccountNumber = accountNumber.Trim(),
+                    Expiry = expiry?.Trim()
+                });
+                user.SavedPaymentMethods = methods;
+                await _userManager.UpdateAsync(user);
+                TempData["SuccessMessage"] = "Payment method saved successfully.";
+            }
+
+            return RedirectToAction("UserProfile");
+        }
+
+        // POST: /Account/DeletePaymentMethod
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePaymentMethod(string id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null && !string.IsNullOrWhiteSpace(id))
+            {
+                var methods = user.SavedPaymentMethods;
+                methods.RemoveAll(m => m.Id == id);
+                user.SavedPaymentMethods = methods;
+                await _userManager.UpdateAsync(user);
+                TempData["SuccessMessage"] = "Saved payment method removed.";
             }
 
             return RedirectToAction("UserProfile");
