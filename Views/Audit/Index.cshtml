@@ -141,46 +141,66 @@
     <div class="audit-heading d-flex flex-wrap
                 justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h1 class="h3 fw-bold mb-1">Audit Logs</h1>
+            <h1 class="h3 fw-bold mb-1">
+                <i class="bi bi-shield-check text-teal me-2"></i>Audit Logs & Activity Reports
+            </h1>
             <p class="text-muted mb-0">
-                Review system activities and data changes
-                within your pharmacy.
+                Track security events, state changes, and staff operations in <strong>@Model.PharmacyName</strong>.
             </p>
         </div>
 
-        <button type="button"
-                class="btn btn-outline-secondary"
-                id="resetAuditFilters">
-            Reset filters
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <a asp-controller="Audit"
+               asp-action="ExportCsv"
+               asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+               asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+               asp-route-userId="@Model.SelectedUserId"
+               asp-route-actionType="@Model.SelectedAction"
+               asp-route-searchTerm="@Model.SearchTerm"
+               class="btn btn-outline-success d-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>Export Report (CSV)</span>
+            </a>
+
+            <button type="button"
+                    class="btn btn-outline-secondary shadow-sm"
+                    id="resetAuditFilters">
+                Reset filters
+            </button>
+        </div>
     </div>
 
     <div class="row g-3 mb-4">
         <div class="col-12 col-md-4">
             <div class="audit-stat-card">
-                <div class="audit-stat-label">Matching entries</div>
+                <div class="audit-stat-label">Total matching logs</div>
                 <div class="audit-stat-value" id="auditEntryCount">
                     @Model.Entries.Count
                 </div>
+                <div class="small text-muted mt-1">Filtered database records</div>
             </div>
         </div>
 
         <div class="col-12 col-md-4">
             <div class="audit-stat-card">
-                <div class="audit-stat-label">Action types</div>
-                <div class="audit-stat-value">3</div>
-                <div class="small text-muted">INSERT · UPDATE · DELETE</div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4">
-            <div class="audit-stat-card">
-                <div class="audit-stat-label">Access scope</div>
-                <div class="audit-stat-value fs-5">
-                    Pharmacy tenant
+                <div class="audit-stat-label">Mutations Breakdown</div>
+                <div class="d-flex align-items-center gap-2 mt-2">
+                    <span class="badge bg-success-subtle text-success fs-6 px-2 py-1">@Model.InsertCount Created</span>
+                    <span class="badge bg-primary-subtle text-primary fs-6 px-2 py-1">@Model.UpdateCount Updated</span>
+                    <span class="badge bg-danger-subtle text-danger fs-6 px-2 py-1">@Model.DeleteCount Deleted</span>
                 </div>
-                <div class="small text-muted">
-                    Server-side authorization required
+                <div class="small text-muted mt-2">INSERT · UPDATE · DELETE actions</div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="audit-stat-card">
+                <div class="audit-stat-label">Access & Compliance Scope</div>
+                <div class="audit-stat-value fs-5 text-truncate" title="@Model.PharmacyName">
+                    @Model.PharmacyName
+                </div>
+                <div class="small text-muted mt-1">
+                    <i class="bi bi-lock-fill text-success me-1"></i>Strict Tenant RBAC Isolated
                 </div>
             </div>
         </div>
@@ -188,9 +208,9 @@
 
     <section class="card border-0 shadow-sm audit-panel">
         <div class="card-header bg-white border-0 pt-4 px-4">
-            <h2 class="h5 mb-1">Activity history</h2>
+            <h2 class="h5 mb-1">Activity History & Filters</h2>
             <p class="text-muted small mb-0">
-                Filter and inspect recorded system changes.
+                Filter and inspect recorded system changes by date, actor, action, or module.
             </p>
         </div>
 
@@ -201,7 +221,7 @@
                   id="auditFilterForm">
 
                 <div class="row g-3 align-items-end">
-                    <div class="col-12 col-md-6 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-2">
                         <label for="startDate"
                                class="form-label fw-semibold">
                             From date
@@ -213,7 +233,7 @@
                                value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
                     </div>
 
-                    <div class="col-12 col-md-6 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-2">
                         <label for="endDate"
                                class="form-label fw-semibold">
                             To date
@@ -244,7 +264,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-6 col-xl-3">
+                    <div class="col-12 col-md-6 col-xl-2">
                         <label for="actionType"
                                class="form-label fw-semibold">
                             Action type
@@ -255,22 +275,35 @@
                             <option value="">All actions</option>
                             <option value="INSERT"
                                 selected="@(Model.SelectedAction == "INSERT")">
-                                INSERT
+                                INSERT / CREATE
                             </option>
                             <option value="UPDATE"
                                 selected="@(Model.SelectedAction == "UPDATE")">
-                                UPDATE
+                                UPDATE / EDIT
                             </option>
                             <option value="DELETE"
                                 selected="@(Model.SelectedAction == "DELETE")">
-                                DELETE
+                                DELETE / REMOVE
                             </option>
                         </select>
                     </div>
 
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">
-                            Apply filters
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label for="searchTerm"
+                               class="form-label fw-semibold">
+                            Search / Entity
+                        </label>
+                        <input type="text"
+                               id="searchTerm"
+                               name="searchTerm"
+                               class="form-control"
+                               placeholder="e.g. Medicine, Order, IP..."
+                               value="@Model.SearchTerm" />
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-funnel me-1"></i> Apply filters
                         </button>
                     </div>
                 </div>

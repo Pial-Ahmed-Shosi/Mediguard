@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 
@@ -11,12 +11,18 @@ namespace MediGuard.Models.ViewModels
 
         public string? SelectedUserId { get; set; }
         public string? SelectedAction { get; set; }
+        public string? SearchTerm { get; set; }
+        public string PharmacyName { get; set; } = string.Empty;
 
         public List<AuditUserOptionViewModel> Users { get; set; }
             = new();
 
         public List<AuditLogEntryViewModel> Entries { get; set; }
             = new();
+
+        public int InsertCount => Entries.Count(e => e.ActionType.Contains("INSERT") || e.ActionType.Contains("CREATE"));
+        public int UpdateCount => Entries.Count(e => e.ActionType.Contains("UPDATE") || e.ActionType.Contains("EDIT"));
+        public int DeleteCount => Entries.Count(e => e.ActionType.Contains("DELETE") || e.ActionType.Contains("REMOVE"));
     }
 
     public class AuditUserOptionViewModel

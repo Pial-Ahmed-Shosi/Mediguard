@@ -1,4 +1,4 @@
-﻿
+
 (() => {
     "use strict";
 
@@ -63,9 +63,15 @@
 
     
 function highlightJson(json) {
-    const escaped = escapeHtml(json);
+    if (!json) return "";
 
-    return escaped.replace(
+    // Escape HTML delimiters to prevent XSS, but preserve quotes for JSON regex tokenization
+    const safe = String(json)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    return safe.replace(
         /("(?:\\.|[^"\\])*"(?=\s*:)|"(?:\\.|[^"\\])*")|(-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b)|\b(true|false|null)\b/g,
         (token, stringToken, numberToken, literalToken, offset, whole) => {
             let className = "json-string";

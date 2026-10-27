@@ -10,7 +10,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using MediGuard.Data;
 using MediGuard.Models;
 using MediGuard.Services;
 
@@ -32,6 +35,7 @@ namespace MediGuard.Filters
     {
         private readonly IAuditLogService _auditLogService;
         private readonly ILogger<AuditLoggingFilter> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         private static readonly HashSet<string> MutationMethods = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -43,10 +47,12 @@ namespace MediGuard.Filters
 
         public AuditLoggingFilter(
             IAuditLogService auditLogService,
-            ILogger<AuditLoggingFilter> logger)
+            ILogger<AuditLoggingFilter> logger,
+            IServiceScopeFactory scopeFactory)
         {
             _auditLogService = auditLogService;
             _logger = logger;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -139,6 +145,38 @@ namespace MediGuard.Filters
                 }
             }
 
+            // Fallback: Check user's pharmacy or active pharmacy from DB so no mutations are dropped
+            if (!pharmacyId.HasValue || pharmacyId.Value == Guid.Empty)
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                        if (user?.PharmacyId != null && user.PharmacyId != Guid.Empty)
+                        {
+                            pharmacyId = user.PharmacyId;
+                        }
+                    }
+
+                    if (!pharmacyId.HasValue || pharmacyId.Value == Guid.Empty)
+                    {
+                        var defaultPharmacyId = await db.Pharmacies.AsNoTracking().Select(p => p.Id).FirstOrDefaultAsync();
+                        if (defaultPharmacyId != Guid.Empty)
+                        {
+                            pharmacyId = defaultPharmacyId;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to resolve fallback PharmacyId for audit logging.");
+                }
+            }
+
             // AuditLog requires a valid non-empty foreign key referencing Pharmacy
             if (!pharmacyId.HasValue || pharmacyId.Value == Guid.Empty)
             {
@@ -185,12 +223,21 @@ namespace MediGuard.Filters
 
             string actionPrefix = verb switch
             {
-                "CREATE" or "POST" => "CREATE",
-                "EDIT" or "UPDATE" or "PUT" => "UPDATE",
-                "DELETE" or "REMOVE" => "DELETE",
+                "CREATE" or "POST" or "ADD" or "INSERT" => "INSERT",
+                "EDIT" or "UPDATE" or "PUT" or "SAVE" => "UPDATE",
+                "DELETE" or "REMOVE" or "DESTROY" => "DELETE",
                 "DISPOSE" => "DISPOSE",
                 "PATCH" => "PATCH",
-                _ => verb
+                _ => verb.StartsWith("CREATE") || verb.StartsWith("INSERT") || verb.StartsWith("ADD") ? "INSERT" :
+                     verb.StartsWith("EDIT") || verb.StartsWith("UPDATE") || verb.StartsWith("PUT") ? "UPDATE" :
+                     verb.StartsWith("DELETE") || verb.StartsWith("REMOVE") ? "DELETE" :
+                     method switch
+                     {
+                         "POST" => "INSERT",
+                         "PUT" or "PATCH" => "UPDATE",
+                         "DELETE" => "DELETE",
+                         _ => verb
+                     }
             };
 
             string result = $"{actionPrefix}_{target}";
