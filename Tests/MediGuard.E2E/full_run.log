@@ -1,0 +1,27 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MediGuard.E2E -> c:\Users\Abdullah\OneDrive\Documents\1StudyMatz\TEST\Mediguard\Mediguard\Mediguard\Tests\MediGuard.E2E\bin\Debug\net10.0\MediGuard.E2E.dll
+Test run for c:\Users\Abdullah\OneDrive\Documents\1StudyMatz\TEST\Mediguard\Mediguard\Mediguard\Tests\MediGuard.E2E\bin\Debug\net10.0\MediGuard.E2E.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.19]   Discovering: MediGuard.E2E
+[xUnit.net 00:00:00.28]   Discovered:  MediGuard.E2E
+[xUnit.net 00:00:00.34]   Starting:    MediGuard.E2E
+  Passed MediGuard.E2E.Tests.AccessControlTests.ProtectedPage_RedirectsAnonymousToLogin(path: "/Prescription/MyPrescriptions") [2 s]
+  Passed MediGuard.E2E.Tests.AccessControlTests.ProtectedPage_RedirectsAnonymousToLogin(path: "/Cart") [2 s]
+  Passed MediGuard.E2E.Tests.AccessControlTests.ProtectedPage_RedirectsAnonymousToLogin(path: "/Dashboard") [2 s]
+  Passed MediGuard.E2E.Tests.AccessControlTests.Storefront_IsPubliclyAccessible [2 s]
+  Passed MediGuard.E2E.Tests.PharmacyApprovalTests.AdminApprovesApplication_ManagerCanSignInAndReachesDashboard [41 s]
+  Passed MediGuard.E2E.Tests.LoginTests.Login_AdminLandsOnDashboard [6 s]
+  Passed MediGuard.E2E.Tests.LoginTests.RegisterPharmacy_ThenLogin_IsBlockedUntilApproved [9 s]
+  Passed MediGuard.E2E.Tests.LoginTests.Login_WrongPassword_IsRejected [3 s]
+  Passed MediGuard.E2E.Tests.LoginTests.Login_ManagerLandsOnDashboard [10 s]
+  Passed MediGuard.E2E.Tests.LoginTests.Login_CustomerWithValidCredentials_LandsOnStorefront [6 s]
+  Passed MediGuard.E2E.Tests.PrescriptionFlowTests.MyPrescriptions_PageLoadsForSignedInCustomer [6 s]
+  Passed MediGuard.E2E.Tests.PrescriptionFlowTests.AddingPrescriptionMedicine_FlagsCheckoutAsRequiringVerification [20 s]
+  Passed MediGuard.E2E.Tests.ShoppingCheckoutTests.AddToCart_ThenCheckout_ConfirmationFlow_Completes [24 s]
+  Passed MediGuard.E2E.Tests.ShoppingCheckoutTests.Search_KnownMedicine_ReturnsMatchingProducts [7 s]
+  Passed MediGuard.E2E.Tests.ShoppingCheckoutTests.Checkout_CashOnDelivery_OptionIsSelectable [26 s]
+  Passed MediGuard.E2E.Tests.ShoppingCheckoutTests.Search_UnknownTerm_ShowsEmptyState [6 s]
+  Passed MediGuard.E2E.Tests.PaymentGatewayTests.WalletPayment_bKash_SettlesPaidWithGatewayReference [24 s]
+Attempting to cancel the build...
