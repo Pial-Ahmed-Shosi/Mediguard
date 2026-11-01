@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Do not emit the native (unsigned) apphost MediGuard.exe: Windows Smart App Control blocks
+         it as an unreputable binary. Without it, `dotnet run`/F5 start the app through the signed
+         dotnet.exe host, which the policy allows. -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,4 +23,22 @@
     <Folder Include="Views\Prescription\" />
   </ItemGroup>
 
+  <!-- Standalone dev utilities live in Tools\ and must not compile into the web app. -->
+
+  <!-- <ItemGroup>
+    <Compile Remove="Tools\**" />
+    <Content Remove="Tools\**" />
+    <None Remove="Tools\**" />
+  </ItemGroup> -->
+
+  <ItemGroup>
+    <Compile Remove="Tools\**" />
+    <Content Remove="Tools\**" />
+    <None Remove="Tools\**" />
+    <Compile Remove="Tests\**" />
+    <Content Remove="Tests\**" />
+    <None Remove="Tests\**" />
+  </ItemGroup>
+
 </Project>
+
